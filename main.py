@@ -120,7 +120,7 @@ async def job_analysis(req: KundliRequest):
         # 4. Call AI Service
         from ai_service import AIService
         # OpenRouter Key from the user
-        api_key = "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"
+        api_key = "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"
         ai = AIService(api_key)
         
         analysis = ai.generate_job_analysis(prompt_data)
