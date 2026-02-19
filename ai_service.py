@@ -9,11 +9,14 @@ class AIService:
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://astrojob.onrender.com",
+            "HTTP-Referer": "https://astrojob.onrender.com", # Optional, for OpenRouter analytics
             "X-Title": "AstroJob Nadi Engine"
         }
 
     def generate_job_analysis(self, prompt_data):
+        """
+        Generates a job analysis using OpenRouter.
+        """
         prompt = self._build_job_prompt(prompt_data)
         
         payload = {
@@ -26,6 +29,7 @@ class AIService:
 
         response = None
         try:
+            # Add a 30 second timeout
             response = requests.post(self.base_url, headers=self.headers, data=json.dumps(payload), timeout=30)
             response.raise_for_status()
             result = response.json()
@@ -34,7 +38,10 @@ class AIService:
                 return {"error": f"AI provider returned no choices. Status: {response.status_code}"}
                 
             content = result['choices'][0]['message']['content']
+            
+            # Clean content in case of markdown blocks
             content = content.replace('```json', '').replace('```', '').strip()
+            
             return json.loads(content)
         except requests.exceptions.Timeout:
             return {"error": "Request to AI service timed out. Please try again."}
@@ -43,25 +50,31 @@ class AIService:
             return {"error": f"AI Error: {str(e)}", "details": details}
 
     def _build_job_prompt(self, data):
+        c6 = data['csl6']
+        c10 = data['csl10']
+        others = ", ".join(data['others'])
+
         return f"""
-Analyze the Job/Business potential for a native based on the 6th and 10th House Cuspal Sublords (CSL).
+You are a 'Gold Nadi' Professional Consultant. Analyze the native's career potential based on their 6th and 10th Cuspal Sublords (CSL) and supporting planets.
 
-Astrological Data:
-Cuspal Sublords:
-- 6th CSL: {data['csl6']['planet']} (PL: {data['csl6']['pl']}, NL: {data['csl6']['nl']}, SL: {data['csl6']['sl']})
-- 10th CSL: {data['csl10']['planet']} (PL: {data['csl10']['pl']}, NL: {data['csl10']['nl']}, SL: {data['csl10']['sl']})
+PRIMARY DATA:
+- 6th CSL (Service/Effort): {c6['planet']} (Success: {c6['prediction']['success_rate']}, Income: {c6['prediction']['income_expenses']['good']})
+- 10th CSL (Authority/Fame): {c10['planet']} (Success: {c10['prediction']['success_rate']}, Income: {c10['prediction']['income_expenses']['good']})
 
-Nadi Rules: (PL 20%, NL 30%, SL 50%). 
-Hit Theory Houses for Success Rate: (Good: 2,6,7,10,11. Bad: 5,8,12).
+SUPPORTING STRENGTHS:
+Strong Supporting Planets: {others}
 
-Please provide result in JSON:
-"prediction": {{
-    "csl6_analysis": "string",
-    "csl10_analysis": "string",
-    "overall_combination": "list",
-    "income_expenses": "Very High/High/Medium/Low",
-    "success_rate": "Excellent/High/Medium/Low/Bad/Very Bad",
-    "area_of_job": "list",
-    "remedies": "list"
+CONSULTING RULES:
+1. Identify if the native is better suited for Job (6, 10, 11) or Business (2, 7, 10, 11).
+2. Look for "Hit Houses" in the combination to suggest specific fields (e.g., 2=Finance, 10=Govt, 3=Media).
+3. Provide a professional, encouraging yet realistic tone.
+
+RETURN JSON EXACTLY:
+{{
+"summary": {{
+    "executive_view": "One powerful paragraph summarizing overall professional strength.",
+    "top_recommendations": ["Concise Field 1", "Concise Field 2"],
+    "personal_mastery": ["One actionable master tip"]
+}}
 }}
 """

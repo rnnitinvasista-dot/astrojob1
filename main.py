@@ -10,7 +10,28 @@ import os
 import traceback
 from nadi_core import NadiEngine
 
-app = FastAPI(title="Nadi Precision Engine V5")
+# PDF Page 9: Hit Theory (Power Position) Success Rate Matrix
+# Rows: NL House (1-12), Columns: SL House (1-12)
+HIT_MATRIX = {
+    1:  ["M", "M", "M", "M", "M", "M", "M", "L", "M", "H", "H", "B*"],
+    2:  ["H", "H", "M", "H", "H", "E", "H", "M", "H", "H", "E", "M"],
+    3:  ["L", "M", "M", "M", "M", "M", "M", "L", "M", "H", "H", "B*"],
+    4:  ["M", "H", "M", "M", "M", "H", "H", "M", "M", "H", "H", "B*"],
+    5:  ["M", "M", "M", "M", "M", "M", "M", "B*", "M", "M", "M", "VB*"],
+    6:  ["H", "E", "H", "H", "H", "E", "E", "M", "H", "E", "E", "M"],
+    7:  ["H", "H", "H", "H", "H", "E", "H", "M", "H", "H", "E", "M"],
+    8:  ["L", "M", "L", "L", "B*", "M", "M", "B*", "L", "M", "M", "VB*"],
+    9:  ["M", "H", "M", "M", "M", "H", "H", "L", "H", "H", "H", "B*"],
+    10: ["H", "E", "H", "H", "H", "E", "H", "H", "E", "H", "E", "M"],
+    11: ["H", "E", "H", "H", "H", "E", "E", "H", "E", "E", "E", "M"],
+    12: ["VB*", "B*", "VB*", "VB*", "VB*", "B*", "B*", "VB*", "B*", "B*", "B*", "VB*"]
+}
+
+SUCCESS_LABELS = {
+    "E": "Excellent", "H": "High", "M": "Medium", "L": "Low", "B*": "Bad", "VB*": "Very Bad"
+}
+
+app = FastAPI(title="Nadi Precision Engine Gold")
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
@@ -91,62 +112,99 @@ async def job_analysis(req: KundliRequest):
         lat_val = float(req.birth_details.latitude)
         lon_val = float(req.birth_details.longitude)
         
-        # Use existing calculation logic
         request_engine = NadiEngine(node_type=req.calculation_settings.node_type, ayanamsa="Lahiri", house_system=req.calculation_settings.house_system)
         result = request_engine.calculate_kundli(dt_str, req.birth_details.timezone, lat_val, lon_val)
         
         if result.get("status") == "error":
             return result
+
+        # 2. Process ALL 9 Planets for Gold Nadi
+        planet_reports = []
+        for entry in result["nakshatra_nadi"]:
+            p_name = entry["planet"]
             
-        # 2. Identify 6th and 10th Cuspal Sublords
-        try:
-            csl6_name = next(h["sub_lord"] for h in result["houses"] if h["house_number"] == 6)
-            csl10_name = next(h["sub_lord"] for h in result["houses"] if h["house_number"] == 10)
-        except StopIteration:
-            return {"status": "error", "message": "Could not find 6th or 10th house sublords in calculation."}
-        
-        # 3. Extract Significations for these planets
-        def get_nadi_entry(p_name):
-            try:
-                entry = next(e for e in result["nakshatra_nadi"] if e["planet"] == p_name)
-                return {
-                    "planet": p_name,
-                    "pl": [s["house"] for s in entry["pl_signified"]],
-                    "nl": [s["house"] for s in entry["nl_signified"]],
-                    "sl": [s["house"] for s in entry["sl_signified"]]
-                }
-            except StopIteration:
+            # Significators
+            pl_houses = [s["house"] for s in entry["pl_signified"]]
+            nl_houses = [s["house"] for s in entry["nl_signified"]]
+            sl_houses = [s["house"] for s in entry["sl_signified"]]
+
+            # PDF Page 10 Categories
+            very_good = {2, 6, 7, 10, 11}
+            good = {1, 3, 4, 9}
+            bad = {5, 8, 12}
+
+            # Identify "Hits" for circling
+            # Rules: 11 is highest, then 6, 10, etc.
+            def get_hit_house(houses):
+                priority = [11, 2, 6, 7, 10, 9, 3, 4, 1, 8, 5, 12]
+                for h in priority:
+                    if h in houses: return h
                 return None
 
-        csl6_data = get_nadi_entry(csl6_name)
-        csl10_data = get_nadi_entry(csl10_name)
-        
-        if not csl6_data or not csl10_data:
-            return {"status": "error", "message": f"Missing Nadi data for sublords {csl6_name} or {csl10_name}"}
+            pl_hit = get_hit_house(pl_houses)
+            nl_hit = get_hit_house(nl_houses)
+            sl_hit = get_hit_house(sl_houses)
 
-        prompt_data = {
-            "csl6": csl6_data,
-            "csl10": csl10_data
-        }
-        
-        # 4. Call AI Service
+            # Success Rate (Matrix 12x12)
+            # Use top house from NL and SL for matrix lookup
+            nl_matrix_h = nl_hit if nl_hit else 1
+            sl_matrix_h = sl_hit if sl_hit else 1
+            rate_code = HIT_MATRIX[nl_matrix_h][sl_matrix_h - 1]
+            success_rate = SUCCESS_LABELS.get(rate_code.replace("*", ""), "Medium")
+
+            # Bifurcated Combination
+            combo_all = sorted(list(set(pl_houses + nl_houses + sl_houses)))
+            prediction = {
+                "overall_combination": {
+                    "good": [h for h in combo_all if h in {2, 7, 11}],
+                    "medium": [h for h in combo_all if h in {1, 3, 4, 6}],
+                    "hit": [h for h in combo_all if h in {9, 10}],
+                    "bad": [h for h in combo_all if h in {5, 8, 12}]
+                },
+                "income_expenses": {
+                    "good": "Very High" if 11 in combo_all else "High" if 2 in combo_all else "Medium",
+                    "bad": "High Loss" if 12 in combo_all else "Medium Loss" if 8 in combo_all else "-"
+                },
+                "success_rate": success_rate,
+                "hits": {"pl": pl_hit, "nl": nl_hit, "sl": sl_hit}
+            }
+
+            planet_reports.append({
+                "planet": p_name,
+                "star_lord": entry["star_lord"],
+                "sub_lord": entry["sub_lord"],
+                "pl": pl_houses,
+                "nl": nl_houses,
+                "sl": sl_houses,
+                "prediction": prediction
+            })
+
+        # Identify 6th and 10th CSL for the "Top" focus
+        csl6_name = next(h["sub_lord"] for h in result["houses"] if h["house_number"] == 6)
+        csl10_name = next(h["sub_lord"] for h in result["houses"] if h["house_number"] == 10)
+
+        # 3. Call AI for overall executive summary
         from ai_service import AIService
-        # Get OpenRouter Key from Environment Variable (Security Best Practice)
         api_key = os.getenv("OPENROUTER_API_KEY")
-        if not api_key:
-            return {"status": "error", "message": "API Key not found. Please set OPENROUTER_API_KEY in Render environment variables."}
-            
-        ai = AIService(api_key)
         
-        analysis = ai.generate_job_analysis(prompt_data)
-        
-        if "error" in analysis:
-            return {"status": "error", "message": f"AI Generation Failed: {analysis['error']}"}
-            
+        analysis_summary = "AI Summary Unavailable (No Key)"
+        if api_key:
+            ai = AIService(api_key)
+            # Send just the 6/10 plus some context to the AI
+            brief_data = {
+                "csl6": next(r for r in planet_reports if r["planet"] == csl6_name),
+                "csl10": next(r for r in planet_reports if r["planet"] == csl10_name),
+                "others": [r["planet"] for r in planet_reports if r["prediction"]["success_rate"] in ["Excellent", "High"]]
+            }
+            analysis_result = ai.generate_job_analysis(brief_data)
+            if "error" not in analysis_result:
+                analysis_summary = analysis_result
+
         return {
             "status": "success",
-            "csl_details": prompt_data,
-            "analysis": analysis
+            "csl_focus": {"csl6": csl6_name, "csl10": csl10_name},
+            "reports": planet_reports,
+            "ai_summary": analysis_summary
         }
         
     except Exception as e:
@@ -183,5 +241,4 @@ async def health_ai():
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
 
