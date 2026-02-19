@@ -20,22 +20,33 @@ class AIService:
         prompt = self._build_job_prompt(prompt_data)
         
         payload = {
-            "model": "google/gemini-2.0-flash-001", # High performance, stable
+            "model": "google/gemini-flash-1.5", # More stable for JSON mode across providers
             "messages": [
-                {"role": "system", "content": "You are an expert Nadi Astrologer. Analyze the astrological data based strictly on the provided Nadi rules."},
+                {"role": "system", "content": "You are an expert Nadi Astrologer. Analyze the astrological data based strictly on the provided Nadi rules. Always return valid JSON."},
                 {"role": "user", "content": prompt}
             ],
             "response_format": { "type": "json_object" }
         }
 
         try:
-            response = requests.post(self.base_url, headers=self.headers, data=json.dumps(payload))
+            # Add a 30 second timeout
+            response = requests.post(self.base_url, headers=self.headers, data=json.dumps(payload), timeout=30)
             response.raise_for_status()
             result = response.json()
+            
+            if 'choices' not in result or len(result['choices']) == 0:
+                return {"error": "AI provider returned no choices. Check OpenRouter logs."}
+                
             content = result['choices'][0]['message']['content']
+            
+            # Clean content in case of markdown blocks
+            content = content.replace('```json', '').replace('```', '').strip()
+            
             return json.loads(content)
+        except requests.exceptions.Timeout:
+            return {"error": "Request to AI service timed out. Please try again."}
         except Exception as e:
-            return {"error": str(e), "raw_response": response.text if 'response' in locals() else None}
+            return {"error": f"AI Error: {str(e)}", "details": response.text if 'response' in locals() else None}
 
     def _build_job_prompt(self, data):
         return f"""

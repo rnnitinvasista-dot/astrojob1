@@ -125,6 +125,9 @@ async def job_analysis(req: KundliRequest):
         
         analysis = ai.generate_job_analysis(prompt_data)
         
+        if "error" in analysis:
+            return {"status": "error", "message": f"AI Generation Failed: {analysis['error']}"}
+            
         return {
             "status": "success",
             "csl_details": prompt_data,
