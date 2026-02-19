@@ -23,9 +23,9 @@ COPY . .
 # Expose port 8000
 EXPOSE 8000
 
-# Set Python path to ensure 'backend' can be seen as a package
-ENV PYTHONPATH=/app
+# Set PYTHONPATH to search both root and backend folder
+ENV PYTHONPATH=/app:/app/backend
 
 # Run the application
-# We use the full module path 'backend.main:app'
-CMD gunicorn backend.main:app -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+# We use 'main:app' which works for both root and /backend/ folder because of PYTHONPATH
+CMD gunicorn main:app -p 8000 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
