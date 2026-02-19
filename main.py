@@ -81,6 +81,59 @@ def generate_kundli(req: KundliRequest):
     except Exception as e:
         return {"status": "error", "message": f"Engine Error: {str(e)}"}
 
+@app.post("/api/v1/kp/job-analysis")
+async def job_analysis(req: KundliRequest):
+    try:
+        # 1. Get Base Kundli
+        dt_str = f"{req.birth_details.date_of_birth} {req.birth_details.time_of_birth}"
+        lat_val = float(req.birth_details.latitude)
+        lon_val = float(req.birth_details.longitude)
+        
+        # Use existing calculation logic
+        request_engine = NadiEngine(node_type=req.calculation_settings.node_type, ayanamsa="Lahiri", house_system=req.calculation_settings.house_system)
+        result = request_engine.calculate_kundli(dt_str, req.birth_details.timezone, lat_val, lon_val)
+        
+        if result.get("status") == "error":
+            return result
+            
+        # 2. Identify 6th and 10th Cuspal Sublords
+        # CSL is stored in the 'houses' array
+        csl6_name = next(h["sub_lord"] for h in result["houses"] if h["house_number"] == 6)
+        csl10_name = next(h["sub_lord"] for h in result["houses"] if h["house_number"] == 10)
+        
+        # 3. Extract Significations for these planets
+        # They are in 'nakshatra_nadi'
+        def get_nadi_entry(p_name):
+            entry = next(e for e in result["nakshatra_nadi"] if e["planet"] == p_name)
+            return {
+                "planet": p_name,
+                "pl": [s["house"] for s in entry["pl_signified"]],
+                "nl": [s["house"] for s in entry["nl_signified"]],
+                "sl": [s["house"] for s in entry["sl_signified"]]
+            }
+            
+        prompt_data = {
+            "csl6": get_nadi_entry(csl6_name),
+            "csl10": get_nadi_entry(csl10_name)
+        }
+        
+        # 4. Call AI Service
+        from ai_service import AIService
+        # OpenRouter Key from the user
+        api_key = "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"
+        ai = AIService(api_key)
+        
+        analysis = ai.generate_job_analysis(prompt_data)
+        
+        return {
+            "status": "success",
+            "csl_details": prompt_data,
+            "analysis": analysis
+        }
+        
+    except Exception as e:
+        return {"status": "error", "message": f"Analysis Error: {str(e)}"}
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
