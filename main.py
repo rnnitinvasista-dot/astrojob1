@@ -6,6 +6,8 @@ from typing import List, Optional, Dict, Set, Tuple, Union
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import json
+import os
+import traceback
 from nadi_core import NadiEngine
 
 app = FastAPI(title="Nadi Precision Engine V5")
@@ -97,30 +99,43 @@ async def job_analysis(req: KundliRequest):
             return result
             
         # 2. Identify 6th and 10th Cuspal Sublords
-        # CSL is stored in the 'houses' array
-        csl6_name = next(h["sub_lord"] for h in result["houses"] if h["house_number"] == 6)
-        csl10_name = next(h["sub_lord"] for h in result["houses"] if h["house_number"] == 10)
+        try:
+            csl6_name = next(h["sub_lord"] for h in result["houses"] if h["house_number"] == 6)
+            csl10_name = next(h["sub_lord"] for h in result["houses"] if h["house_number"] == 10)
+        except StopIteration:
+            return {"status": "error", "message": "Could not find 6th or 10th house sublords in calculation."}
         
         # 3. Extract Significations for these planets
-        # They are in 'nakshatra_nadi'
         def get_nadi_entry(p_name):
-            entry = next(e for e in result["nakshatra_nadi"] if e["planet"] == p_name)
-            return {
-                "planet": p_name,
-                "pl": [s["house"] for s in entry["pl_signified"]],
-                "nl": [s["house"] for s in entry["nl_signified"]],
-                "sl": [s["house"] for s in entry["sl_signified"]]
-            }
-            
+            try:
+                entry = next(e for e in result["nakshatra_nadi"] if e["planet"] == p_name)
+                return {
+                    "planet": p_name,
+                    "pl": [s["house"] for s in entry["pl_signified"]],
+                    "nl": [s["house"] for s in entry["nl_signified"]],
+                    "sl": [s["house"] for s in entry["sl_signified"]]
+                }
+            except StopIteration:
+                return None
+
+        csl6_data = get_nadi_entry(csl6_name)
+        csl10_data = get_nadi_entry(csl10_name)
+        
+        if not csl6_data or not csl10_data:
+            return {"status": "error", "message": f"Missing Nadi data for sublords {csl6_name} or {csl10_name}"}
+
         prompt_data = {
-            "csl6": get_nadi_entry(csl6_name),
-            "csl10": get_nadi_entry(csl10_name)
+            "csl6": csl6_data,
+            "csl10": csl10_data
         }
         
         # 4. Call AI Service
         from ai_service import AIService
-        # OpenRouter Key from the user
-        api_key = "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"
+        # Get OpenRouter Key from Environment Variable (Security Best Practice)
+        api_key = os.getenv("OPENROUTER_API_KEY")
+        if not api_key:
+            return {"status": "error", "message": "API Key not found. Please set OPENROUTER_API_KEY in Render environment variables."}
+            
         ai = AIService(api_key)
         
         analysis = ai.generate_job_analysis(prompt_data)
@@ -135,7 +150,9 @@ async def job_analysis(req: KundliRequest):
         }
         
     except Exception as e:
-        return {"status": "error", "message": f"Analysis Error: {str(e)}"}
+        error_msg = traceback.format_exc()
+        print(f"❌ Analysis Crash:\n{error_msg}")
+        return {"status": "error", "message": f"Server Crash: {str(e)}", "trace": error_msg if "localhost" in str(req) else None}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
