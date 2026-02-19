@@ -1,4 +1,39 @@
 
+# Gold Nadi Matrix & Constants
+HIT_MATRIX = {
+    1:  ["M", "M", "M", "M", "M", "M", "M", "L", "M", "H", "H", "B*"],
+    2:  ["H", "H", "M", "H", "H", "E", "H", "M", "H", "H", "E", "M"],
+    3:  ["L", "M", "M", "M", "M", "M", "M", "L", "M", "H", "H", "B*"],
+    4:  ["M", "H", "M", "M", "M", "H", "H", "M", "M", "H", "H", "B*"],
+    5:  ["M", "M", "M", "M", "M", "M", "M", "B*", "M", "M", "M", "VB*"],
+    6:  ["H", "E", "H", "H", "H", "E", "E", "M", "H", "E", "E", "M"],
+    7:  ["H", "H", "H", "H", "H", "E", "H", "M", "H", "H", "E", "M"],
+    8:  ["L", "M", "L", "L", "B*", "M", "M", "B*", "L", "M", "M", "VB*"],
+    9:  ["M", "H", "M", "M", "M", "H", "H", "L", "H", "H", "H", "B*"],
+    10: ["H", "E", "H", "H", "H", "E", "H", "H", "E", "H", "E", "M"],
+    11: ["H", "E", "H", "H", "H", "E", "E", "H", "E", "E", "E", "M"],
+    12: ["VB*", "B*", "VB*", "VB*", "VB*", "B*", "B*", "VB*", "B*", "B*", "B*", "VB*"]
+}
+
+SUCCESS_LABELS = {
+    "E": "Excellent", "H": "High", "M": "Medium", "L": "Low", "B*": "Bad", "VB*": "Very Bad"
+}
+
+HOUSE_JOB_AREAS = {
+    1: "Self-employment, Design, Personal Branding, Leadership",
+    2: "Finance, Banking, Asset Management, Family Business, Oratory",
+    3: "Media, Communication, Sales, Marketing, Writing, Short Travels",
+    4: "Real Estate, Vehicles, Agriculture, Education, Interior Design",
+    5: "Entertainment, Arts, Sports, Cinema, Speculation",
+    6: "Service Industry, Healthcare, Law, Competitive Roles, Auditing",
+    7: "Business, Partnerships, Retail, Public Relations, Stock Market",
+    8: "Research, Investigations, Legacy, Technical Work, Mystery, Deep Tech",
+    9: "Professor, Preacher, NGO's, Trusts, Old age homes, All type of Consultants, Tourism, Publication, Judges, Foreign travels, Immigration, Travel Job, Philosopher, Navy, Hospital Management.",
+    10: "Government job, Civil services, All type of Manager's, Any Authoritative role's, Private Sector, administrators, Politics, Corporate, CA's, MD, CEO's.",
+    11: "Innovation, Social Impact, Gains, Large Groups, Success",
+    12: "Foreign Ties, Investments, Social Service, Isolation Science"
+}
+
 import swisseph as swe
 import datetime
 import pytz

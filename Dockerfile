@@ -11,8 +11,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the requirements file into the container at /app
-# (This is now synced to the root)
-COPY requirements.txt .
+COPY backend/requirements.txt .
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
@@ -27,5 +26,4 @@ EXPOSE 8000
 ENV PYTHONPATH=/app:/app/backend
 
 # Run the application
-# We use 'main:app' which works for both root and /backend/ folder because of PYTHONPATH
-CMD gunicorn main:app -p 8000 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+CMD gunicorn backend.main:app --bind 0.0.0.0:$PORT -k uvicorn.workers.UvicornWorker
