@@ -376,12 +376,10 @@ class NadiEngine:
         
         # Significators using strict 4-level Logic
         significations_res = []
+        significations_res = []
         for p in planets_res:
             p_name = p["planet"]
-            if p_name in ["Rahu", "Ketu"]:
-                sigs_4 = self.get_node_significators(p_name, planet_res_map, house_owners)
-            else:
-                sigs_4 = self.calculate_kp_significators_4level(p_name, planet_res_map, house_owners)
+            sigs_4 = self.calculate_kp_significators_4level(p_name, planet_res_map, house_owners)
             
             # For backward compatibility in case frontend still uses old fields
             total_houses = sorted(list(set(sigs_4["L1"] + sigs_4["L2"] + sigs_4["L3"] + sigs_4["L4"])))
@@ -400,68 +398,30 @@ class NadiEngine:
             p_lon = next(raw["lon"] for raw in planets_raw if raw["planet"] == p_name)
             nak, sl_name, sub_name, pl_name, nadi, sub_idx, pl_idx = self.get_nadi_triple_combination(p_lon)
             
-            # 1. Planet's Own Houses (Level 2 in KP)
-            # For normal planets: Occ + Own
-            # For Rahu/Ketu: Occ + Conjunct Planets (No Own)
-            pl_detailed = self.get_eff_sigs_detailed(p_name, planet_res_map, house_owners, include_node_self=False)
-            
-            # 2. Star Lord's Houses (Level 1 in KP - Strongest)
-            # Star Lord is a planet, so we get its Occ + Own
-            nl_detailed = self.get_eff_sigs_detailed(sl_name, planet_res_map, house_owners, include_node_self=True)
-            # 1. Planet's Level (L1+L2 in KP)
-            # Use same logic as significator table
-            if p_name in ["Rahu", "Ketu"]:
-                sigs_4 = self.get_node_significators(p_name, planet_res_map, house_owners)
-            else:
-                sigs_4 = self.calculate_kp_significators_4level(p_name, planet_res_map, house_owners)
-            
-            # Combine L1 (Occ) and L2 (Occ) for the first row? 
-            # Standard Nadi shows PL = Planet's full significations.
-            pl_details = []
-            seen = set()
-            for h in sorted(sigs_4["L1"] + sigs_4["L2"]):
-                if h not in seen:
-                    # Mark as placed if it's in L1 or L2 (which are occupations)
-                    pl_details.append({"house": h, "is_placed": True})
-                    seen.add(h)
-            for h in sorted(sigs_4["L3"] + sigs_4["L4"]):
-                if h not in seen:
-                    pl_details.append({"house": h, "is_placed": False})
-                    seen.add(h)
+            # Helper to get PL row logic for any planet
+            def get_row_data(target_name):
+                if not target_name: return []
+                if target_name in ["Rahu", "Ketu"]:
+                    data = self.get_node_significators_detailed(target_name, planet_res_map, house_owners)
+                    occ_set = set(data['occupations'])
+                    own_set = set(data['ownerships'])
+                else:
+                    target_data = planet_res_map.get(target_name)
+                    if not target_data: return []
+                    occ_set = {int(target_data["house_placed"])}
+                    own_set = set([int(h) for h, owner in house_owners.items() if owner == target_name])
+                
+                res_details = []
+                for h in sorted(list(occ_set)):
+                    res_details.append({"house": h, "is_placed": True})
+                for h in sorted(list(own_set)):
+                    if h not in occ_set:
+                        res_details.append({"house": h, "is_placed": False})
+                return res_details
 
-            # 2. Star Lord Level
-            if sl_name in ["Rahu", "Ketu"]:
-                sl_sigs_4 = self.get_node_significators(sl_name, planet_res_map, house_owners)
-            else:
-                sl_sigs_4 = self.calculate_kp_significators_4level(sl_name, planet_res_map, house_owners)
-            
-            nl_details = []
-            seen_nl = set()
-            for h in sorted(sl_sigs_4["L1"] + sl_sigs_4["L2"]):
-                if h not in seen_nl:
-                    nl_details.append({"house": h, "is_placed": True})
-                    seen_nl.add(h)
-            for h in sorted(sl_sigs_4["L3"] + sl_sigs_4["L4"]):
-                if h not in seen_nl:
-                    nl_details.append({"house": h, "is_placed": False})
-                    seen_nl.add(h)
-
-            # 3. Sub Lord Level
-            if sub_name in ["Rahu", "Ketu"]:
-                sub_sigs_4 = self.get_node_significators(sub_name, planet_res_map, house_owners)
-            else:
-                sub_sigs_4 = self.calculate_kp_significators_4level(sub_name, planet_res_map, house_owners)
-            
-            sl_details = []
-            seen_sub = set()
-            for h in sorted(sub_sigs_4["L1"] + sub_sigs_4["L2"]):
-                if h not in seen_sub:
-                    sl_details.append({"house": h, "is_placed": True})
-                    seen_sub.add(h)
-            for h in sorted(sub_sigs_4["L3"] + sub_sigs_4["L4"]):
-                if h not in seen_sub:
-                    sl_details.append({"house": h, "is_placed": False})
-                    seen_sub.add(h)
+            pl_details = get_row_data(p_name)
+            nl_details = get_row_data(sl_name)
+            sl_details = get_row_data(sub_name)
             
             nak_nadi_res.append({
                 "planet": p_name, "nakshatra_name": nak, "is_retrograde": p["is_retrograde"],
@@ -609,56 +569,88 @@ class NadiEngine:
                 return False
         return True
 
+    def get_node_significators_detailed(self, node_name, planet_map, house_owners):
+        """
+        Returns split results: { 'occupations': [h1, h2], 'ownerships': [h3, h4], 'agents': [p1, p2] }
+        For both significator table and Nadi table.
+        """
+        if node_name not in planet_map: return {'occupations': [], 'ownerships': [], 'agents': []}
+        
+        p_data = planet_map[node_name]
+        node_occ = int(p_data["house_placed"])
+        
+        # Agents
+        agents = self.get_node_agents(node_name, p_data, list(planet_map.values()))
+        agent_names = list(set([a['planet'] for a in agents if a['planet']]))
+        
+        occs = {node_occ}
+        owns = set()
+        
+        for a_name in agent_names:
+            if a_name in planet_map:
+                a_data = planet_map[a_name]
+                occs.add(int(a_data["house_placed"]))
+                a_owns = [int(h) for h, owner in house_owners.items() if owner == a_name]
+                for o in a_owns: 
+                    if o not in occs: owns.add(o)
+                    
+        return {
+            'occupations': sorted(list(occs)),
+            'ownerships': sorted(list(owns)),
+            'agents': agent_names
+        }
+
     def calculate_kp_significators_4level(self, p_name, planet_map, house_owners):
         if p_name not in planet_map: return {"L1":[], "L2":[], "L3":[], "L4":[], "is_self_strength": False}
         
         p_data = planet_map[p_name]
         sl_name = p_data["star_lord"]
         
-        # Standard levels
-        l1 = self.get_house_occupation(sl_name, planet_map)
-        l2 = self.get_house_occupation(p_name, planet_map)
-        l3 = self.get_house_ownership(sl_name, house_owners)
-        l4 = self.get_house_ownership(p_name, house_owners)
-        
+        # 1. Base Levels
+        # Grade A: SL Occ, Grade B: P Occ, Grade C: SL Own, Grade D: P Own
+        if p_name in ["Rahu", "Ketu"]:
+            node_data = self.get_node_significators_detailed(p_name, planet_map, house_owners)
+            # Level 2 (P Occ)
+            l2 = node_data['occupations']
+            # Level 4 (P Own)
+            l4 = node_data['ownerships']
+            agent_names = node_data['agents']
+            agent_field = agent_names[0] if agent_names else None
+        else:
+            l2 = [int(p_data["house_placed"])]
+            l4 = sorted([int(h) for h, owner in house_owners.items() if owner == p_name])
+            agent_field = None
+
+        if sl_name in ["Rahu", "Ketu"]:
+            sl_node_data = self.get_node_significators_detailed(sl_name, planet_map, house_owners)
+            l1 = sl_node_data['occupations']
+            l3 = sl_node_data['ownerships']
+        else:
+            sl_data = planet_map.get(sl_name)
+            if sl_data:
+                l1 = [int(sl_data["house_placed"])]
+                l3 = sorted([int(h) for h, owner in house_owners.items() if owner == sl_name])
+            else:
+                l1, l3 = [], []
+
         self_strength = self.is_self_strength(p_name, planet_map.values())
+        
+        res = {
+            "L1": l1, "L2": l2, "L3": l3, "L4": l4,
+            "is_self_strength": self_strength,
+            "agent": agent_field
+        }
         
         if self_strength:
             # Reorder: 2, 1, 4, 3
             return {
                 "L1": l2, "L2": l1, "L3": l4, "L4": l3,
                 "is_self_strength": True,
-                "original": {"L1": l1, "L2": l2, "L3": l3, "L4": l4}
+                "original": {"L1": l1, "L2": l2, "L3": l3, "L4": l4},
+                "agent": agent_field
             }
         
-        return {
-            "L1": l1, "L2": l2, "L3": l3, "L4": l4,
-            "is_self_strength": False
-        }
-
-    def get_node_significators(self, node_name, planet_map, house_owners):
-        # 1. Own 4 levels
-        base = self.calculate_kp_significators_4level(node_name, planet_map, house_owners)
-        
-        # 2. All Agents
-        p_data = planet_map[node_name]
-        agents = self.get_node_agents(node_name, p_data, list(planet_map.values()))
-        
-        # Merge results of ALL agents to ensure no houses are missing
-        all_agent_names = list(set([a['planet'] for a in agents if a['planet']]))
-        base["agents_list"] = all_agent_names
-        
-        # Sort agents by proximity just to pick one for the 'agent' field (backward compatibility)
-        if all_agent_names:
-            base["agent"] = all_agent_names[0] 
-            
-        for a_name in all_agent_names:
-            agent_sigs = self.calculate_kp_significators_4level(a_name, planet_map, house_owners)
-            # Merge
-            for level in ["L1", "L2", "L3", "L4"]:
-                base[level] = sorted(list(set(base[level] + agent_sigs[level])))
-            
-        return base
+        return res
     def calculate_dasha(self, planets_raw, birth_dt_loc):
         # Step 1: Moon longitude in decimal degrees
         moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
