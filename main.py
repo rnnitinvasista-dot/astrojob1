@@ -141,10 +141,24 @@ async def job_analysis(req: KundliRequest):
             nl_houses = [s["house"] for s in entry["nl_signified"]]
             sl_houses = [s["house"] for s in entry["sl_signified"]]
 
-            # Static House Categorization (Hit Theory - Reverted Shifting)
-            green_houses = {2, 6, 7, 9, 10, 11}
+            # 4-Scenario Hit Theory Categorization (Page 8)
+            has_11 = 11 in combo_all
+            has_12 = 12 in combo_all
+            
+            green_houses = {2, 10, 11}
             blue_houses = {1, 3, 4}
-            red_houses = {5, 8, 12}
+            red_houses = {12}
+            
+            if has_11 and has_12: # S1
+                green_houses.update({6, 7, 9})
+                red_houses.update({5, 8})
+            elif has_11 and not has_12: # S2
+                green_houses.update({5, 6, 7, 8, 9})
+            elif not has_11 and has_12: # S3
+                red_houses.update({5, 6, 7, 8, 9})
+            else: # S4 (Neither)
+                green_houses.update({6, 7, 9})
+                red_houses.update({5, 8})
 
             # Identify "Hits" for circling
             def get_hit_house(houses, pos):
@@ -164,16 +178,15 @@ async def job_analysis(req: KundliRequest):
             if not job_areas and pl_hit in HOUSE_JOB_AREAS: job_areas.append(f"Focus: {HOUSE_JOB_AREAS[pl_hit]}")
 
             # Income / Expenses Mapping (Refined Labels)
-            inc_label = "Low Income"
+            inc_label = "Income"
             if 11 in combo_all: inc_label = "Very High Income"
             elif 10 in combo_all: inc_label = "High Income"
-            elif any(h in {2, 6, 7, 9} for h in combo_all) and not has_malefic: inc_label = "Medium Income"
-            elif any(h in {2, 6, 7, 9} for h in combo_all): inc_label = "Income with Difficulty"
+            elif len([h for h in combo_all if h in {2, 6, 7, 9}]) >= 2: inc_label = "Medium Income"
 
             exp_label = "No Significant Loss"
-            if any(h in {5, 8} for h in combo_all) and 12 in combo_all: exp_label = "High Loss / Expenses"
-            elif 12 in combo_all: exp_label = "Medium Loss / Expenses"
-            elif any(h in {5, 8} for h in combo_all): exp_label = "Obstacles / Setbacks"
+            if 12 in combo_all and (5 in combo_all or 8 in combo_all): exp_label = "High Loss/Exp"
+            elif 12 in combo_all: exp_label = "Medium Loss"
+            elif 5 in combo_all or 8 in combo_all: exp_label = "Obstacles"
 
             # Success Rate (Matrix underlying logic)
             nl_matrix_h = nl_hit if nl_hit else 1
