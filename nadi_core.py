@@ -189,6 +189,8 @@ class NadiEngine:
         """
         agents = []
         node_sign = node_data['sign']
+        node_lon = node_data['degree_decimal']
+        node_house = int(node_data['house_placed'])
         
         # 1. Sign Lord
         agents.append({'type': 'Sign Lord', 'planet': node_data.get('sign_lord')})
@@ -200,19 +202,32 @@ class NadiEngine:
             p_name = p['planet']
             if p_name in [node_name, "Rahu", "Ketu"]: continue
             
-            p_sign_idx = signs.index(p['sign'])
-            diff = (node_sign_idx - p_sign_idx + 12) % 12 + 1 # 1-based house diff
-            
-            # 2. Conjunct
-            if p['sign'] == node_sign:
+            p_lon = p['degree_decimal']
+            dist = abs(node_lon - p_lon)
+            if dist > 180: dist = 360 - dist
+                
+            # Rule 1: Conjunction (Same Sign + Orb 12)
+            # Standard Nadi often uses same sign, but KP/Professional Nadi uses proximity.
+            if p['sign'] == node_sign and dist <= 12.0:
                 agents.append({'type': 'Conjunction', 'planet': p_name})
                     
-            # 3. Aspected by
+            # Rule 2: Aspects (Orb 12)
+            p_sign_idx = signs.index(p['sign'])
+            diff = (node_sign_idx - p_sign_idx + 12) % 12 + 1
+            
             is_aspecting = False
-            if diff == 7: is_aspecting = True
-            elif p_name == "Mars" and diff in [4, 8]: is_aspecting = True
-            elif p_name == "Jupiter" and diff in [5, 9]: is_aspecting = True
-            elif p_name == "Saturn" and diff in [3, 10]: is_aspecting = True
+            # Standard Vedic/KP distances with 12 degree orb
+            if diff == 7 and dist >= 168: is_aspecting = True
+            elif p_name == "Mars" and diff in [4, 8] and (abs(dist-90)<=12 or abs(dist-210)<=12): is_aspecting = True
+            elif p_name == "Jupiter" and diff in [5, 9] and (abs(dist-120)<=12 or abs(dist-240)<=12): is_aspecting = True
+            elif p_name == "Saturn" and diff in [3, 10] and (abs(dist-60)<=12 or abs(dist-270)<=12): is_aspecting = True
+            
+            # Fallback for Nadi links (Strictly House based but with proximity guard)
+            if not is_aspecting:
+                if diff == 7 and dist >= 168: is_aspecting = True
+                elif p_name == "Mars" and diff in [4, 8]: is_aspecting = True
+                elif p_name == "Jupiter" and diff in [5, 9]: is_aspecting = True
+                elif p_name == "Saturn" and diff in [3, 10]: is_aspecting = True
             
             if is_aspecting:
                 agents.append({'type': 'Aspect', 'planet': p_name})
@@ -253,9 +268,16 @@ class NadiEngine:
         jd = swe.julday(utc_dt.year, utc_dt.month, utc_dt.day, utc_dt.hour + utc_dt.minute/60 + utc_dt.second/3600)
         
         
-        # Set Ayanamsa (Default to KP/Krishnamurti for strict Nadi)
-        # FORCE KP for now to satisfy user requirements
-        swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
+        # Set Ayanamsa dynamically
+        if self.ayanamsa == "KP":
+            swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
+        elif self.ayanamsa == "KP_OLD":
+            # For KP Old, we use the standard KRISHNAMURTI but can adjust if needed
+            swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
+        elif self.ayanamsa == "Lahiri":
+            swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+        else:
+            swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
         
         ayan_val = swe.get_ayanamsa_ut(jd)
         
@@ -268,17 +290,12 @@ class NadiEngine:
         # Standard Placidus often shifts these due to latitude, causing "Wrong" feedback.
         # We will calculate ownerships based on the Ascendant Sign strictly.
         
-        asc_sign_name = self.get_kp_lords(ascmc[0])[0] # Get Sign of Ascendant
-        signs_seq = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
-        asc_idx = signs_seq.index(asc_sign_name)
-        
         house_owners = {}
-        for h_num in range(1, 13):
-            # 1st House = Asc Sign, 2nd House = Next Sign...
-            current_sign_idx = (asc_idx + h_num - 1) % 12
-            current_sign = signs_seq[current_sign_idx]
-            owner = self.SIGN_RULERS[current_sign]
-            house_owners[h_num] = owner
+        for i in range(12):
+            lon_val = cusps[i]
+            # Use the sign lord of the cusp degree as the house owner
+            sn, sl, nlk, sub, ssl, nak, nadi, sub_idx = self.get_kp_lords(lon_val)
+            house_owners[i+1] = sl
         
         # house_owners = {i+1: self.SIGN_RULERS[self.get_kp_lords(cusps[i])[0]] for i in range(12)} # OLD PLACIDUS LOGIC
         
@@ -357,20 +374,33 @@ class NadiEngine:
         significations_res = []
         for p in planets_res:
             p_name = p["planet"]
-            # KP Significators = Star Lord's Houses + Planet's Houses
             sl_name = p["star_lord"]
+            sub_name = p["sub_lord"]
             
-            # Get houses of both
-            p_sigs = self.get_eff_sigs_simple(p_name, planet_res_map, house_owners)
-            sl_sigs = self.get_eff_sigs_simple(sl_name, planet_res_map, house_owners)
+            # Level 2: Planet itself
+            # SIGNIFICATOR TABLE RULE: Nodes follow classic KP (Placement + Star Lord). 
+            # Agents are only for Nadi table.
+            include_agents_for_this = False if p_name in ["Rahu", "Ketu"] else True
+            # But wait, standard planets don't have agents anyway. 
+            # So we set use_node_agents=False for Rahu/Ketu here to clean up the table.
             
-            # Combine
-            combined_detailed = sl_sigs + p_sigs
+            p_detailed = self.get_eff_sigs_detailed(p_name, planet_res_map, house_owners, include_node_self=True, use_node_agents=False)
+            # Level 1: Star Lord (Strongest)
+            sl_detailed = self.get_eff_sigs_detailed(sl_name, planet_res_map, house_owners, include_node_self=True, use_node_agents=True)
+            # Level 3: Sub Lord (Materialization)
+            sub_detailed = self.get_eff_sigs_detailed(sub_name, planet_res_map, house_owners, include_node_self=True, use_node_agents=True)
+            
+            # Total = Level 1 + Level 2 (Standard KP)
+            combined_detailed = sl_detailed + p_detailed
+            
             # deduplicate
             total_houses = sorted(list(set([int(s["house"]) for s in combined_detailed])))
             
             significations_res.append({
                 "planet": p_name,
+                "level1": sl_detailed, # Star Lord
+                "level2": p_detailed,  # Planet
+                "level3": sub_detailed, # Sub Lord
                 "total_detailed": combined_detailed,
                 "total": total_houses
             })
@@ -385,15 +415,15 @@ class NadiEngine:
             # 1. Planet's Own Houses (Level 2 in KP)
             # For normal planets: Occ + Own
             # For Rahu/Ketu: Occ + Conjunct Planets (No Own)
-            pl_detailed = self.get_eff_sigs_simple(p_name, planet_res_map, house_owners)
+            pl_detailed = self.get_eff_sigs_detailed(p_name, planet_res_map, house_owners, include_node_self=False)
             
             # 2. Star Lord's Houses (Level 1 in KP - Strongest)
             # Star Lord is a planet, so we get its Occ + Own
-            nl_detailed = self.get_eff_sigs_simple(sl_name, planet_res_map, house_owners)
+            nl_detailed = self.get_eff_sigs_detailed(sl_name, planet_res_map, house_owners, include_node_self=True)
             
             # 3. Sub Lord's Houses (Deciding Authority)
             # Sub Lord is a planet, so we get its Occ + Own
-            sl_detailed = self.get_eff_sigs_simple(sub_name, planet_res_map, house_owners)
+            sl_detailed = self.get_eff_sigs_detailed(sub_name, planet_res_map, house_owners, include_node_self=True)
             
             nak_nadi_res.append({
                 "planet": p_name, "nakshatra_name": nak, "is_retrograde": p["is_retrograde"],
@@ -486,47 +516,44 @@ class NadiEngine:
             
         return final_res
 
-    def get_eff_sigs_simple(self, p_name, planet_map, house_owners):
-        """
-        Returns the houses signified by the planet itself.
-        - For normal planets: Occupation + Ownership.
-        - For Rahu/Ketu: Occupation + Conjunct Planets' Occupation.
-        """
+    def get_eff_sigs_detailed(self, p_name, planet_map, house_owners, include_node_self=True, use_node_agents=True):
         if p_name not in planet_map: return []
         p_data = planet_map[p_name]
+        occ_house = int(p_data["house_placed"])
+        own_houses = sorted([int(h) for h, owner in house_owners.items() if owner == p_name])
+        
         sigs = []
-        seen = set()
+        houses_seen = set()
         
-        # 1. Occupation
-        occ = int(p_data["house_placed"])
-        sigs.append({"house": occ, "is_placed": True})
-        seen.add(occ)
-        
-        # 2. Ownership (Normal Planets only)
-        if p_name not in ["Rahu", "Ketu"]:
-            own = sorted([int(h) for h, owner in house_owners.items() if owner == p_name])
-            for h in own:
-                if h not in seen:
-                    sigs.append({"house": h, "is_placed": False})
-                    seen.add(h)
-        else:
-            # Rahu/Ketu signify Agents (Sign Lord, Conjunct, Aspect) 
-            # as well as Star Lord results (handled at calling level)
+        # 1. House Placement
+        if p_name not in ["Rahu", "Ketu"] or include_node_self:
+            sigs.append({"house": occ_house, "is_placed": True})
+            houses_seen.add(occ_house)
+            
+        # 2. House Ownership
+        for h in own_houses:
+            if h not in houses_seen:
+                sigs.append({"house": h, "is_placed": False})
+                houses_seen.add(h)
+                
+        # 3. Node Agents (Nadi specific)
+        if p_name in ["Rahu", "Ketu"] and use_node_agents:
             agents = self.get_node_agents(p_name, p_data, list(planet_map.values()))
             for agent in agents:
                 a_name = agent['planet']
-                if a_name in planet_map:
-                    # Agent results: Occupation + Ownership
-                    a_occ = int(planet_map[a_name]["house_placed"])
-                    a_own = sorted([int(h) for h, owner in house_owners.items() if owner == a_name])
+                if a_name and a_name in planet_map:
+                    a_data = planet_map[a_name]
+                    a_occ = int(a_data["house_placed"])
+                    a_own = [int(h) for h, o in house_owners.items() if o == a_name]
                     
-                    if a_occ not in seen:
+                    if a_occ not in houses_seen:
                         sigs.append({"house": a_occ, "is_placed": False})
-                        seen.add(a_occ)
+                        houses_seen.add(a_occ)
+                        
                     for h in a_own:
-                        if h not in seen:
+                        if h not in houses_seen:
                             sigs.append({"house": h, "is_placed": False})
-                            seen.add(h)
+                            houses_seen.add(h)
         
         return sorted(sigs, key=lambda x: x["house"])
 

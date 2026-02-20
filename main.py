@@ -42,6 +42,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class HouseDetail(BaseModel):
+    house: int
+    is_placed: bool
+
+class Signification(BaseModel):
+    planet: str
+    level1: List[HouseDetail]
+    level2: List[HouseDetail]
+    level3: List[HouseDetail]
+    total: List[int]
+    total_detailed: List[HouseDetail]
+
 class BirthDetails(BaseModel):
     date_of_birth: str
     time_of_birth: str
@@ -64,11 +76,11 @@ engine = NadiEngine(node_type="Mean", ayanamsa="KP")
 
 @app.get("/")
 def health_check():
-    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.55"}
+    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.59-STABLE"}
 
 @app.get("/health")
 def health_check_alias():
-    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.55"}
+    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.59-STABLE"}
 
 @app.post("/api/v1/kp/kundli")
 def generate_kundli(req: KundliRequest):
