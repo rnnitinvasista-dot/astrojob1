@@ -76,11 +76,11 @@ engine = NadiEngine(node_type="Mean", ayanamsa="KP")
 
 @app.get("/")
 def health_check():
-    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.59-STABLE"}
+    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.61-GOLD-SYNC"}
 
 @app.get("/health")
 def health_check_alias():
-    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.59-STABLE"}
+    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.61-GOLD-SYNC"}
 
 @app.post("/api/v1/kp/kundli")
 def generate_kundli(req: KundliRequest):
