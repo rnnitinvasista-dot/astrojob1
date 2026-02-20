@@ -76,11 +76,11 @@ engine = NadiEngine(node_type="Mean", ayanamsa="KP")
 
 @app.get("/")
 def health_check():
-    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.60-KP-4LEVEL"}
+    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.63-HIT-THEORY"}
 
 @app.get("/health")
 def health_check_alias():
-    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.60-KP-4LEVEL"}
+    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.63-HIT-THEORY"}
 
 @app.post("/api/v1/kp/kundli")
 def generate_kundli(req: KundliRequest):
@@ -141,13 +141,22 @@ async def job_analysis(req: KundliRequest):
             nl_houses = [s["house"] for s in entry["nl_signified"]]
             sl_houses = [s["house"] for s in entry["sl_signified"]]
 
-            # PDF/Nadi standard categories
-            green_houses = {10, 11} # Success (Highest)
-            blue_houses = {1, 2, 3, 4, 6, 7, 8, 9} # Neutral/Supporting
-            red_houses = {5, 12} # Challenges
+            # Dynamic House Categorization (Hit Theory)
+            has_malefic = any(h in {5, 8, 12} for h in combo_all)
+            has_gains = any(h in {10, 11} for h in combo_all)
+            
+            green_houses = {2, 10, 11}
+            blue_houses = {1, 3, 4}
+            red_houses = {5, 8, 12}
+            
+            if has_malefic:
+                red_houses.update({6, 7, 9})
+            else:
+                green_houses.update({6, 7})
+                if has_gains: green_houses.add(9)
+                else: blue_houses.add(9)
 
             # Identify "Hits" for circling
-            # Hit = Planet's Actual Position if it exists in the list, else uses priority
             def get_hit_house(houses, pos):
                 if pos in houses: return pos
                 priority = [11, 10, 2, 6, 7, 9, 3, 4, 1, 8, 5, 12]
@@ -164,14 +173,24 @@ async def job_analysis(req: KundliRequest):
             if nl_hit in HOUSE_JOB_AREAS and nl_hit != sl_hit: job_areas.append(f"Secondary: {HOUSE_JOB_AREAS[nl_hit]}")
             if not job_areas and pl_hit in HOUSE_JOB_AREAS: job_areas.append(f"Focus: {HOUSE_JOB_AREAS[pl_hit]}")
 
-            # Success Rate (Matrix 12x12)
+            # Income / Expenses Mapping (Refined Labels)
+            inc_label = "Low Income"
+            if 11 in combo_all: inc_label = "Very High Income"
+            elif 10 in combo_all: inc_label = "High Income"
+            elif any(h in {2, 6, 7, 9} for h in combo_all) and not has_malefic: inc_label = "Medium Income"
+            elif any(h in {2, 6, 7, 9} for h in combo_all): inc_label = "Income with Difficulty"
+
+            exp_label = "No Significant Loss"
+            if any(h in {5, 8} for h in combo_all) and 12 in combo_all: exp_label = "High Loss / Expenses"
+            elif 12 in combo_all: exp_label = "Medium Loss / Expenses"
+            elif any(h in {5, 8} for h in combo_all): exp_label = "Obstacles / Setbacks"
+
+            # Success Rate (Matrix underlying logic)
             nl_matrix_h = nl_hit if nl_hit else 1
             sl_matrix_h = sl_hit if sl_hit else 1
             rate_code = HIT_MATRIX[nl_matrix_h][sl_matrix_h - 1]
             success_rate = SUCCESS_LABELS.get(rate_code, "Medium")
 
-            # Bifurcated Combination
-            combo_all = sorted(list(set(pl_houses + nl_houses + sl_houses)))
             prediction = {
                 "overall_combination": {
                     "good": [h for h in combo_all if h in green_houses],
@@ -179,8 +198,8 @@ async def job_analysis(req: KundliRequest):
                     "bad": [h for h in combo_all if h in red_houses]
                 },
                 "income_expenses": {
-                    "good": "Very High" if 11 in combo_all else "High" if 2 in combo_all else "Medium",
-                    "bad": "High Loss" if 12 in combo_all else "Medium Loss" if 5 in combo_all else "-" 
+                    "good": inc_label,
+                    "bad": exp_label
                 },
                 "success_rate": success_rate,
                 "job_areas": job_areas,

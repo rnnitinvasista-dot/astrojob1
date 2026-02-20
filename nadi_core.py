@@ -582,57 +582,30 @@ class NadiEngine:
         # 1. Own 4 levels
         base = self.calculate_kp_significators_4level(node_name, planet_map, house_owners)
         
-        # 2. Prominent Agent
+    def get_node_significators(self, node_name, planet_map, house_owners):
+        # 1. Own 4 levels
+        base = self.calculate_kp_significators_4level(node_name, planet_map, house_owners)
+        
+        # 2. All Agents (Sign Lord + Conjunct/Aspect innerhalb 12 Grad)
         p_data = planet_map[node_name]
         agents = self.get_node_agents(node_name, p_data, list(planet_map.values()))
         
-        # Sort agents by prominence: Conjunction > Aspect > Sign Lord
-        # Within each, closest degree wins.
-        best_agent = None
-        min_dist = 999
-        
-        # Priority 1: Conjunction
-        conj = [a for a in agents if a['type'] == 'Conjunction']
-        if conj:
-            for a in conj:
-                dist = abs(p_data['degree_decimal'] - planet_map[a['planet']]['degree_decimal'])
-                if dist > 180: dist = 360 - dist
-                if dist < min_dist:
-                    min_dist = dist
-                    best_agent = a['planet']
-        
-        # Priority 2: Aspect
-        if not best_agent:
-            asp = [a for a in agents if a['type'] == 'Aspect']
-            if asp:
-                for a in asp:
-                    # For aspects, distance is degree from exact aspect (e.g. 180 - diff)
-                    p2_lon = planet_map[a['planet']]['degree_decimal']
-                    diff = abs(p_data['degree_decimal'] - p2_lon)
-                    if diff > 180: diff = 360 - diff
-                    # standard aspects check
-                    best_asp_dist = 999
-                    for asp_deg in [60, 90, 120, 180]:
-                        ad = abs(diff - asp_deg)
-                        if ad < best_asp_dist: best_asp_dist = ad
-                    
-                    if best_asp_dist < min_dist:
-                        min_dist = best_asp_dist
-                        best_agent = a['planet']
-                        
-        # Priority 3: Sign Lord
-        if not best_agent:
-            sl = [a for a in agents if a['type'] == 'Sign Lord']
-            if sl:
-                best_agent = sl[0]['planet']
-                
-        if best_agent:
-            agent_sigs = self.calculate_kp_significators_4level(best_agent, planet_map, house_owners)
-            # Merge
+        agent_names = list(set([a['planet'] for a in agents if a['planet']]))
+        for a_name in agent_names:
+            if a_name == node_name: continue
+            agent_sigs = self.calculate_kp_significators_4level(a_name, planet_map, house_owners)
+            # Merge significations
             for level in ["L1", "L2", "L3", "L4"]:
                 base[level] = sorted(list(set(base[level] + agent_sigs[level])))
-            base["agent"] = best_agent
-            
+                
+        # Recalculate total after merge
+        all_h = set()
+        for lvl in ["L1", "L2", "L3", "L4"]:
+            for h in base[lvl]: all_h.add(h)
+        base["total"] = sorted(list(all_h))
+        
+        base["agent"] = ", ".join(agent_names) if agent_names else None
+        
         return base
     def calculate_dasha(self, planets_raw, birth_dt_loc):
         # Step 1: Moon longitude in decimal degrees
