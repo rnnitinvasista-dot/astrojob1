@@ -141,20 +141,10 @@ async def job_analysis(req: KundliRequest):
             nl_houses = [s["house"] for s in entry["nl_signified"]]
             sl_houses = [s["house"] for s in entry["sl_signified"]]
 
-            # Dynamic House Categorization (Hit Theory)
-            has_malefic = any(h in {5, 8, 12} for h in combo_all)
-            has_gains = any(h in {10, 11} for h in combo_all)
-            
-            green_houses = {2, 10, 11}
+            # Static House Categorization (Hit Theory - Reverted Shifting)
+            green_houses = {2, 6, 7, 9, 10, 11}
             blue_houses = {1, 3, 4}
             red_houses = {5, 8, 12}
-            
-            if has_malefic:
-                red_houses.update({6, 7, 9})
-            else:
-                green_houses.update({6, 7})
-                if has_gains: green_houses.add(9)
-                else: blue_houses.add(9)
 
             # Identify "Hits" for circling
             def get_hit_house(houses, pos):
