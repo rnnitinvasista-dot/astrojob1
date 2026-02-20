@@ -56,10 +56,14 @@ def print_metrics(res):
     print(f"Balance:   {d['balance_at_birth']}")
     print(f"Current:   MD={d['current_dasha']}, AD={d['current_bukthi']}")
     
-    # 3. Rahu Agents
+    # 3. Rahu Agents (Level 2 significators)
     r_nadi = next(p for p in res["nakshatra_nadi"] if p["planet"] == "Rahu")
-    print(f"Rahu Agents (Houses): {r_nadi['planet_houses']}")
-    # Also print the raw agent planets if possible (need to tweak engine or infer)
+    r_houses = [s["house"] for s in r_nadi['pl_signified']]
+    print(f"Rahu Level 2 (Houses): {r_houses}")
+    
+    # 4. Star Lord Results (Level 1 significators)
+    sl_houses = [s["house"] for s in r_nadi['nl_signified']]
+    print(f"Rahu Star Lord ({r_nadi['star_lord']}) Houses: {sl_houses}")
 
 if __name__ == "__main__":
     debug_v5()

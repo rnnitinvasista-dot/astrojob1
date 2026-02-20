@@ -8,9 +8,19 @@ import uvicorn
 import json
 import os
 import traceback
+import logging
 from nadi_core import NadiEngine, HIT_MATRIX, SUCCESS_LABELS, HOUSE_JOB_AREAS
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("nadi-engine")
+
 app = FastAPI(title="Nadi Precision Engine Gold")
+
+@app.on_event("startup")
+async def startup_event():
+    logger.info("🚀 Nadi Precision Engine Gold starting up...")
+    logger.info(f"NODE_TYPE: Mean, AYANAMSA: KP")
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
@@ -54,11 +64,11 @@ engine = NadiEngine(node_type="Mean", ayanamsa="KP")
 
 @app.get("/")
 def health_check():
-    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.54"}
+    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.55"}
 
 @app.get("/health")
 def health_check_alias():
-    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.54"}
+    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.55"}
 
 @app.post("/api/v1/kp/kundli")
 def generate_kundli(req: KundliRequest):
@@ -72,7 +82,8 @@ def generate_kundli(req: KundliRequest):
         
         # Determine strict settings
         nt = req.calculation_settings.node_type
-        request_engine = NadiEngine(node_type=nt, ayanamsa="Lahiri", house_system=req.calculation_settings.house_system)
+        requested_ayanamsa = req.calculation_settings.ayanamsa
+        request_engine = NadiEngine(node_type=nt, ayanamsa=requested_ayanamsa, house_system=req.calculation_settings.house_system)
         
         result = request_engine.calculate_kundli(
             dt_str, 
@@ -99,7 +110,7 @@ async def job_analysis(req: KundliRequest):
         lat_val = float(req.birth_details.latitude)
         lon_val = float(req.birth_details.longitude)
         
-        request_engine = NadiEngine(node_type=req.calculation_settings.node_type, ayanamsa="Lahiri", house_system=req.calculation_settings.house_system)
+        request_engine = NadiEngine(node_type=req.calculation_settings.node_type, ayanamsa=req.calculation_settings.ayanamsa, house_system=req.calculation_settings.house_system)
         result = request_engine.calculate_kundli(dt_str, req.birth_details.timezone, lat_val, lon_val)
         
         if result.get("status") == "error":
