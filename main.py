@@ -9,7 +9,7 @@ import json
 import os
 import traceback
 import logging
-from nadi_core import NadiEngine, HIT_MATRIX, SUCCESS_LABELS, HOUSE_JOB_AREAS
+from nadi_core import NadiEngine
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
