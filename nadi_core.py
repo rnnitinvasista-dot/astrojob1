@@ -411,9 +411,10 @@ class NadiEngine:
         
         # Set Ayanamsa dynamically
         # User's reference software uses a specific Ayanamsa shift.
-        # Calibration against Horary #45 (Sun 19°33'30"): requires +1600 arcseconds shift.
-        swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
-        ayan_val = swe.get_ayanamsa_ut(jd) + (1600.0 / 3600.0)
+        # KP 39 Gold Standard (VP291)
+        # Matches professional software and user check audit_39.py
+        swe.set_sid_mode(39, 0, 0) # SIDM_KRISHNAMURTI_VP291
+        ayan_val = swe.get_ayanamsa_ut(jd)
         
         # Calculate Houses (Placidus Default for Cusps/Placement)
         h_sys = b'P' if self.house_system == "Placidus" else b'E'
@@ -426,17 +427,17 @@ class NadiEngine:
             cusps = [(c - ayan_val) % 360 for c in cusps_raw]
             ascmc = [(a - ayan_val) % 360 for a in ascmc_raw]
         
-        # HOUSE OWNERSHIP LOGIC - STRICT WHOLE SIGN (User Requirement)
-        # User explicitly flagged that for Gemini Ascendant, Sun MUST own 3rd (Leo) and Jupiter 7th/10th (Sag/Pis).
-        # Standard Placidus often shifts these due to latitude, causing "Wrong" feedback.
-        # We will calculate ownerships based on the Ascendant Sign strictly.
+        # STRICT RULE: Sign-based ownership from Ascendant (Whole Sign Ownership)
+        # Gemini Asc = H1:ME, H2:MO, H3:SU, H4:ME, etc.
+        signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
+        # Use houses_res[0] sign which is calculated below, or get it now
+        asc_sn, _, _, _, _, _, _, _ = self.get_kp_lords(cusps[0])
+        asc_idx = signs.index(asc_sn)
         
         house_owners = {}
         for i in range(12):
-            lon_val = cusps[i]
-            # Use the sign lord of the cusp degree as the house owner
-            sn, sl, nlk, sub, ssl, nak, nadi, sub_idx = self.get_kp_lords(lon_val)
-            house_owners[i+1] = sl
+            curr_sign = signs[(asc_idx + i) % 12]
+            house_owners[i+1] = self.SIGN_RULERS[curr_sign]
         
         # house_owners = {i+1: self.SIGN_RULERS[self.get_kp_lords(cusps[i])[0]] for i in range(12)} # OLD PLACIDUS LOGIC
         
