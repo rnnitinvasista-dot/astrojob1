@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "default": "astrojob-f0918"
+  },
+  "targets": {
+    "astrojob-f0918": {
+      "hosting": {
+        "app": [
+          "astrojob-f0918"
+        ],
+        "admin": [
+          "astrojob-admin-f0918"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

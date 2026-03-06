@@ -1,0 +1,17 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      // Users can read/write their own document
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Admin bypass: Allows specific master admin email to read/write everything in users collection
+      // Note: In real rules, we'd check for a 'role' in the auth token or a separate admin collection,
+      // but here we check for the master email or the admin role in the target document.
+      allow list, get, update, create, delete: if request.auth != null && 
+        (request.auth.token.email == 'astroadmin09@gmail.com' || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
+  }
+}
