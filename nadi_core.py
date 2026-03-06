@@ -164,7 +164,7 @@ class NadiEngine:
         target_sid_asc = table[horary_number]['lon']
         
         # Get Ayanamsa
-        swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
+        swe.set_sid_mode(39, 0, 0)
         ayan = calibrated_ayan if calibrated_ayan is not None else swe.get_ayanamsa_ut(jd)
         
         # We need to find the RAMC that produces this sidereal Ascendant at this latitude.
