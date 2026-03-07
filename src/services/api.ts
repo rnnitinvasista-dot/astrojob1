@@ -3,7 +3,6 @@ import type { KundliRequest, KundliResponse } from '../types/astrology';
 
 // Stay on Render for now
 const RENDER_API_URL = 'https://astrojob.onrender.com/api/v1/kp';
-const HUGGINGFACE_API_URL = 'https://nitin324444-astro.hf.space/api/v1/kp';
 
 const DEFAULT_API_URL = RENDER_API_URL;
 

@@ -39,7 +39,7 @@ const ChildAnalysisTable: React.FC<ChildAnalysisTableProps> = ({ reports, planet
     const nlHouses = planetReport.nl || [];
     const slHouses = planetReport.sl || [];
 
-    const getHouseColor = (h: number, isBad: boolean) => {
+    const getHouseColor = (h: number) => {
         if ([2, 5, 9, 11].includes(h)) return '#16a34a'; // Green (Good)
         if ([3, 7].includes(h)) return '#2563eb'; // Blue (Neutral)
         if ([1, 4, 6, 8, 10, 12].includes(h)) return '#ef4444'; // Red (Bad)
@@ -53,7 +53,7 @@ const ChildAnalysisTable: React.FC<ChildAnalysisTableProps> = ({ reports, planet
         const neutral = uniquePool.filter(h => [3, 7].includes(h));
         const bad = uniquePool.filter(h => [1, 4, 6, 8, 10, 12].includes(h));
 
-        const renderCell = (list: number[], isBad: boolean) => {
+        const renderCell = (list: number[]) => {
             if (list.length === 0) return <span style={{ color: '#ccc', fontSize: '11px' }}>-</span>;
             return (
                 <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2px' }}>
@@ -64,7 +64,7 @@ const ChildAnalysisTable: React.FC<ChildAnalysisTableProps> = ({ reports, planet
                             border: (h === hit) ? '1.5px solid #000000' : 'none',
                             borderRadius: '3px', margin: '0 2px', padding: (h === hit) ? '0' : '0 3px',
                             background: (h === hit) ? '#f8fafc' : 'transparent',
-                            color: getHouseColor(h, isBad),
+                            color: getHouseColor(h),
                             fontWeight: '800',
                             fontSize: '0.85rem'
                         }}>
@@ -84,7 +84,7 @@ const ChildAnalysisTable: React.FC<ChildAnalysisTableProps> = ({ reports, planet
     const comboGoodSet = new Set([...plBif.good, ...nlBif.good, ...slBif.good]);
     const comboBadSet = new Set([...plBif.bad, ...nlBif.bad, ...slBif.bad]);
 
-    const renderCombination = (hSet: Set<number>, isBad: boolean) => {
+    const renderCombination = (hSet: Set<number>) => {
         const sorted = Array.from(hSet).sort((a, b) => a - b);
         if (sorted.length === 0) return <span style={{ color: '#ccc' }}>-</span>;
         return (
@@ -93,7 +93,7 @@ const ChildAnalysisTable: React.FC<ChildAnalysisTableProps> = ({ reports, planet
                     const isBoxed = h === nlHit || h === slHit;
                     return (
                         <span key={h} style={{
-                            color: getHouseColor(h, isBad),
+                            color: getHouseColor(h),
                             fontWeight: '800',
                             width: isBoxed ? '24px' : 'auto',
                             height: isBoxed ? '24px' : 'auto',
@@ -149,11 +149,11 @@ const ChildAnalysisTable: React.FC<ChildAnalysisTableProps> = ({ reports, planet
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                             <div style={{ background: '#f0fdf4', padding: '6px', borderRadius: '6px', border: '1px solid #dcfce7' }}>
                                 <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#15803d', marginBottom: '4px', textTransform: 'uppercase' }}>GOOD</div>
-                                {row.bif.renderCell(row.bif.good, false)}
+                                {row.bif.renderCell(row.bif.good)}
                             </div>
                             <div style={{ background: '#fef2f2', padding: '6px', borderRadius: '6px', border: '1px solid #fee2e2' }}>
                                 <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#b91c1c', marginBottom: '4px', textTransform: 'uppercase' }}>BAD</div>
-                                {row.bif.renderCell(row.bif.bad, true)}
+                                {row.bif.renderCell(row.bif.bad)}
                             </div>
                         </div>
                     </div>
@@ -162,38 +162,59 @@ const ChildAnalysisTable: React.FC<ChildAnalysisTableProps> = ({ reports, planet
                 <div style={{ borderBottom: '1.5px solid #000000', padding: '8px 12px', background: '#f8fafc', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                     <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>COMBINATION</div>
                     <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                        {renderCombination(comboGoodSet, false)}
+                        {renderCombination(comboGoodSet)}
                         <span style={{ color: '#000000', fontWeight: 900, fontSize: '1rem' }}>/</span>
-                        {renderCombination(comboBadSet, true)}
+                        {renderCombination(comboBadSet)}
                     </div>
                 </div>
 
-                <div style={{ borderBottom: '1.5 solid #000000', padding: '8px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-                    <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>FERTILITY REPORT</div>
-                    <div style={{ fontWeight: 900, fontSize: '1.1rem', color: planetReport.prediction.fertility_report.includes('No') ? '#ef4444' : '#16a34a' }}>
-                        {planetReport.prediction.fertility_report.toUpperCase()}
+                <div style={{ borderBottom: '1.5 solid #000000', padding: '12px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                    <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>FERTILITY</div>
+                    <div style={{ display: 'flex', gap: '8px', fontWeight: 900, fontSize: '1.1rem', alignItems: 'center' }}>
+                        <span style={{ color: '#16a34a' }}>
+                            {planetReport.prediction.indication_report.toUpperCase()}
+                        </span>
+                        <span style={{ color: '#cbd5e1', fontWeight: 400 }}>/</span>
+                        <span style={{ color: '#ef4444' }}>
+                            {planetReport.prediction.loss_report.toUpperCase()}
+                        </span>
                     </div>
+                    {planetReport.prediction.special_status && (
+                        <div style={{ color: '#f59e0b', fontSize: '0.8rem', fontWeight: 800, marginTop: '4px', textTransform: 'uppercase' }}>
+                            ★ {planetReport.prediction.special_status}
+                        </div>
+                    )}
                 </div>
 
                 <div onClick={() => setIsExpanded(!isExpanded)} style={{ padding: '10px', textAlign: 'center', cursor: 'pointer', background: '#ffffff', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', borderBottom: '1.5px solid #000000' }}>
-                    <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>DETAILED FINDINGS</div>
+                    <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>DETAILED FINDINGS (BOXED ONLY)</div>
                     <span style={{ fontSize: '0.75rem', color: '#000000', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }}>▼</span>
                 </div>
 
                 {isExpanded && (
                     <div style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0', padding: '16px' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            <div style={{ display: 'flex', gap: '8px', fontSize: '0.9rem' }}>
-                                <span style={{ fontWeight: 900, color: '#35a4f4' }}>NL:</span>
-                                <span style={{ color: '#334155', fontWeight: 600 }}>{CHILD_BIRTH_RESULT_MAP[nlHit] || "Mixed Result"}</span>
-                            </div>
-                            <div style={{ display: 'flex', gap: '8px', fontSize: '0.9rem' }}>
-                                <span style={{ fontWeight: 900, color: '#35a4f4' }}>SL:</span>
-                                <span style={{ color: '#334155', fontWeight: 600 }}>{CHILD_BIRTH_RESULT_MAP[slHit] || "Mixed Result"}</span>
-                            </div>
+                            {nlHit && (
+                                <div style={{ display: 'flex', gap: '8px', fontSize: '0.9rem' }}>
+                                    <span style={{ fontWeight: 900, color: '#35a4f4' }}>NL [{nlHit}]:</span>
+                                    <span style={{ color: '#334155', fontWeight: 600 }}>{CHILD_BIRTH_RESULT_MAP[nlHit]}</span>
+                                </div>
+                            )}
+                            {slHit && (
+                                <div style={{ display: 'flex', gap: '8px', fontSize: '0.9rem' }}>
+                                    <span style={{ fontWeight: 900, color: '#15803d' }}>SL [{slHit}]:</span>
+                                    <span style={{ color: '#334155', fontWeight: 600 }}>{CHILD_BIRTH_RESULT_MAP[slHit]}</span>
+                                </div>
+                            )}
+
+                            {!nlHit && !slHit && (
+                                <div style={{ color: '#64748b', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                                    No primary houses are boxed for analysis.
+                                </div>
+                            )}
 
                             <div style={{ marginTop: '8px', padding: '10px', background: '#e0f2fe', borderRadius: '8px', fontSize: '0.8rem', color: '#0369a1', fontWeight: 700, border: '1px solid #bae6fd' }}>
-                                ! Note: Fertility status is determined strictly by the BOXED houses in NL and SL as per KP Golden Nadi rules.
+                                ! Note: Detailed findings are strictly filtered to showing only the results for the BOXED houses (Hits) as per your rules.
                             </div>
                         </div>
                     </div>

@@ -362,35 +362,45 @@ async def child_analysis(req: KundliRequest):
             pl_hit = None # Disabled
 
             # Analysis strictly based on NL/SL Hits (Boxed elements)
-            fertility_res = "Low / No Promise"
-            hit_set = {h for h in [nl_hit, sl_hit] if h is not None}
+            indication_res = "No Indication"
+            loss_res = "No Loss"
             
-            # 1. Childlessness (Bad houses in SL take priority)
-            if sl_hit in {1, 4, 8, 10, 12}:
-                fertility_res = "Childlessness / No Child"
-            # 2. Good Combinations
-            elif sl_hit in {2, 5, 9, 11}:
-                if nl_hit in {2, 5, 9, 11}:
-                    fertility_res = "High Fertility"
-                else:
-                    fertility_res = "Medium Fertility"
-            elif nl_hit in {2, 5, 9, 11}:
-                fertility_res = "Low Fertility (Difficulty)"
+            # Tiered Indication (Good)
+            if sl_hit in {2, 5, 11}:
+                indication_res = "Very High Indication"
+            elif sl_hit == 9:
+                indication_res = "High Indication"
+            elif nl_hit in {2, 5, 11}:
+                indication_res = "Medium Indication"
+            elif nl_hit == 9:
+                indication_res = "Low Indication"
+            
+            # Tiered Loss (Bad)
+            if sl_hit in {1, 4, 10}:
+                loss_res = "High Loss"
+            elif sl_hit in {8, 12}:
+                loss_res = "Medium Loss"
+            elif nl_hit in {1, 4, 10}:
+                loss_res = "Low Loss"
+            elif nl_hit in {8, 12}:
+                loss_res = "Very Low Loss"
 
-            # 3. Special Cases
-            if sl_hit in {6, 8, 12} and nl_hit in {2, 5, 9, 11}:
-                fertility_res = "Risk of Abortion"
-            
-            if sl_hit == 8 and nl_hit in {2, 5, 11}:
-                fertility_res = "Possible Caesarian / IVF"
+            # Special Statuses (Optional addition or override)
+            special_res = None
+            if sl_hit == 6:
+                special_res = "Possible IVF / Caesarian"
+            elif sl_hit in {8, 12} and nl_hit in {2, 5, 9, 11}:
+                special_res = "Risk of Abortion"
 
             prediction = {
                 "overall_combination": {
                     "good": [h for h in combo_all if h in {2, 5, 9, 11}],
-                    "medium": [h for h in combo_all if h in {1, 3, 7}],
-                    "bad": [h for h in combo_all if h in {1, 4, 8, 10, 12}]
+                    "medium": [h for h in combo_all if h in {3, 7}], # Fixed: 1 is bad
+                    "bad": [h for h in combo_all if h in {1, 4, 6, 8, 10, 12}]
                 },
-                "fertility_report": fertility_res,
+                "indication_report": indication_res,
+                "loss_report": loss_res,
+                "special_status": special_res,
                 "hits": {"pl": None, "nl": nl_hit, "sl": sl_hit}
             }
 
