@@ -425,25 +425,31 @@ class NadiEngine:
             # Use SIDM_KRISHNAMURTI_VP291 (39)
             swe.set_sid_mode(39, 0, 0)
             ayan_val = swe.get_ayanamsa_ut(jd)
+        # Separate Calculation for Dasha (STRICT LAHIRI MOON) - User Requirement 7
+        swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+        res_lahiri_moon, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_SIDEREAL)
+        lahiri_moon_lon = res_lahiri_moon[0]
+
+        # RE-SET TO PRIMARY MODE FOR CHART (Natal or Prashna)
+        if horary_number:
+            swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
+            ayan_val = swe.get_ayanamsa_ut(jd) + (1600.0 / 3600.0)
+            cusps, ascmc = self.calculate_prashna_cusps(jd, lat, lon, horary_number, calibrated_ayan=ayan_val)
+        else:
+            swe.set_sid_mode(39, 0, 0)
+            ayan_val = swe.get_ayanamsa_ut(jd)
             cusps_raw, ascmc_raw = swe.houses_ex(jd, lat, lon, h_sys, 0) # Tropical
             cusps = [(c - ayan_val) % 360 for c in cusps_raw]
             ascmc = [(a - ayan_val) % 360 for a in ascmc_raw]
-        
+
         # HOUSE OWNERSHIP LOGIC - STRICT WHOLE SIGN (User Requirement)
-        # User explicitly flagged that for Gemini Ascendant, Sun MUST own 3rd (Leo) and Jupiter 7th/10th (Sag/Pis).
-        # Standard Placidus often shifts these due to latitude, causing "Wrong" feedback.
-        # We will calculate ownerships based on the Ascendant Sign strictly.
-        
         house_owners = {}
         for i in range(12):
             lon_val = cusps[i]
-            # Use the sign lord of the cusp degree as the house owner
             sn, sl, nlk, sub, ssl, nak, nadi, sub_idx = self.get_kp_lords(lon_val)
             house_owners[i+1] = sl
-        
-        # house_owners = {i+1: self.SIGN_RULERS[self.get_kp_lords(cusps[i])[0]] for i in range(12)} # OLD PLACIDUS LOGIC
-        
-        # Calculate Planets
+
+        # Calculate Planets using the Chart Ayanamsa
         planets_raw = []
         for name, code in self.PLANETS.items():
             # CRITICAL: Must include FLG_SPEED to get accurate speed!
@@ -572,7 +578,7 @@ class NadiEngine:
                 "planet_lord": pl_name
             })
             
-        dasha_data = self.calculate_dasha(planets_raw, birth_dt_loc)
+        dasha_data = self.calculate_dasha(planets_raw, birth_dt_loc, lahiri_moon_lon=lahiri_moon_lon)
         
         # DEBUG LOGGING FOR ENGINE
         print(f"DEBUG: Calculated {len(nak_nadi_res)} Nadi entries.")
@@ -764,9 +770,14 @@ class NadiEngine:
         base["agent"] = ", ".join(agent_names) if agent_names else None
         
         return base
-    def calculate_dasha(self, planets_raw, birth_dt_loc):
+    def calculate_dasha(self, planets_raw, birth_dt_loc, lahiri_moon_lon=None):
         # Step 1: Moon longitude in decimal degrees
-        moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
+        # Rule: Use Lahiri Moon for Dasha, KP Moon for Chart.
+        if lahiri_moon_lon is not None:
+            moon_lon = lahiri_moon_lon
+        else:
+            moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
+        
         nak_size = 360.0 / 27.0
         
         # Exact Nakshatra (0-26 index)
