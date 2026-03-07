@@ -522,18 +522,16 @@ class NadiEngine:
         bal_yrs_f = self.DASHA_YEARS[lord_name] * remaining_fraction
         
         def add_period(dt, float_yrs):
+            """Add a fractional year period using total-days precision."""
             total_days = float_yrs * 365.25
-            y = int(float_yrs)
-            rem = float_yrs - y
-            m = int(rem * 12)
-            rem2 = rem - m / 12.0
-            d = round(rem2 * 365.25)
-            return dt + relativedelta(years=y, months=m, days=d)
+            return dt + datetime.timedelta(days=round(total_days))
 
         fmt_date = lambda dt: dt.isoformat()[:10]
         today = datetime.datetime.now(pytz.UTC)
+        # Balance: exact days from birth to end of first dasha
         md_end_first = add_period(birth_dt_loc, bal_yrs_f)
-        md_curs = md_end_first - relativedelta(years=self.DASHA_ORDER_YEARS[lord_name]) if hasattr(self, 'DASHA_ORDER_YEARS') else md_end_first - relativedelta(years=self.DASHA_YEARS[lord_name])
+        # Start of the current nakshatra lord's dasha period (before birth)
+        md_curs = add_period(birth_dt_loc, bal_yrs_f - self.DASHA_YEARS[lord_name])
         
         # Helper to get sequence from a start planet
         def get_seq(p):
