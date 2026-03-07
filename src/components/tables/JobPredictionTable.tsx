@@ -4,7 +4,7 @@ import type { NakshatraNadiItem, Planet } from '../../types/astrology';
 interface JobPredictionTableProps {
     data: NakshatraNadiItem[];
     planets: Planet[];
-    types: ('Dasha' | 'Bhukti' | 'Antara' | 'Sukshma')[];
+    types: ('Dasha' | 'Bhukti' | 'Antara' | 'Sukshma' | 'Prana')[];
     planetName: string;
     selectedArea: string;
 }
@@ -432,7 +432,8 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
         Dasha: { color: '#1d4ed8', text: '#ffffff', label: 'Dasha' },
         Bhukti: { color: '#15803d', text: '#ffffff', label: 'Bukthi' },
         Antara: { color: '#b45309', text: '#ffffff', label: 'Antar Bhukthi' },
-        Sukshma: { color: '#7c2d12', text: '#ffffff', label: 'Sukshma' }
+        Sukshma: { color: '#7c2d12', text: '#ffffff', label: 'Sukshma' },
+        Prana: { color: '#451a03', text: '#ffffff', label: 'Prana' }
     }[t]));
 
     // Determine header background based on highest priority type

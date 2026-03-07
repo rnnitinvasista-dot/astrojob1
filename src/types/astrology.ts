@@ -104,6 +104,7 @@ export interface DashaSequenceItem {
     bukthis?: DashaSequenceItem[];
     antaras?: DashaSequenceItem[];
     sukshmas?: DashaSequenceItem[];
+    pranas?: DashaSequenceItem[];
 }
 
 export interface HouseDetail {
@@ -117,6 +118,7 @@ export interface Dasha {
     current_bukthi: string;
     current_antara: string;
     current_sukshma: string;
+    current_prana: string;
     mahadasha_sequence: DashaSequenceItem[];
 }
 

@@ -28,6 +28,7 @@ interface KundliResponse {
     current_bukthi: string;
     current_antara: string;
     current_sukshma: string;
+    current_prana: string;
     mahadasha_sequence: any[];
   };
   metadata: {
@@ -210,11 +211,12 @@ const App = () => {
 
             {kundliData.planets.map((p: any) => {
               const planetName = p.planet;
-              const activeTypes: ('Dasha' | 'Bhukti' | 'Antara' | 'Sukshma')[] = [];
+              const activeTypes: ('Dasha' | 'Bhukti' | 'Antara' | 'Sukshma' | 'Prana')[] = [];
               if (planetName === kundliData.dasha.current_dasha) activeTypes.push('Dasha');
               if (planetName === kundliData.dasha.current_bukthi) activeTypes.push('Bhukti');
               if (planetName === kundliData.dasha.current_antara) activeTypes.push('Antara');
               if (planetName === kundliData.dasha.current_sukshma) activeTypes.push('Sukshma');
+              if (planetName === kundliData.dasha.current_prana) activeTypes.push('Prana');
 
               return (
                 <JobPredictionTable

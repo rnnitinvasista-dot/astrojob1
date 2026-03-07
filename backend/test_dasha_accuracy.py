@@ -27,22 +27,23 @@ def verify_dasha():
     print(f"First MD ({first_md['planet']}) starts: {first_md['start_date']}")
     
     # Check Current Mahadasha (Dasha on 2026-03-07)
-    print(f"Current Dasha: {result['dasha']['current_dasha']} / {result['dasha']['current_bukthi']} / {result['dasha']['current_antara']} / {result['dasha']['current_sukshma']}")
+    print(f"Current Dasha: {result['dasha']['current_dasha']} / {result['dasha']['current_bukthi']} / {result['dasha']['current_antara']} / {result['dasha']['current_sukshma']} / {result['dasha']['current_prana']}")
     
     # Print MD sequence for verification
     for md in result['dasha']['mahadasha_sequence']:
-        if "2026" in md['end_date'] or "2025" in md['end_date'] or "2027" in md['end_date']:
+        if "2026" in md['end_date'] or "1974" in md['start_date'] or "2027" in md['end_date']:
             print(f"MD: {md['planet']} from {md['start_date']} to {md['end_date']}")
             for ad in md['bukthis']:
-                if "2026" in ad['end_date'] or "2025" in ad['end_date']:
+                if "2026" in ad['end_date'] or "1974" in ad['start_date']:
                     print(f"  AD: {ad['planet']} from {ad['start_date']} to {ad['end_date']}")
                     for pd in ad['antaras']:
-                         if "2026" in pd['end_date']:
+                         if "2026" in pd['end_date'] or "1974" in pd['start_date']:
                              print(f"    PD: {pd['planet']} from {pd['start_date']} to {pd['end_date']}")
-                             # Check if PD starts with parent AD
-                             # Note: ad['planet'] is parent
-                             first_sd = pd['sukshmas'][0]['planet']
-                             print(f"      First SD: {first_sd} (Parent PD: {pd['planet']})")
+                             for sd in pd['sukshmas']:
+                                 if "2026" in sd['end_date']:
+                                     print(f"      SD: {sd['planet']} from {sd['start_date']} to {sd['end_date']}")
+                                     first_pr = sd['pranas'][0]['planet']
+                                     print(f"        First PR: {first_pr} (Parent SD: {sd['planet']})")
 
 if __name__ == "__main__":
     verify_dasha()

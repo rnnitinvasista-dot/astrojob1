@@ -797,7 +797,7 @@ class NadiEngine:
             return dt + datetime.timedelta(seconds=s)
             
         today = datetime.datetime.now(pytz.UTC)
-        act_md, act_ad, act_pd, act_sd = "None", "None", "None", "None"
+        act_md, act_ad, act_pd, act_sd, act_pr = "None", "None", "None", "None", "None"
         
         start_idx = self.DASHA_ORDER.index(lord_name)
         mahadasha_tree = []
@@ -809,17 +809,15 @@ class NadiEngine:
         # Constants for precision
         SEC_PER_YEAR = 365.2425 * 24 * 3600
 
-        # Calculate chronological Mahadasha sequence starting from Birth
-        md_curs = birth_dt_loc
+        # Calculate chronological Mahadasha sequence starting from EXACT start of first MD
+        # Standard Rule: MD Start = Birth - (Traversed Fraction * Lord Total Years)
+        total_md1_yrs = self.DASHA_YEARS[lord_name]
+        elapsed_md1_sec = total_md1_yrs * traversed_fraction * SEC_PER_YEAR
+        md_curs = add_seconds(birth_dt_loc, -elapsed_md1_sec)
+        
         for i in range(9):
             md_p = self.DASHA_ORDER[(start_idx + i) % 9]
-            
-            # Rule: First MD duration is the Balance at Birth
-            if i == 0:
-                md_yrs = self.DASHA_YEARS[md_p] * remaining_fraction
-            else:
-                md_yrs = self.DASHA_YEARS[md_p]
-            
+            md_yrs = self.DASHA_YEARS[md_p]
             md_duration_sec = md_yrs * SEC_PER_YEAR
             md_start = md_curs
             md_end = add_seconds(md_start, md_duration_sec)
@@ -835,7 +833,6 @@ class NadiEngine:
             ad_curs = md_start
             for j in range(9):
                 ad_p = self.DASHA_ORDER[(ad_seq_start + j) % 9]
-                # Scaled AD Duration = (Parent_MD_Duration * Lord_Yrs) / 120
                 ad_yrs = (self.DASHA_YEARS[ad_p] / 120.0) * md_yrs
                 ad_duration_sec = ad_yrs * SEC_PER_YEAR
                 ad_end = add_seconds(ad_curs, ad_duration_sec)
@@ -851,7 +848,6 @@ class NadiEngine:
                 pd_curs = ad_curs
                 for k in range(9):
                     pd_p = self.DASHA_ORDER[(pd_seq_start + k) % 9]
-                    # Scaled PD Duration = (Parent_AD_Duration * Lord_Yrs) / 120
                     pd_yrs = (self.DASHA_YEARS[pd_p] / 120.0) * ad_yrs
                     pd_duration_sec = pd_yrs * SEC_PER_YEAR
                     pd_end = add_seconds(pd_curs, pd_duration_sec)
@@ -867,16 +863,33 @@ class NadiEngine:
                     sd_curs = pd_curs
                     for l in range(9):
                         sd_p = self.DASHA_ORDER[(sd_seq_start + l) % 9]
-                        # Scaled SD Duration = (Parent_PD_Duration * Lord_Yrs) / 120
                         sd_yrs = (self.DASHA_YEARS[sd_p] / 120.0) * pd_yrs
                         sd_duration_sec = sd_yrs * SEC_PER_YEAR
                         sd_end = add_seconds(sd_curs, sd_duration_sec)
                         
+                        sd_item = {
+                            "planet": sd_p, "start_date": fmt_date(sd_curs), "end_date": fmt_date(sd_end),
+                            "pranas": []
+                        }
                         if sd_curs <= today <= sd_end: act_sd = sd_p
                         
-                        pd_item["sukshmas"].append({
-                            "planet": sd_p, "start_date": fmt_date(sd_curs), "end_date": fmt_date(sd_end)
-                        })
+                        # PR/Prana - Rule: Begins with parent lord
+                        pr_seq_start = self.DASHA_ORDER.index(sd_p)
+                        pr_curs = sd_curs
+                        for m in range(9):
+                            pr_p = self.DASHA_ORDER[(pr_seq_start + m) % 9]
+                            pr_yrs = (self.DASHA_YEARS[pr_p] / 120.0) * sd_yrs
+                            pr_duration_sec = pr_yrs * SEC_PER_YEAR
+                            pr_end = add_seconds(pr_curs, pr_duration_sec)
+                            
+                            if pr_curs <= today <= pr_end: act_pr = pr_p
+                            
+                            sd_item["pranas"].append({
+                                "planet": pr_p, "start_date": fmt_date(pr_curs), "end_date": fmt_date(pr_end)
+                            })
+                            pr_curs = pr_end
+
+                        pd_item["sukshmas"].append(sd_item)
                         sd_curs = sd_end
 
                     ad_item["antaras"].append(pd_item)
@@ -895,7 +908,8 @@ class NadiEngine:
         
         return {
             "balance_at_birth": f"{y_bal}y {m_bal}m {d_bal}d",
-            "current_dasha": act_md, "current_bukthi": act_ad, "current_antara": act_pd, "current_sukshma": act_sd,
+            "current_dasha": act_md, "current_bukthi": act_ad, "current_antara": act_pd, 
+            "current_sukshma": act_sd, "current_prana": act_pr,
             "mahadasha_sequence": mahadasha_tree, 
             "moon_lon": moon_lon,
             "nakshatra": self.NAKSHATRAS[naksh_idx],
