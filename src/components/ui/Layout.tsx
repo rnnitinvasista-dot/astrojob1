@@ -1,5 +1,5 @@
 import React from 'react';
-import { CircleDot, Layers, Clock, ArrowLeft, Hash, ExternalLink, Menu, LogOut } from 'lucide-react';
+import { Clock, ArrowLeft, ExternalLink, Menu, LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface LayoutProps {
@@ -94,29 +94,34 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                         )}
                     </div>
 
-                    {/* Left-Middle: Avatar */}
-                    <div style={{
-                        width: '56px',
-                        height: '56px',
-                        borderRadius: '50%',
-                        overflow: 'hidden',
-                        border: '2px solid white',
-                        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-                        background: 'white',
-                        marginLeft: '4px'
-                    }}>
-                        <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                    </div>
+                    {/* Dashboard-only Greeting */}
+                    {currentView === 'dashboard' && (
+                        <>
+                            {/* Avatar */}
+                            <div style={{
+                                width: '56px',
+                                height: '56px',
+                                borderRadius: '50%',
+                                overflow: 'hidden',
+                                border: '2px solid white',
+                                boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                                background: 'white',
+                                marginLeft: '4px'
+                            }}>
+                                <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                            </div>
 
-                    {/* Middle: Text */}
-                    <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '4px' }}>
-                        <div style={{ fontSize: '1.2rem', fontWeight: 600, lineHeight: 1.2, opacity: 0.9 }}>
-                            Namaste 🙏
-                        </div>
-                        <div style={{ fontSize: '1.4rem', fontWeight: 700, lineHeight: 1.2 }}>
-                            {currentUser?.displayName || 'User'}
-                        </div>
-                    </div>
+                            {/* Middle: Text */}
+                            <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '4px' }}>
+                                <div style={{ fontSize: '1.2rem', fontWeight: 600, lineHeight: 1.2, opacity: 0.9 }}>
+                                    Hello
+                                </div>
+                                <div style={{ fontSize: '1.4rem', fontWeight: 700, lineHeight: 1.2 }}>
+                                    {currentUser?.email ? currentUser.email.split('@')[0] : 'User'}
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -222,20 +227,30 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                             background: #eff6ff;
                         }
                     `}</style>
-                        <div className={`tab-item ${activeTab === 'planets' ? 'active' : ''}`} onClick={() => onTabChange('planets')}>
-                            <CircleDot size={16} /> KP Planets
+                        <div className={`tab-item ${activeTab === 'planets' ? 'active' : ''}`}
+                            onClick={() => onTabChange('planets')}
+                            style={{ fontWeight: 'bold', color: '#000000' }}>
+                            Chart
                         </div>
-                        <div className={`tab-item ${activeTab === 'nadi' ? 'active' : ''}`} onClick={() => onTabChange('nadi')}>
-                            <Hash size={16} /> House Occupation
+                        <div className={`tab-item ${activeTab === 'dasha' ? 'active' : ''}`}
+                            onClick={() => onTabChange('dasha')}
+                            style={{ fontWeight: 'bold', color: '#000000' }}>
+                            Dasha
                         </div>
-                        <div className={`tab-item ${activeTab === 'predictions' ? 'active' : ''}`} onClick={() => onTabChange('predictions')}>
-                            <Layers size={16} /> Predictions
+                        <div className={`tab-item ${activeTab === 'houses' ? 'active' : ''}`}
+                            onClick={() => onTabChange('houses')}
+                            style={{ fontWeight: 'bold', color: '#000000' }}>
+                            House Signification
                         </div>
-                        <div className={`tab-item ${activeTab === 'houses' ? 'active' : ''}`} onClick={() => onTabChange('houses')}>
-                            <Layers size={16} /> House Signification
+                        <div className={`tab-item ${activeTab === 'predictions' ? 'active' : ''}`}
+                            onClick={() => onTabChange('predictions')}
+                            style={{ fontWeight: 'bold', color: '#000000' }}>
+                            Predictions
                         </div>
-                        <div className={`tab-item ${activeTab === 'dasha' ? 'active' : ''}`} onClick={() => onTabChange('dasha')}>
-                            <Clock size={16} /> Dasha
+                        <div className={`tab-item ${activeTab === 'nadi' ? 'active' : ''}`}
+                            onClick={() => onTabChange('nadi')}
+                            style={{ fontWeight: 'bold', color: '#000000' }}>
+                            House Occupation
                         </div>
                     </nav>
                 )

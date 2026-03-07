@@ -45,6 +45,7 @@ const App = () => {
   const [kundliData, setKundliData] = useState<KundliResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('planets');
+  const [showPlanetTable, setShowPlanetTable] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [birthDetails, setBirthDetails] = useState<any>(null);
   const [chartMode] = useState<'Rashi' | 'Bhava'>('Bhava');
@@ -117,6 +118,8 @@ const App = () => {
 
       if (responseData.status === 'success') {
         setKundliData(responseData);
+        setActiveTab('planets');
+        setShowPlanetTable(false);
         setView('result');
       } else {
         setError(responseData.message || 'Engine failed');
@@ -135,15 +138,6 @@ const App = () => {
       case 'planets':
         return (
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div className="flex justify-center gap-4 mb-2" style={{ padding: '0.5rem 0' }}>
-              <button
-                className="px-6 py-2 rounded-full font-bold transition-all bg-blue-600 text-white shadow-lg"
-                style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}
-              >
-                KP Bhava Chart
-              </button>
-            </div>
-
             <SouthIndianChart
               planets={kundliData.planets}
               ascendant={kundliData.ascendant}
@@ -157,7 +151,30 @@ const App = () => {
                 moonSign: kundliData.planets.find(p => p.planet === 'Moon')?.sign
               }}
             />
-            <PlanetTable planets={kundliData.planets} />
+
+            <button
+              onClick={() => setShowPlanetTable(!showPlanetTable)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: '#eff6ff',
+                border: '1px solid #3b82f6',
+                borderRadius: '8px',
+                color: '#1e3a8a',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+              }}
+            >
+              {showPlanetTable ? 'Hide KP Planets Table' : 'Show KP Planets Table'}
+            </button>
+
+            {showPlanetTable && <PlanetTable planets={kundliData.planets} />}
           </div>
         );
       case 'houses':
@@ -188,61 +205,6 @@ const App = () => {
                 <option>Child Birth</option>
                 <option>Health</option>
               </select>
-            </div>
-
-            <div style={{
-              padding: '1.25rem',
-              background: '#eff6ff',
-              border: '1px solid #bfdbfe',
-              borderRadius: '16px',
-              fontSize: '0.8rem',
-              color: '#1e3a8a',
-              fontWeight: '800',
-              fontStyle: 'italic',
-              textAlign: 'left',
-              lineHeight: '1.7',
-              marginBottom: '1.5rem',
-              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
-            }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {(() => {
-                  const isJob = selectedArea === 'Job' || selectedArea === 'Business';
-                  const isEducation = selectedArea === 'Education';
-                  const isMarriage = selectedArea === 'Marriage';
-                  const isChildBirth = selectedArea === 'Child Birth';
-
-                  return (
-                    <>
-                      {isJob && <div style={{ color: '#3b82f6', marginBottom: '4px' }}>* = GOOD FOR JOBS LIKE, Technology, Medicine, Software, Abroad, Astrology and any Business without investments.</div>}
-                      {isEducation && <div style={{ color: '#3b82f6', marginBottom: '4px' }}>* = Good After 12th Standard for studies like Medicine, Law, Software, Engineering, etc.</div>}
-
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <div><span style={{ color: '#3b82f6' }}>Dasha:</span> {
-                          isJob ? "Shows the overall trend of wealth and financial stability." :
-                            isEducation ? "Represents your general educational standard." :
-                              isMarriage ? "Describes the general quality of your married life." :
-                                isChildBirth ? "Indicates the general promise for children." :
-                                  "Denotes your overall health trend."
-                        }</div>
-                        <div><span style={{ color: '#3b82f6' }}>Bukthi:</span> {
-                          isJob ? "Reflects your actual daily earnings." :
-                            isEducation ? "Controls your current performance." :
-                              isMarriage ? "Pinpoints the timing for marriage." :
-                                isChildBirth ? "This is a critical period for child birth." :
-                                  "Acts as the trigger for health events."
-                        }</div>
-                        <div><span style={{ color: '#3b82f6' }}>Antarbukthi:</span> {
-                          isJob ? "Provides immediate positive or negative impact." :
-                            isEducation ? "Gives final adjustments to specific results." :
-                              isMarriage ? "Supports the Bukthi in finalizing results." :
-                                isChildBirth ? "Supports the Bukthi's result." :
-                                  "Strengthens or weakens the Bukthi’s effect."
-                        }</div>
-                      </div>
-                    </>
-                  );
-                })()}
-              </div>
             </div>
 
             {kundliData.planets.map((p: any) => {
@@ -368,30 +330,6 @@ const App = () => {
 
           {view === 'result' && kundliData && !loading && (
             <div className="results-view">
-              <div className="summary-banner" style={{
-                textAlign: 'center',
-                marginBottom: '1.5rem',
-                animation: 'fadeIn 0.5s ease',
-                background: '#ffffff',
-                padding: '1.25rem 1rem',
-                borderRadius: '24px',
-                border: '1px solid #e2e8f0',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                margin: '1rem'
-              }}>
-                <h2 style={{ fontSize: '1.1rem', color: '#1e293b', margin: 0 }}>{kundliData.ascendant.sign} Lagna @ {kundliData.ascendant.degree_dms}</h2>
-                {mode === 'Prashna' && (
-                  <div style={{ color: '#1d4ed8', fontWeight: 800, fontSize: '0.9rem', marginTop: '4px' }}>
-                    PRASHNA NUMBER: {kundliData.metadata?.horary_number}
-                  </div>
-                )}
-                <p style={{ color: '#1d4ed8', fontSize: '1rem', fontWeight: 600, margin: '8px 0' }}>
-                  Nakshatra: {kundliData.metadata?.janma_nakshatra} ({kundliData.metadata?.pada})
-                </p>
-                <p style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '4px' }}>
-                  Ayanamsa: {kundliData.metadata?.ayanamsa || 'Lahiri'} ({kundliData.metadata?.ayanamsa_value})
-                </p>
-              </div>
               {renderTabContent()}
             </div>
           )}
