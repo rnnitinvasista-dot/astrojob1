@@ -99,6 +99,7 @@ export interface Signification {
 
 export interface DashaSequenceItem {
     planet: string;
+    abbr?: string;
     start_date: string;
     end_date: string;
     bhuktis?: DashaSequenceItem[];
