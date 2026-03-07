@@ -84,8 +84,8 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                             >
                                 <div className="flex items-center gap-8">
                                     <div className={`w-14 h-14 rounded-full flex items-center justify-center font-black text-lg border-2 transition-all group-hover:scale-105 ${isActive
-                                            ? 'bg-orange-600 border-orange-600 text-white shadow-2xl shadow-orange-200'
-                                            : 'bg-white border-gray-100 text-gray-400 group-hover:border-orange-200 group-hover:text-orange-400'
+                                        ? 'bg-orange-600 border-orange-600 text-white shadow-2xl shadow-orange-200'
+                                        : 'bg-white border-gray-100 text-gray-400 group-hover:border-orange-200 group-hover:text-orange-400'
                                         }`}>
                                         {item.abbr || item.planet.substring(0, 2)}
                                     </div>
@@ -123,6 +123,9 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                 <p className="text-[15px] text-orange-500 font-black leading-8 tracking-tight">
                     Date mentioned above are ending dates.
                 </p>
+                <div className="mt-4 text-[10px] text-gray-300 font-bold uppercase tracking-widest">
+                    Build: v1.2.5 (High-Precision Vedic Dasha)
+                </div>
             </div>
         </div>
     );

@@ -933,6 +933,7 @@ class NadiEngine:
         d_bal = int(((rem_y * 12) - m_bal) * 30)
         
         return {
+            "version": "1.2.5",
             "balance_at_birth": f"{y_bal}y {m_bal}m {d_bal}d",
             "dasha": act_md, "bhukti": act_bh, "antar_bhukti": act_ab, 
             "pratyantar": act_pr, "sukshma": act_sk,
