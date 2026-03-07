@@ -531,38 +531,71 @@ class NadiEngine:
         fmt_date = lambda dt: dt.isoformat()[:10]
         today = datetime.datetime.now(pytz.UTC)
         md_end_first = add_period(birth_dt_loc, bal_yrs_f)
-        # Entire cycle start = (First MD End) minus (19 years of Saturn if Saturn is lord)
-        md_curs = md_end_first - relativedelta(years=self.DASHA_YEARS[lord_name])
+        md_curs = md_end_first - relativedelta(years=self.DASHA_ORDER_YEARS[lord_name]) if hasattr(self, 'DASHA_ORDER_YEARS') else md_end_first - relativedelta(years=self.DASHA_YEARS[lord_name])
         
-        tree, act_md, act_ad, act_pd = [], "None", "None", "None"
-        start_idx = self.DASHA_ORDER.index(lord_name)
-        for i in range(9):
-            p = self.DASHA_ORDER[(start_idx + i) % 9]
+        # Helper to get sequence from a start planet
+        def get_seq(p):
+            idx = self.DASHA_ORDER.index(p)
+            return self.DASHA_ORDER[idx:] + self.DASHA_ORDER[:idx]
+
+        tree, act_md, act_ad, act_pd, act_sd, act_pr = [], "None", "None", "None", "None", "None"
+        md_start_idx = self.DASHA_ORDER.index(lord_name)
+        
+        # Dasha (D)
+        for d_p in get_seq(lord_name):
             md_start = md_curs
-            md_end = md_start + relativedelta(years=self.DASHA_YEARS[p])
+            md_end = md_start + relativedelta(years=self.DASHA_YEARS[d_p])
+            md_item = {"planet": d_p, "label": "D", "start_date": fmt_date(md_start), "end_date": fmt_date(md_end), "bukthis": []}
             
-            md_item = {"planet": p, "start_date": fmt_date(md_start), "end_date": fmt_date(md_end), "bukthis": []}
-            if md_start <= today <= md_end: act_md = p
+            if md_start <= today <= md_end:
+                act_md = d_p
+                # Bukthi (B)
+                ad_curs = md_start
+                for b_p in get_seq(d_p):
+                    ad_yrs_f = (self.DASHA_YEARS[b_p] / 120.0) * self.DASHA_YEARS[d_p]
+                    ad_end = add_period(ad_curs, ad_yrs_f)
+                    ad_item = {"planet": b_p, "label": "B", "start_date": fmt_date(ad_curs), "end_date": fmt_date(ad_end), "antaras": []}
+                    
+                    if ad_curs <= today <= ad_end:
+                        act_ad = b_p
+                        # Antara (A)
+                        pd_curs = ad_curs
+                        for a_p in get_seq(b_p):
+                            pd_yrs_f = (self.DASHA_YEARS[a_p] / 120.0) * ad_yrs_f
+                            pd_end = add_period(pd_curs, pd_yrs_f)
+                            pd_item = {"planet": a_p, "label": "A", "start_date": fmt_date(pd_curs), "end_date": fmt_date(pd_end), "pratyantars": []}
+                            
+                            if pd_curs <= today <= pd_end:
+                                act_pd = a_p
+                                # Pratyantar (P) - Sookshma
+                                sd_curs = pd_curs
+                                for p_p in get_seq(a_p):
+                                    sd_yrs_f = (self.DASHA_YEARS[p_p] / 120.0) * pd_yrs_f
+                                    sd_end = add_period(sd_curs, sd_yrs_f)
+                                    sd_item = {"planet": p_p, "label": "P", "start_date": fmt_date(sd_curs), "end_date": fmt_date(sd_end), "sookshmas": []}
+                                    
+                                    if sd_curs <= today <= sd_end:
+                                        act_sd = p_p
+                                        # Sookshma (S) - Prana
+                                        pr_curs = sd_curs
+                                        for s_p in get_seq(p_p):
+                                            pr_yrs_f = (self.DASHA_YEARS[s_p] / 120.0) * sd_yrs_f
+                                            pr_end = add_period(pr_curs, pr_yrs_f)
+                                            if pr_curs <= today <= pr_end: act_pr = s_p
+                                            sd_item["sookshmas"].append({"planet": s_p, "label": "S", "start_date": fmt_date(pr_curs), "end_date": fmt_date(pr_end)})
+                                            pr_curs = pr_end
+                                    
+                                    pd_item["pratyantars"].append(sd_item)
+                                    sd_curs = sd_end
+                            
+                            ad_item["antaras"].append(pd_item)
+                            pd_curs = pd_end
+                    
+                    md_item["bukthis"].append(ad_item)
+                    ad_curs = ad_end
             
-            ad_seq_start = self.DASHA_ORDER.index(p)
-            ad_seq = self.DASHA_ORDER[ad_seq_start:] + self.DASHA_ORDER[:ad_seq_start]
-            ad_curs = md_start
-            for ap in ad_seq:
-                ad_yrs_f = (self.DASHA_YEARS[ap] / 120.0) * self.DASHA_YEARS[p]
-                ad_end = add_period(ad_curs, ad_yrs_f)
-                ad_item = {"planet": ap, "start_date": fmt_date(ad_curs), "end_date": fmt_date(ad_end), "antaras": []}
-                if ad_curs <= today <= ad_end: act_ad = ap
-                
-                pd_seq_start = self.DASHA_ORDER.index(ap)
-                pd_seq = self.DASHA_ORDER[pd_seq_start:] + self.DASHA_ORDER[:pd_seq_start]
-                pd_curs = ad_curs
-                for pp in pd_seq:
-                    pd_end = add_period(pd_curs, (self.DASHA_YEARS[pp] / 120.0) * ad_yrs_f)
-                    if pd_curs <= today <= pd_end: act_pd = pp
-                    ad_item["antaras"].append({"planet": pp, "start_date": fmt_date(pd_curs), "end_date": fmt_date(pd_end)})
-                    pd_curs = pd_end
-                md_item["bukthis"].append(ad_item); ad_curs = ad_end
-            tree.append(md_item); md_curs = md_end
+            tree.append(md_item)
+            md_curs = md_end
             
         y_bal = int(bal_yrs_f)
         rem_y = bal_yrs_f - y_bal
@@ -570,6 +603,8 @@ class NadiEngine:
         d_bal = int(((rem_y * 12) - m_bal) * 30)
         
         return {
-            "balance_at_birth": f"{y_bal}y {m_bal}m {d_bal}d", "current_dasha": act_md, "current_bukthi": act_ad, "current_antara": act_pd,
+            "balance_at_birth": f"{y_bal}y {m_bal}m {d_bal}d", 
+            "current_dasha": act_md, "current_bukthi": act_ad, "current_antara": act_pd,
+            "current_pratyantar": act_sd, "current_sookshma": act_pr,
             "mahadasha_sequence": tree, "moon_lon": moon_lon, "nakshatra": self.NAKSHATRAS[naksh_idx], "pada": int((deg_in_nak / (nak_size / 4)) + 1)
         }
