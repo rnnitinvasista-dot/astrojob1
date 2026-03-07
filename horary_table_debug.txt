@@ -1,0 +1,249 @@
+  1: 00°00'27" | Aries | Mars-Ketu-Ketu
+  2: 00°47'07" | Aries | Mars-Ketu-Venus
+  3: 03°00'27" | Aries | Mars-Ketu-Sun
+  4: 03°40'27" | Aries | Mars-Ketu-Moon
+  5: 04°47'07" | Aries | Mars-Ketu-Mars
+  6: 05°33'47" | Aries | Mars-Ketu-Rahu
+  7: 07°33'47" | Aries | Mars-Ketu-Jupiter
+  8: 09°20'27" | Aries | Mars-Ketu-Saturn
+  9: 11°27'07" | Aries | Mars-Ketu-Mercury
+ 10: 13°20'27" | Aries | Mars-Venus-Venus
+ 11: 15°33'47" | Aries | Mars-Venus-Sun
+ 12: 16°13'47" | Aries | Mars-Venus-Moon
+ 13: 17°20'27" | Aries | Mars-Venus-Mars
+ 14: 18°07'07" | Aries | Mars-Venus-Rahu
+ 15: 20°07'07" | Aries | Mars-Venus-Jupiter
+ 16: 21°53'47" | Aries | Mars-Venus-Saturn
+ 17: 24°00'27" | Aries | Mars-Venus-Mercury
+ 18: 25°53'47" | Aries | Mars-Venus-Ketu
+ 19: 26°40'27" | Aries | Mars-Sun-Sun
+ 20: 27°20'27" | Aries | Mars-Sun-Moon
+ 21: 28°27'07" | Aries | Mars-Sun-Mars
+ 22: 29°13'47" | Aries | Mars-Sun-Rahu
+ 23: 30°00'27" | Taurus | Venus-Sun-Rahu
+ 24: 31°13'47" | Taurus | Venus-Sun-Jupiter
+ 25: 33°00'27" | Taurus | Venus-Sun-Saturn
+ 26: 35°07'07" | Taurus | Venus-Sun-Mercury
+ 27: 37°00'27" | Taurus | Venus-Sun-Ketu
+ 28: 37°47'07" | Taurus | Venus-Sun-Venus
+ 29: 40°00'27" | Taurus | Venus-Moon-Moon
+ 30: 41°07'07" | Taurus | Venus-Moon-Mars
+ 31: 41°53'47" | Taurus | Venus-Moon-Rahu
+ 32: 43°53'47" | Taurus | Venus-Moon-Jupiter
+ 33: 45°40'27" | Taurus | Venus-Moon-Saturn
+ 34: 47°47'07" | Taurus | Venus-Moon-Mercury
+ 35: 49°40'27" | Taurus | Venus-Moon-Ketu
+ 36: 50°27'07" | Taurus | Venus-Moon-Venus
+ 37: 52°40'27" | Taurus | Venus-Moon-Sun
+ 38: 53°20'27" | Taurus | Venus-Mars-Mars
+ 39: 54°07'07" | Taurus | Venus-Mars-Rahu
+ 40: 56°07'07" | Taurus | Venus-Mars-Jupiter
+ 41: 57°53'47" | Taurus | Venus-Mars-Saturn
+ 42: 60°00'27" | Gemini | Mercury-Mars-Mercury
+ 43: 61°53'47" | Gemini | Mercury-Mars-Ketu
+ 44: 62°40'27" | Gemini | Mercury-Mars-Venus
+ 45: 64°53'47" | Gemini | Mercury-Mars-Sun
+ 46: 65°33'47" | Gemini | Mercury-Mars-Moon
+ 47: 66°40'27" | Gemini | Mercury-Rahu-Rahu
+ 48: 68°40'27" | Gemini | Mercury-Rahu-Jupiter
+ 49: 70°27'07" | Gemini | Mercury-Rahu-Saturn
+ 50: 72°33'47" | Gemini | Mercury-Rahu-Mercury
+ 51: 74°27'07" | Gemini | Mercury-Rahu-Ketu
+ 52: 75°13'47" | Gemini | Mercury-Rahu-Venus
+ 53: 77°27'07" | Gemini | Mercury-Rahu-Sun
+ 54: 78°07'07" | Gemini | Mercury-Rahu-Moon
+ 55: 79°13'47" | Gemini | Mercury-Rahu-Mars
+ 56: 80°00'27" | Gemini | Mercury-Jupiter-Jupiter
+ 57: 81°47'07" | Gemini | Mercury-Jupiter-Saturn
+ 58: 83°53'47" | Gemini | Mercury-Jupiter-Mercury
+ 59: 85°47'07" | Gemini | Mercury-Jupiter-Ketu
+ 60: 86°33'47" | Gemini | Mercury-Jupiter-Venus
+ 61: 88°47'07" | Gemini | Mercury-Jupiter-Sun
+ 62: 89°27'07" | Gemini | Mercury-Jupiter-Moon
+ 63: 90°00'27" | Cancer | Moon-Jupiter-Moon
+ 64: 90°33'47" | Cancer | Moon-Jupiter-Mars
+ 65: 91°20'27" | Cancer | Moon-Jupiter-Rahu
+ 66: 93°20'27" | Cancer | Moon-Saturn-Saturn
+ 67: 95°27'07" | Cancer | Moon-Saturn-Mercury
+ 68: 97°20'27" | Cancer | Moon-Saturn-Ketu
+ 69: 98°07'07" | Cancer | Moon-Saturn-Venus
+ 70: 100°20'27" | Cancer | Moon-Saturn-Sun
+ 71: 101°00'27" | Cancer | Moon-Saturn-Moon
+ 72: 102°07'07" | Cancer | Moon-Saturn-Mars
+ 73: 102°53'47" | Cancer | Moon-Saturn-Rahu
+ 74: 104°53'47" | Cancer | Moon-Saturn-Jupiter
+ 75: 106°40'27" | Cancer | Moon-Mercury-Mercury
+ 76: 108°33'47" | Cancer | Moon-Mercury-Ketu
+ 77: 109°20'27" | Cancer | Moon-Mercury-Venus
+ 78: 111°33'47" | Cancer | Moon-Mercury-Sun
+ 79: 112°13'47" | Cancer | Moon-Mercury-Moon
+ 80: 113°20'27" | Cancer | Moon-Mercury-Mars
+ 81: 114°07'07" | Cancer | Moon-Mercury-Rahu
+ 82: 116°07'07" | Cancer | Moon-Mercury-Jupiter
+ 83: 117°53'47" | Cancer | Moon-Mercury-Saturn
+ 84: 120°00'27" | Leo | Sun-Ketu-Ketu
+ 85: 120°47'07" | Leo | Sun-Ketu-Venus
+ 86: 123°00'27" | Leo | Sun-Ketu-Sun
+ 87: 123°40'27" | Leo | Sun-Ketu-Moon
+ 88: 124°47'07" | Leo | Sun-Ketu-Mars
+ 89: 125°33'47" | Leo | Sun-Ketu-Rahu
+ 90: 127°33'47" | Leo | Sun-Ketu-Jupiter
+ 91: 129°20'27" | Leo | Sun-Ketu-Saturn
+ 92: 131°27'07" | Leo | Sun-Ketu-Mercury
+ 93: 133°20'27" | Leo | Sun-Venus-Venus
+ 94: 135°33'47" | Leo | Sun-Venus-Sun
+ 95: 136°13'47" | Leo | Sun-Venus-Moon
+ 96: 137°20'27" | Leo | Sun-Venus-Mars
+ 97: 138°07'07" | Leo | Sun-Venus-Rahu
+ 98: 140°07'07" | Leo | Sun-Venus-Jupiter
+ 99: 141°53'47" | Leo | Sun-Venus-Saturn
+100: 144°00'27" | Leo | Sun-Venus-Mercury
+101: 145°53'47" | Leo | Sun-Venus-Ketu
+102: 146°40'27" | Leo | Sun-Sun-Sun
+103: 147°20'27" | Leo | Sun-Sun-Moon
+104: 148°27'07" | Leo | Sun-Sun-Mars
+105: 149°13'47" | Leo | Sun-Sun-Rahu
+106: 150°00'27" | Virgo | Mercury-Sun-Rahu
+107: 151°13'47" | Virgo | Mercury-Sun-Jupiter
+108: 153°00'27" | Virgo | Mercury-Sun-Saturn
+109: 155°07'07" | Virgo | Mercury-Sun-Mercury
+110: 157°00'27" | Virgo | Mercury-Sun-Ketu
+111: 157°47'07" | Virgo | Mercury-Sun-Venus
+112: 160°00'27" | Virgo | Mercury-Moon-Moon
+113: 161°07'07" | Virgo | Mercury-Moon-Mars
+114: 161°53'47" | Virgo | Mercury-Moon-Rahu
+115: 163°53'47" | Virgo | Mercury-Moon-Jupiter
+116: 165°40'27" | Virgo | Mercury-Moon-Saturn
+117: 167°47'07" | Virgo | Mercury-Moon-Mercury
+118: 169°40'27" | Virgo | Mercury-Moon-Ketu
+119: 170°27'07" | Virgo | Mercury-Moon-Venus
+120: 172°40'27" | Virgo | Mercury-Moon-Sun
+121: 173°20'27" | Virgo | Mercury-Mars-Mars
+122: 174°07'07" | Virgo | Mercury-Mars-Rahu
+123: 176°07'07" | Virgo | Mercury-Mars-Jupiter
+124: 177°53'47" | Virgo | Mercury-Mars-Saturn
+125: 180°00'27" | Libra | Venus-Mars-Mercury
+126: 181°53'47" | Libra | Venus-Mars-Ketu
+127: 182°40'27" | Libra | Venus-Mars-Venus
+128: 184°53'47" | Libra | Venus-Mars-Sun
+129: 185°33'47" | Libra | Venus-Mars-Moon
+130: 186°40'27" | Libra | Venus-Rahu-Rahu
+131: 188°40'27" | Libra | Venus-Rahu-Jupiter
+132: 190°27'07" | Libra | Venus-Rahu-Saturn
+133: 192°33'47" | Libra | Venus-Rahu-Mercury
+134: 194°27'07" | Libra | Venus-Rahu-Ketu
+135: 195°13'47" | Libra | Venus-Rahu-Venus
+136: 197°27'07" | Libra | Venus-Rahu-Sun
+137: 198°07'07" | Libra | Venus-Rahu-Moon
+138: 199°13'47" | Libra | Venus-Rahu-Mars
+139: 200°00'27" | Libra | Venus-Jupiter-Jupiter
+140: 201°47'07" | Libra | Venus-Jupiter-Saturn
+141: 203°53'47" | Libra | Venus-Jupiter-Mercury
+142: 205°47'07" | Libra | Venus-Jupiter-Ketu
+143: 206°33'47" | Libra | Venus-Jupiter-Venus
+144: 208°47'07" | Libra | Venus-Jupiter-Sun
+145: 209°27'07" | Libra | Venus-Jupiter-Moon
+146: 210°00'27" | Scorpio | Mars-Jupiter-Moon
+147: 210°33'47" | Scorpio | Mars-Jupiter-Mars
+148: 211°20'27" | Scorpio | Mars-Jupiter-Rahu
+149: 213°20'27" | Scorpio | Mars-Saturn-Saturn
+150: 215°27'07" | Scorpio | Mars-Saturn-Mercury
+151: 217°20'27" | Scorpio | Mars-Saturn-Ketu
+152: 218°07'07" | Scorpio | Mars-Saturn-Venus
+153: 220°20'27" | Scorpio | Mars-Saturn-Sun
+154: 221°00'27" | Scorpio | Mars-Saturn-Moon
+155: 222°07'07" | Scorpio | Mars-Saturn-Mars
+156: 222°53'47" | Scorpio | Mars-Saturn-Rahu
+157: 224°53'47" | Scorpio | Mars-Saturn-Jupiter
+158: 226°40'27" | Scorpio | Mars-Mercury-Mercury
+159: 228°33'47" | Scorpio | Mars-Mercury-Ketu
+160: 229°20'27" | Scorpio | Mars-Mercury-Venus
+161: 231°33'47" | Scorpio | Mars-Mercury-Sun
+162: 232°13'47" | Scorpio | Mars-Mercury-Moon
+163: 233°20'27" | Scorpio | Mars-Mercury-Mars
+164: 234°07'07" | Scorpio | Mars-Mercury-Rahu
+165: 236°07'07" | Scorpio | Mars-Mercury-Jupiter
+166: 237°53'47" | Scorpio | Mars-Mercury-Saturn
+167: 240°00'27" | Sagittarius | Jupiter-Ketu-Ketu
+168: 240°47'07" | Sagittarius | Jupiter-Ketu-Venus
+169: 243°00'27" | Sagittarius | Jupiter-Ketu-Sun
+170: 243°40'27" | Sagittarius | Jupiter-Ketu-Moon
+171: 244°47'07" | Sagittarius | Jupiter-Ketu-Mars
+172: 245°33'47" | Sagittarius | Jupiter-Ketu-Rahu
+173: 247°33'47" | Sagittarius | Jupiter-Ketu-Jupiter
+174: 249°20'27" | Sagittarius | Jupiter-Ketu-Saturn
+175: 251°27'07" | Sagittarius | Jupiter-Ketu-Mercury
+176: 253°20'27" | Sagittarius | Jupiter-Venus-Venus
+177: 255°33'47" | Sagittarius | Jupiter-Venus-Sun
+178: 256°13'47" | Sagittarius | Jupiter-Venus-Moon
+179: 257°20'27" | Sagittarius | Jupiter-Venus-Mars
+180: 258°07'07" | Sagittarius | Jupiter-Venus-Rahu
+181: 260°07'07" | Sagittarius | Jupiter-Venus-Jupiter
+182: 261°53'47" | Sagittarius | Jupiter-Venus-Saturn
+183: 264°00'27" | Sagittarius | Jupiter-Venus-Mercury
+184: 265°53'47" | Sagittarius | Jupiter-Venus-Ketu
+185: 266°40'27" | Sagittarius | Jupiter-Sun-Sun
+186: 267°20'27" | Sagittarius | Jupiter-Sun-Moon
+187: 268°27'07" | Sagittarius | Jupiter-Sun-Mars
+188: 269°13'47" | Sagittarius | Jupiter-Sun-Rahu
+189: 270°00'27" | Capricorn | Saturn-Sun-Rahu
+190: 271°13'47" | Capricorn | Saturn-Sun-Jupiter
+191: 273°00'27" | Capricorn | Saturn-Sun-Saturn
+192: 275°07'07" | Capricorn | Saturn-Sun-Mercury
+193: 277°00'27" | Capricorn | Saturn-Sun-Ketu
+194: 277°47'07" | Capricorn | Saturn-Sun-Venus
+195: 280°00'27" | Capricorn | Saturn-Moon-Moon
+196: 281°07'07" | Capricorn | Saturn-Moon-Mars
+197: 281°53'47" | Capricorn | Saturn-Moon-Rahu
+198: 283°53'47" | Capricorn | Saturn-Moon-Jupiter
+199: 285°40'27" | Capricorn | Saturn-Moon-Saturn
+200: 287°47'07" | Capricorn | Saturn-Moon-Mercury
+201: 289°40'27" | Capricorn | Saturn-Moon-Ketu
+202: 290°27'07" | Capricorn | Saturn-Moon-Venus
+203: 292°40'27" | Capricorn | Saturn-Moon-Sun
+204: 293°20'27" | Capricorn | Saturn-Mars-Mars
+205: 294°07'07" | Capricorn | Saturn-Mars-Rahu
+206: 296°07'07" | Capricorn | Saturn-Mars-Jupiter
+207: 297°53'47" | Capricorn | Saturn-Mars-Saturn
+208: 300°00'27" | Aquarius | Saturn-Mars-Mercury
+209: 301°53'47" | Aquarius | Saturn-Mars-Ketu
+210: 302°40'27" | Aquarius | Saturn-Mars-Venus
+211: 304°53'47" | Aquarius | Saturn-Mars-Sun
+212: 305°33'47" | Aquarius | Saturn-Mars-Moon
+213: 306°40'27" | Aquarius | Saturn-Rahu-Rahu
+214: 308°40'27" | Aquarius | Saturn-Rahu-Jupiter
+215: 310°27'07" | Aquarius | Saturn-Rahu-Saturn
+216: 312°33'47" | Aquarius | Saturn-Rahu-Mercury
+217: 314°27'07" | Aquarius | Saturn-Rahu-Ketu
+218: 315°13'47" | Aquarius | Saturn-Rahu-Venus
+219: 317°27'07" | Aquarius | Saturn-Rahu-Sun
+220: 318°07'07" | Aquarius | Saturn-Rahu-Moon
+221: 319°13'47" | Aquarius | Saturn-Rahu-Mars
+222: 320°00'27" | Aquarius | Saturn-Jupiter-Jupiter
+223: 321°47'07" | Aquarius | Saturn-Jupiter-Saturn
+224: 323°53'47" | Aquarius | Saturn-Jupiter-Mercury
+225: 325°47'07" | Aquarius | Saturn-Jupiter-Ketu
+226: 326°33'47" | Aquarius | Saturn-Jupiter-Venus
+227: 328°47'07" | Aquarius | Saturn-Jupiter-Sun
+228: 329°27'07" | Aquarius | Saturn-Jupiter-Moon
+229: 330°00'27" | Pisces | Jupiter-Jupiter-Moon
+230: 330°33'47" | Pisces | Jupiter-Jupiter-Mars
+231: 331°20'27" | Pisces | Jupiter-Jupiter-Rahu
+232: 333°20'27" | Pisces | Jupiter-Saturn-Saturn
+233: 335°27'07" | Pisces | Jupiter-Saturn-Mercury
+234: 337°20'27" | Pisces | Jupiter-Saturn-Ketu
+235: 338°07'07" | Pisces | Jupiter-Saturn-Venus
+236: 340°20'27" | Pisces | Jupiter-Saturn-Sun
+237: 341°00'27" | Pisces | Jupiter-Saturn-Moon
+238: 342°07'07" | Pisces | Jupiter-Saturn-Mars
+239: 342°53'47" | Pisces | Jupiter-Saturn-Rahu
+240: 344°53'47" | Pisces | Jupiter-Saturn-Jupiter
+241: 346°40'27" | Pisces | Jupiter-Mercury-Mercury
+242: 348°33'47" | Pisces | Jupiter-Mercury-Ketu
+243: 349°20'27" | Pisces | Jupiter-Mercury-Venus
+244: 351°33'47" | Pisces | Jupiter-Mercury-Sun
+245: 352°13'47" | Pisces | Jupiter-Mercury-Moon
+246: 353°20'27" | Pisces | Jupiter-Mercury-Mars
+247: 354°07'07" | Pisces | Jupiter-Mercury-Rahu
+248: 356°07'07" | Pisces | Jupiter-Mercury-Jupiter
+249: 357°53'47" | Pisces | Jupiter-Mercury-Saturn
