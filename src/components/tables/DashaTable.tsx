@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, ChevronDown } from 'lucide-react';
-import type { Dasha, DashaSequenceItem } from '../../types/astrology';
+import type { Dasha } from '../../types/astrology';
 
 interface DashaTableProps {
     dasha: Dasha;
