@@ -38,6 +38,7 @@ import swisseph as swe
 import datetime
 import pytz
 import math
+from dateutil.relativedelta import relativedelta
 
 class NadiEngine:
     def __init__(self, node_type="Mean", ayanamsa="KP", house_system="Placidus"):
@@ -793,20 +794,7 @@ class NadiEngine:
         
         lord_name = self.DASHA_ORDER[naksh_idx % 9]
         
-        def add_seconds(dt, s):
-            return dt + datetime.timedelta(seconds=s)
-            
         today = datetime.datetime.now(pytz.UTC)
-        act_md, act_bh, act_ab, act_pr, act_sk = "None", "None", "None", "None", "None"
-        
-        start_idx = self.DASHA_ORDER.index(lord_name)
-        mahadasha_tree = []
-        
-        # Pre-format logic helper
-        def fmt_date(dt):
-            return dt.strftime("%Y-%m-%d %H:%M:%S")
-
-        SEC_PER_YEAR = 365.25 * 24 * 3600
         ABBR = {
             'Ketu': 'Ke', 'Venus': 'Ve', 'Sun': 'Su', 'Moon': 'Mo', 
             'Mars': 'Ma', 'Rahu': 'Ra', 'Jupiter': 'Ju', 'Saturn': 'Sa', 'Mercury': 'Me'
@@ -815,18 +803,39 @@ class NadiEngine:
         def fmt_date(dt):
             return dt.strftime("%d/%m/%Y")
 
-        # Standard Rule: MD Start = Birth - (Traversed Fraction * Lord Total Years)
-        total_md1_yrs = self.DASHA_YEARS[lord_name]
-        elapsed_md1_sec = total_md1_yrs * traversed_fraction * SEC_PER_YEAR
-        md_curs = add_seconds(birth_dt_loc, -elapsed_md1_sec)
+        # Balance at birth calculation
+        total_yrs_lord = self.DASHA_YEARS[lord_name]
+        rem_years_decimal = remaining_fraction * total_yrs_lord
         
-        for i in range(9):
+        y_rem = int(rem_years_decimal)
+        m_rem_f = (rem_years_decimal - y_rem) * 12
+        m_rem = int(m_rem_f)
+        d_rem = int((m_rem_f - m_rem) * 30) 
+        
+        # Chronological Calculation: Start of first MD = Birth - Elapsed
+        elapsed_years_decimal = (1.0 - remaining_fraction) * total_yrs_lord
+        ey = int(elapsed_years_decimal)
+        em_f = (elapsed_years_decimal - ey) * 12
+        em = int(em_f)
+        ed = int((em_f - em) * 30)
+        
+        md_curs = birth_dt_loc - relativedelta(years=ey, months=em, days=ed)
+        
+        mahadasha_tree = []
+        act_md, act_bh, act_ab, act_pr, act_sk = "None", "None", "None", "None", "None"
+        start_idx = self.DASHA_ORDER.index(lord_name)
+
+        for i in range(12): # cover 120 years
             md_p = self.DASHA_ORDER[(start_idx + i) % 9]
-            md_yrs = self.DASHA_YEARS[md_p]
-            md_duration_sec = md_yrs * SEC_PER_YEAR
+            md_y = self.DASHA_YEARS[md_p]
             md_start = md_curs
-            md_end = add_seconds(md_start, md_duration_sec)
+            md_end = md_start + relativedelta(years=md_y)
             
+            # Skip if ends long before birth
+            if md_end < birth_dt_loc - datetime.timedelta(days=365):
+                md_curs = md_end
+                continue
+
             md_item = {
                 "planet": md_p, "abbr": ABBR.get(md_p, md_p[:2]),
                 "start_date": fmt_date(md_start), "end_date": fmt_date(md_end),
@@ -834,14 +843,17 @@ class NadiEngine:
             }
             if md_start <= today <= md_end: act_md = md_p
             
-            # Level 2 - Bhukti
-            ad_seq_start = self.DASHA_ORDER.index(md_p)
+            # Sub-dashas
             ad_curs = md_start
             for j in range(9):
-                ad_p = self.DASHA_ORDER[(ad_seq_start + j) % 9]
-                ad_yrs = (self.DASHA_YEARS[ad_p] / 120.0) * md_yrs
-                ad_duration_sec = ad_yrs * SEC_PER_YEAR
-                ad_end = add_seconds(ad_curs, ad_duration_sec)
+                ad_p = self.DASHA_ORDER[(self.DASHA_ORDER.index(md_p) + j) % 9]
+                ad_yrs_total = (md_y * self.DASHA_YEARS[ad_p]) / 120.0
+                
+                ay = int(ad_yrs_total)
+                am_f = (ad_yrs_total - ay) * 12
+                am = int(am_f)
+                ad_val = int((am_f - am) * 30)
+                ad_end = ad_curs + relativedelta(years=ay, months=am, days=ad_val)
                 
                 ad_item = { 
                     "planet": ad_p, "abbr": ABBR.get(ad_p, ad_p[:2]),
@@ -850,14 +862,15 @@ class NadiEngine:
                 }
                 if ad_curs <= today <= ad_end: act_bh = ad_p
                 
-                # Level 3 - Antar Bhukti
-                pd_seq_start = self.DASHA_ORDER.index(ad_p)
                 pd_curs = ad_curs
                 for k in range(9):
-                    pd_p = self.DASHA_ORDER[(pd_seq_start + k) % 9]
-                    pd_yrs = (self.DASHA_YEARS[pd_p] / 120.0) * ad_yrs
-                    pd_duration_sec = pd_yrs * SEC_PER_YEAR
-                    pd_end = add_seconds(pd_curs, pd_duration_sec)
+                    pd_p = self.DASHA_ORDER[(self.DASHA_ORDER.index(ad_p) + k) % 9]
+                    pd_yrs_total = (ad_yrs_total * self.DASHA_YEARS[pd_p]) / 120.0
+                    py = int(pd_yrs_total)
+                    pm_f = (pd_yrs_total - py) * 12
+                    pm = int(pm_f)
+                    pd_val = int((pm_f - pm) * 30)
+                    pd_end = pd_curs + relativedelta(years=py, months=pm, days=pd_val)
                     
                     pd_item = {
                         "planet": pd_p, "abbr": ABBR.get(pd_p, pd_p[:2]),
@@ -866,14 +879,15 @@ class NadiEngine:
                     }
                     if pd_curs <= today <= pd_end: act_ab = pd_p
                     
-                    # Level 4 - Pratyantar
-                    sd_seq_start = self.DASHA_ORDER.index(pd_p)
                     sd_curs = pd_curs
                     for l in range(9):
-                        sd_p = self.DASHA_ORDER[(sd_seq_start + l) % 9]
-                        sd_yrs = (self.DASHA_YEARS[sd_p] / 120.0) * pd_yrs
-                        sd_duration_sec = sd_yrs * SEC_PER_YEAR
-                        sd_end = add_seconds(sd_curs, sd_duration_sec)
+                        sd_p = self.DASHA_ORDER[(self.DASHA_ORDER.index(pd_p) + l) % 9]
+                        sd_yrs_total = (pd_yrs_total * self.DASHA_YEARS[sd_p]) / 120.0
+                        sy = int(sd_yrs_total)
+                        sm_f = (sd_yrs_total - sy) * 12
+                        sm = int(sm_f)
+                        sd_val = int((sm_f - sm) * 30)
+                        sd_end = sd_curs + relativedelta(years=sy, months=sm, days=sd_val)
                         
                         sd_item = {
                             "planet": sd_p, "abbr": ABBR.get(sd_p, sd_p[:2]),
@@ -882,32 +896,34 @@ class NadiEngine:
                         }
                         if sd_curs <= today <= sd_end: act_pr = sd_p
                         
-                        # Level 5 - Sukshma
-                        pr_seq_start = self.DASHA_ORDER.index(sd_p)
-                        pr_curs = sd_curs
+                        sk_curs = sd_curs
                         for m in range(9):
-                            pr_p = self.DASHA_ORDER[(pr_seq_start + m) % 9]
-                            pr_yrs = (self.DASHA_YEARS[pr_p] / 120.0) * sd_yrs
-                            pr_duration_sec = pr_yrs * SEC_PER_YEAR
-                            pr_end = add_seconds(pr_curs, pr_duration_sec)
+                            sk_p = self.DASHA_ORDER[(sk_p_idx := (self.DASHA_ORDER.index(sd_p) + m) % 9)] # simplified name
+                            sk_p_name = self.DASHA_ORDER[sk_p_idx]
+                            sk_yrs_total = (sd_yrs_total * self.DASHA_YEARS[sk_p_name]) / 120.0
+                            sk_y = int(sk_yrs_total)
+                            sk_m_f = (sk_yrs_total - sk_y) * 12
+                            sk_m = int(sk_m_f)
+                            sk_d = int((sk_m_f - sk_m) * 30)
+                            sk_end = sk_curs + relativedelta(years=sk_y, months=sk_m, days=sk_d)
                             
-                            if pr_curs <= today <= pr_end: act_sk = pr_p
+                            if sk_curs <= today <= sk_end: act_sk = sk_p_name
                             
                             sd_item["sukshmas"].append({
-                                "planet": pr_p, "abbr": ABBR.get(pr_p, pr_p[:2]),
-                                "start_date": fmt_date(pr_curs), "end_date": fmt_date(pr_end)
+                                "planet": sk_p_name, "abbr": ABBR.get(sk_p_name, sk_p_name[:2]),
+                                "start_date": fmt_date(sk_curs), "end_date": fmt_date(sk_end)
                             })
-                            pr_curs = pr_end
-
+                            sk_curs = sk_end
                         pd_item["pratyantars"].append(sd_item)
                         sd_curs = sd_end
-
                     ad_item["antar_bhuktis"].append(pd_item)
                     pd_curs = pd_end
                 md_item["bhuktis"].append(ad_item)
                 ad_curs = ad_end
             mahadasha_tree.append(md_item)
             md_curs = md_end
+            if md_curs > birth_dt_loc + datetime.timedelta(days=125 * 365):
+                break
         
         bal_yrs_f = self.DASHA_YEARS[lord_name] * remaining_fraction
         
