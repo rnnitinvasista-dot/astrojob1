@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, ChevronDown } from 'lucide-react';
 import type { Dasha, DashaSequenceItem } from '../../types/astrology';
 
 interface DashaTableProps {
@@ -7,27 +7,26 @@ interface DashaTableProps {
 }
 
 const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
-    // Level selections
-    const [selectedMD, setSelectedMD] = useState<DashaSequenceItem | null>(null);
-    const [selectedBH, setSelectedBH] = useState<DashaSequenceItem | null>(null);
-    const [selectedAB, setSelectedAB] = useState<DashaSequenceItem | null>(null);
-    const [selectedPR, setSelectedPR] = useState<DashaSequenceItem | null>(null);
+    const [expandedMD, setExpandedMD] = useState<number | null>(null);
+    const [expandedBH, setExpandedBH] = useState<string | null>(null);
+    const [expandedAB, setExpandedAB] = useState<string | null>(null);
+    const [expandedPR, setExpandedPR] = useState<string | null>(null);
 
-    // Auto-select current dasha periods on load
+    // Auto-expand current period on load
     useEffect(() => {
         if (dasha && dasha.mahadasha_sequence) {
-            const activeMD = dasha.mahadasha_sequence.find(m => m.planet === dasha.dasha);
-            if (activeMD) {
-                setSelectedMD(activeMD);
-                const activeBH = activeMD.bhuktis?.find(b => b.planet === dasha.bhukti);
-                if (activeBH) {
-                    setSelectedBH(activeBH);
-                    const activeAB = activeBH.antar_bhuktis?.find(a => a.planet === dasha.antar_bhukti);
-                    if (activeAB) {
-                        setSelectedAB(activeAB);
-                        const activePR = activeAB.pratyantars?.find(p => p.planet === dasha.pratyantar);
-                        if (activePR) {
-                            setSelectedPR(activePR);
+            const mdIdx = dasha.mahadasha_sequence.findIndex(md => md.planet === dasha.dasha);
+            if (mdIdx !== -1) {
+                setExpandedMD(mdIdx);
+                const bhIdx = dasha.mahadasha_sequence[mdIdx].bhuktis?.findIndex(bh => bh.planet === dasha.bhukti);
+                if (bhIdx !== undefined && bhIdx !== -1) {
+                    setExpandedBH(`${mdIdx}-${bhIdx}`);
+                    const abIdx = dasha.mahadasha_sequence[mdIdx].bhuktis?.[bhIdx].antar_bhuktis?.findIndex(ab => ab.planet === dasha.antar_bhukti);
+                    if (abIdx !== undefined && abIdx !== -1) {
+                        setExpandedAB(`${mdIdx}-${bhIdx}-${abIdx}`);
+                        const prIdx = dasha.mahadasha_sequence[mdIdx].bhuktis?.[bhIdx].antar_bhuktis?.[abIdx].pratyantars?.findIndex(pr => pr.planet === dasha.pratyantar);
+                        if (prIdx !== undefined && prIdx !== -1) {
+                            setExpandedPR(`${mdIdx}-${bhIdx}-${abIdx}-${prIdx}`);
                         }
                     }
                 }
@@ -35,85 +34,41 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
         }
     }, [dasha]);
 
-    const renderTable = (
-        title: string,
-        items: DashaSequenceItem[] | undefined,
-        selectedItem: DashaSequenceItem | null,
-        onSelect: (item: DashaSequenceItem) => void,
-        activePlanet: string,
-        levelColor: string
-    ) => {
-        if (!items || items.length === 0) return null;
+    const toggleMD = (idx: number) => {
+        setExpandedMD(expandedMD === idx ? null : idx);
+        setExpandedBH(null);
+        setExpandedAB(null);
+        setExpandedPR(null);
+    };
 
-        return (
-            <div className="mb-6 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-4 py-3 text-white font-bold flex justify-between items-center" style={{ backgroundColor: levelColor }}>
-                    <span>{title}</span>
-                    <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded uppercase tracking-wider">Sequential View</span>
-                </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left border-collapse">
-                        <thead className="bg-gray-50 text-gray-700 uppercase text-[10px] font-bold tracking-wider">
-                            <tr>
-                                <th className="px-4 py-3 border-b border-gray-200">Planet</th>
-                                <th className="px-4 py-3 border-b border-gray-200">Start Date & Time</th>
-                                <th className="px-4 py-3 border-b border-gray-200">End Date & Time</th>
-                                <th className="px-4 py-3 border-b border-gray-200 w-12"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {items.map((item, idx) => {
-                                const isActive = item.planet === activePlanet;
-                                const isSelected = selectedItem?.planet === item.planet;
+    const toggleBH = (mdIdx: number, bhIdx: number) => {
+        const key = `${mdIdx}-${bhIdx}`;
+        setExpandedBH(expandedBH === key ? null : key);
+        setExpandedAB(null);
+        setExpandedPR(null);
+    };
 
-                                return (
-                                    <tr
-                                        key={idx}
-                                        onClick={() => onSelect(item)}
-                                        className={`cursor-pointer transition-all duration-200 ${isActive ? 'bg-amber-50' : isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'
-                                            }`}
-                                    >
-                                        <td className="px-4 py-3 border-b border-gray-100 font-bold">
-                                            <div className="flex items-center gap-2">
-                                                <span className={isActive ? 'text-amber-700' : isSelected ? 'text-blue-700' : 'text-gray-900'}>
-                                                    {item.planet}
-                                                </span>
-                                                {isActive && (
-                                                    <span className="text-[9px] bg-amber-200 text-amber-800 px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter">
-                                                        Active
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className={`px-4 py-3 border-b border-gray-100 font-mono text-xs ${isActive ? 'text-amber-600' : 'text-gray-500'}`}>
-                                            {item.start_date}
-                                        </td>
-                                        <td className={`px-4 py-3 border-b border-gray-100 font-mono text-xs ${isActive ? 'text-amber-600' : 'text-gray-500'}`}>
-                                            {item.end_date}
-                                        </td>
-                                        <td className="px-4 py-3 border-b border-gray-100 text-right">
-                                            <ChevronRight size={18} className={`${isSelected ? 'text-blue-600' : isActive ? 'text-amber-400' : 'text-gray-300'}`} />
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        );
+    const toggleAB = (mdIdx: number, bhIdx: number, abIdx: number) => {
+        const key = `${mdIdx}-${bhIdx}-${abIdx}`;
+        setExpandedAB(expandedAB === key ? null : key);
+        setExpandedPR(null);
+    };
+
+    const togglePR = (mdIdx: number, bhIdx: number, abIdx: number, prIdx: number) => {
+        const key = `${mdIdx}-${bhIdx}-${abIdx}-${prIdx}`;
+        setExpandedPR(expandedPR === key ? null : key);
     };
 
     return (
-        <div className="w-full p-2 md:p-6 space-y-2 bg-gray-50/50">
+        <div className="w-full space-y-6">
             {/* Professional Summary Header */}
-            <div className="bg-white p-5 rounded-xl mb-8 border border-gray-200 shadow-sm">
+            <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm" style={{ borderTop: '5px solid #3b82f6' }}>
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                     <h3 className="text-xl font-black text-gray-900 flex items-center gap-2">
                         <span className="bg-blue-600 text-white p-1.5 rounded-lg">🕉️</span>
-                        VIMSHOTTARI DASHA
+                        VIMSHOTTARI DASHA SUMMARY
                     </h3>
-                    <div className="flex items-center gap-2 text-xs font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full">
+                    <div className="text-xs font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full">
                         BALANCE AT BIRTH: <span className="text-blue-700 underline">{dasha.balance_at_birth}</span>
                     </div>
                 </div>
@@ -134,52 +89,106 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                 </div>
             </div>
 
-            {/* Sequential Tables Container */}
-            <div className="max-w-4xl mx-auto space-y-4">
-                {renderTable(
-                    '1. DASHA (MAHADASHA)',
-                    dasha.mahadasha_sequence,
-                    selectedMD,
-                    (item) => { setSelectedMD(item); setSelectedBH(null); setSelectedAB(null); setSelectedPR(null); },
-                    dasha.dasha,
-                    '#1d4ed8'
-                )}
+            {/* Integrated Nested Table */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden" style={{ borderTop: '5px solid #3b82f6' }}>
+                <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
+                    <h2 className="text-blue-900 font-bold text-lg">Vimshottari Dasha Sequence</h2>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse text-sm">
+                        <thead className="bg-gray-50/50 text-gray-500 uppercase text-[10px] font-black tracking-widest">
+                            <tr>
+                                <th className="px-6 py-4 border-b border-gray-100">Planet Period</th>
+                                <th className="px-6 py-4 border-b border-gray-100">Start Date & Time</th>
+                                <th className="px-6 py-4 border-b border-gray-100">End Date & Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {dasha.mahadasha_sequence.map((md, mdIdx) => (
+                                <React.Fragment key={mdIdx}>
+                                    {/* Mahadasha Row */}
+                                    <tr
+                                        onClick={() => toggleMD(mdIdx)}
+                                        className={`cursor-pointer transition-colors border-b border-gray-100 ${md.planet === dasha.dasha ? 'bg-blue-600 text-white' : 'hover:bg-gray-50'}`}
+                                    >
+                                        <td className="px-6 py-4 font-black flex items-center gap-3">
+                                            {expandedMD === mdIdx ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                                            {md.planet} Mahadasha
+                                        </td>
+                                        <td className="px-6 py-4 font-mono text-xs opacity-80">{md.start_date}</td>
+                                        <td className="px-6 py-4 font-mono text-xs opacity-80">{md.end_date}</td>
+                                    </tr>
 
-                {selectedMD && renderTable(
-                    `2. BHUKTI OF ${selectedMD.planet}`,
-                    selectedMD.bhuktis,
-                    selectedBH,
-                    (item) => { setSelectedBH(item); setSelectedAB(null); setSelectedPR(null); },
-                    dasha.bhukti,
-                    '#15803d'
-                )}
+                                    {/* Bhukti Level */}
+                                    {expandedMD === mdIdx && md.bhuktis?.map((bh, bhIdx) => (
+                                        <React.Fragment key={`${mdIdx}-${bhIdx}`}>
+                                            <tr
+                                                onClick={(e) => { e.stopPropagation(); toggleBH(mdIdx, bhIdx); }}
+                                                className={`cursor-pointer border-b border-gray-100 ${bh.planet === dasha.bhukti ? 'bg-green-700 text-white' : 'bg-gray-50 hover:bg-gray-100'}`}
+                                            >
+                                                <td className="px-12 py-3 font-bold flex items-center gap-2">
+                                                    {expandedBH === `${mdIdx}-${bhIdx}` ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                                                    {bh.planet} Bhukti
+                                                </td>
+                                                <td className="px-6 py-3 font-mono text-[11px] opacity-80">{bh.start_date}</td>
+                                                <td className="px-6 py-3 font-mono text-[11px] opacity-80">{bh.end_date}</td>
+                                            </tr>
 
-                {selectedBH && renderTable(
-                    `3. ANTAR BHUKTI OF ${selectedBH.planet}`,
-                    selectedBH.antar_bhuktis,
-                    selectedAB,
-                    (item) => { setSelectedAB(item); setSelectedPR(null); },
-                    dasha.antar_bhukti,
-                    '#b45309'
-                )}
+                                            {/* Antar Bhukti Level */}
+                                            {expandedBH === `${mdIdx}-${bhIdx}` && bh.antar_bhuktis?.map((ab, abIdx) => (
+                                                <React.Fragment key={`${mdIdx}-${bhIdx}-${abIdx}`}>
+                                                    <tr
+                                                        onClick={(e) => { e.stopPropagation(); toggleAB(mdIdx, bhIdx, abIdx); }}
+                                                        className={`cursor-pointer border-b border-gray-100 ${ab.planet === dasha.antar_bhukti ? 'bg-amber-700 text-white' : 'bg-white hover:bg-gray-50'}`}
+                                                    >
+                                                        <td className="px-20 py-2.5 font-semibold text-xs flex items-center gap-2">
+                                                            {expandedAB === `${mdIdx}-${bhIdx}-${abIdx}` ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
+                                                            {ab.planet} Antar Bhukti
+                                                        </td>
+                                                        <td className="px-6 py-2.5 font-mono text-[10px] opacity-70 italic">{ab.start_date}</td>
+                                                        <td className="px-6 py-2.5 font-mono text-[10px] opacity-70 italic">{ab.end_date}</td>
+                                                    </tr>
 
-                {selectedAB && renderTable(
-                    `4. PRATYANTAR OF ${selectedAB.planet}`,
-                    selectedAB.pratyantars,
-                    selectedPR,
-                    (item) => setSelectedPR(item),
-                    dasha.pratyantar,
-                    '#7c2d12'
-                )}
+                                                    {/* Pratyantar Level */}
+                                                    {expandedAB === `${mdIdx}-${bhIdx}-${abIdx}` && ab.pratyantars?.map((pr, prIdx) => (
+                                                        <React.Fragment key={`${mdIdx}-${bhIdx}-${abIdx}-${prIdx}`}>
+                                                            <tr
+                                                                onClick={(e) => { e.stopPropagation(); togglePR(mdIdx, bhIdx, abIdx, prIdx); }}
+                                                                className={`cursor-pointer border-b border-gray-100 ${pr.planet === dasha.pratyantar ? 'bg-orange-700 text-white' : 'bg-gray-50/50 hover:bg-gray-100'}`}
+                                                            >
+                                                                <td className="px-28 py-2 text-xs flex items-center gap-2">
+                                                                    {expandedPR === `${mdIdx}-${bhIdx}-${abIdx}-${prIdx}` ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
+                                                                    • {pr.planet} Pratyantar
+                                                                </td>
+                                                                <td className="px-6 py-2 font-mono text-[10px] opacity-60 underline underline-offset-2">{pr.start_date}</td>
+                                                                <td className="px-6 py-2 font-mono text-[10px] opacity-60 underline underline-offset-2">{pr.end_date}</td>
+                                                            </tr>
 
-                {selectedPR && renderTable(
-                    `5. SUKSHMA OF ${selectedPR.planet}`,
-                    selectedPR.sukshmas,
-                    null,
-                    () => { },
-                    dasha.sukshma,
-                    '#451a03'
-                )}
+                                                            {/* Sukshma Level */}
+                                                            {expandedPR === `${mdIdx}-${bhIdx}-${abIdx}-${prIdx}` && pr.sukshmas?.map((sk, skIdx) => (
+                                                                <tr
+                                                                    key={`${mdIdx}-${bhIdx}-${abIdx}-${prIdx}-${skIdx}`}
+                                                                    className={`border-b border-gray-50 ${sk.planet === dasha.sukshma ? 'bg-stone-800 text-white' : 'bg-white hover:bg-stone-50'}`}
+                                                                >
+                                                                    <td className="px-36 py-1.5 text-[11px] font-medium flex items-center gap-2">
+                                                                        <span className="w-1.5 h-1.5 rounded-full bg-stone-300"></span>
+                                                                        {sk.planet} Sukshma
+                                                                    </td>
+                                                                    <td className="px-6 py-1.5 font-mono text-[9px] opacity-60">{sk.start_date}</td>
+                                                                    <td className="px-6 py-1.5 font-mono text-[9px] opacity-60">{sk.end_date}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </React.Fragment>
+                                                    ))}
+                                                </React.Fragment>
+                                            ))}
+                                        </React.Fragment>
+                                    ))}
+                                </React.Fragment>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
