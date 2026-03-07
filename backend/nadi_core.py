@@ -794,13 +794,13 @@ class NadiEngine:
         lord_name = self.DASHA_ORDER[naksh_idx % 9]
         bal_yrs_f = self.DASHA_YEARS[lord_name] * remaining_fraction
         
-        def add_years(dt, y, days_per_year=365.242199):
+        def add_years(dt, y, days_per_year=365.2425):
             # High-precision date shift using seconds to avoid rounding days
             seconds_per_year = days_per_year * 24 * 3600
             return dt + datetime.timedelta(seconds=y * seconds_per_year)
             
         today = datetime.datetime.now(pytz.UTC)
-        act_md, act_ad, act_pd = "None", "None", "None"
+        act_md, act_ad, act_pd, act_sd = "None", "None", "None", "None"
         
         start_idx = self.DASHA_ORDER.index(lord_name)
         mahadasha_tree = []
@@ -810,53 +810,72 @@ class NadiEngine:
             return dt.isoformat()[:10]
 
         # Absolute start of the first Mahadasha in the cycle
-        total_yrs = self.DASHA_YEARS[lord_name]
-        elapsed_yrs = total_yrs * traversed_fraction
-        md_curs = add_years(birth_dt_loc, -elapsed_yrs)
+        total_md_yrs = self.DASHA_YEARS[lord_name]
+        elapsed_md_yrs = total_md_yrs * traversed_fraction
+        md_curs = add_years(birth_dt_loc, -elapsed_md_yrs)
         
         for i in range(9):
-            p = self.DASHA_ORDER[(start_idx + i) % 9]
-            md_yrs = self.DASHA_YEARS[p]
+            md_p = self.DASHA_ORDER[(start_idx + i) % 9]
+            md_yrs = self.DASHA_YEARS[md_p]
             md_start = md_curs
             md_end = add_years(md_start, md_yrs)
             
             md_item = {
-                "planet": p, "start_date": fmt_date(md_start), "end_date": fmt_date(md_end),
+                "planet": md_p, "start_date": fmt_date(md_start), "end_date": fmt_date(md_end),
                 "bukthis": []
             }
-            if md_start <= today <= md_end: act_md = p
+            if md_start <= today <= md_end: act_md = md_p
             
-            ad_seq_start = self.DASHA_ORDER.index(p)
-            ad_seq = self.DASHA_ORDER[ad_seq_start:] + self.DASHA_ORDER[:ad_seq_start]
+            # AD/Bhukti - Rule: Begins with parent lord
+            ad_seq_start = self.DASHA_ORDER.index(md_p)
             ad_curs = md_start
-            for ap in ad_seq:
-                ad_yrs = (self.DASHA_YEARS[ap] / 120.0) * md_yrs
+            for j in range(9):
+                ad_p = self.DASHA_ORDER[(ad_seq_start + j) % 9]
+                ad_yrs = (self.DASHA_YEARS[ad_p] / 120.0) * md_yrs
                 ad_end = add_years(ad_curs, ad_yrs)
                 
-                ad_item = { "planet": ap, "start_date": fmt_date(ad_curs), "end_date": fmt_date(ad_end), "antaras": [] }
-                if ad_curs <= today <= ad_end: act_ad = ap
+                ad_item = { 
+                    "planet": ad_p, "start_date": fmt_date(ad_curs), "end_date": fmt_date(ad_end), 
+                    "antaras": [] 
+                }
+                if ad_curs <= today <= ad_end: act_ad = ad_p
                 
-                pd_seq_start = self.DASHA_ORDER.index(ap)
-                pd_seq = self.DASHA_ORDER[pd_seq_start:] + self.DASHA_ORDER[:pd_seq_start]
+                # PD/Antar - Rule: Begins with parent lord
+                pd_seq_start = self.DASHA_ORDER.index(ad_p)
                 pd_curs = ad_curs
-                for pp in pd_seq:
-                    pd_yrs = (self.DASHA_YEARS[pp] / 120.0) * ad_yrs
+                for k in range(9):
+                    pd_p = self.DASHA_ORDER[(pd_seq_start + k) % 9]
+                    pd_yrs = (self.DASHA_YEARS[pd_p] / 120.0) * ad_yrs
                     pd_end = add_years(pd_curs, pd_yrs)
-                    if pd_curs <= today <= pd_end: act_pd = pp
-                    ad_item["antaras"].append({
-                        "planet": pp, "start_date": fmt_date(pd_curs), "end_date": fmt_date(pd_end)
-                    })
+                    
+                    pd_item = {
+                        "planet": pd_p, "start_date": fmt_date(pd_curs), "end_date": fmt_date(pd_end),
+                        "sukshmas": []
+                    }
+                    if pd_curs <= today <= pd_end: act_pd = pd_p
+                    
+                    # SD/Sukshma - Rule: Begins with parent lord
+                    sd_seq_start = self.DASHA_ORDER.index(pd_p)
+                    sd_curs = pd_curs
+                    for l in range(9):
+                        sd_p = self.DASHA_ORDER[(sd_seq_start + l) % 9]
+                        sd_yrs = (self.DASHA_YEARS[sd_p] / 120.0) * pd_yrs
+                        sd_end = add_years(sd_curs, sd_yrs)
+                        
+                        if sd_curs <= today <= sd_end: act_sd = sd_p
+                        
+                        pd_item["sukshmas"].append({
+                            "planet": sd_p, "start_date": fmt_date(sd_curs), "end_date": fmt_date(sd_end)
+                        })
+                        sd_curs = sd_end
+
+                    ad_item["antaras"].append(pd_item)
                     pd_curs = pd_end
                 md_item["bukthis"].append(ad_item)
                 ad_curs = ad_end
             mahadasha_tree.append(md_item)
             md_curs = md_end
         
-        # Correctly set current dasha/bukthi/antara if active tree search failed (redundancy)
-        if act_md == "None" and mahadasha_tree:
-             # Fallback to identify current if birth time is far in past
-             pass
-            
         y_bal = int(bal_yrs_f)
         rem_y = bal_yrs_f - y_bal
         m_bal = int(rem_y * 12)
@@ -864,7 +883,7 @@ class NadiEngine:
         
         return {
             "balance_at_birth": f"{y_bal}y {m_bal}m {d_bal}d",
-            "current_dasha": act_md, "current_bukthi": act_ad, "current_antara": act_pd,
+            "current_dasha": act_md, "current_bukthi": act_ad, "current_antara": act_pd, "current_sukshma": act_sd,
             "mahadasha_sequence": mahadasha_tree, 
             "moon_lon": moon_lon,
             "nakshatra": self.NAKSHATRAS[naksh_idx],

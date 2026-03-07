@@ -27,6 +27,7 @@ interface KundliResponse {
     current_dasha: string;
     current_bukthi: string;
     current_antara: string;
+    current_sukshma: string;
     mahadasha_sequence: any[];
   };
   metadata: {

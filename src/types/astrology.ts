@@ -103,6 +103,7 @@ export interface DashaSequenceItem {
     end_date: string;
     bukthis?: DashaSequenceItem[];
     antaras?: DashaSequenceItem[];
+    sukshmas?: DashaSequenceItem[];
 }
 
 export interface HouseDetail {
@@ -115,6 +116,7 @@ export interface Dasha {
     current_dasha: string;
     current_bukthi: string;
     current_antara: string;
+    current_sukshma: string;
     mahadasha_sequence: DashaSequenceItem[];
 }
 
