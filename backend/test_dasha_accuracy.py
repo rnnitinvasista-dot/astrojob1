@@ -21,6 +21,11 @@ def verify_dasha():
     print(f"Nakshatra: {result['metadata']['janma_nakshatra']}")
     print(f"Dasha Balance: {result['dasha']['balance_at_birth']}")
     
+    # Check if first MD starts at birth
+    first_md = result['dasha']['mahadasha_sequence'][0]
+    print(f"Birth Time: 1974-06-27 21:20:00")
+    print(f"First MD ({first_md['planet']}) starts: {first_md['start_date']}")
+    
     # Check Current Mahadasha (Dasha on 2026-03-07)
     print(f"Current Dasha: {result['dasha']['current_dasha']} / {result['dasha']['current_bukthi']} / {result['dasha']['current_antara']} / {result['dasha']['current_sukshma']}")
     

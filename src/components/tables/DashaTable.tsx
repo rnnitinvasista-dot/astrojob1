@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Dasha, DashaSequenceItem } from '../../types/astrology';
+import type { Dasha } from '../../types/astrology';
 import { ChevronRight, ChevronDown } from 'lucide-react';
 
 interface DashaTableProps {
@@ -45,128 +45,169 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%', maxWidth: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%', maxWidth: '100%', fontFamily: "'Inter', sans-serif" }}>
+            {/* Summary Card */}
             <div className="card" style={{
                 borderLeft: '4px solid #35a4f4',
                 borderTop: '5px solid #35a4f4',
-                width: '100%',
-                maxWidth: '100%',
-                padding: '1rem 0.5rem'
+                padding: '1.25rem',
+                background: '#ffffff'
             }}>
-                <h2 style={{ marginBottom: '1rem', color: '#1e3a8a', fontSize: '1.1rem', fontWeight: 700 }}>Vimshottari Dasha Summary</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+                <h2 style={{ marginBottom: '1rem', color: '#1e3a8a', fontSize: '1.1rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Vimshottari Dasha Summary</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1.5rem' }}>
                     <div>
-                        <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Balance</label>
-                        <div style={{ fontSize: '1rem', fontWeight: 700 }}>{dasha.balance_at_birth}</div>
+                        <label style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Balance at Birth</label>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>{dasha.balance_at_birth}</div>
                     </div>
                     <div>
-                        <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Dasha / Bukthi</label>
-                        <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--primary)' }}>{dasha.current_dasha} / {dasha.current_bukthi}</div>
+                        <label style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Current MD / AD</label>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1d4ed8' }}>{dasha.current_dasha} / {dasha.current_bukthi}</div>
                     </div>
                     <div>
-                        <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Antar / Sukshma</label>
-                        <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--secondary)' }}>{dasha.current_antara} / {dasha.current_sukshma}</div>
+                        <label style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Current PD / SD</label>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#b45309' }}>{dasha.current_antara} / {dasha.current_sukshma}</div>
                     </div>
                 </div>
             </div>
 
-            <div className="card" style={{
-                padding: 0,
-                overflow: 'hidden',
-                width: '100%',
-                maxWidth: '100%',
-                borderTop: '5px solid #35a4f4'
-            }}>
-                <div style={{ padding: '1.25rem', borderBottom: '1px solid #e2e8f0', background: 'white' }}>
-                    <h2 style={{ color: '#1e3a8a', fontSize: '1.1rem', fontWeight: 700 }}>Vimshottari Dasha Sequence</h2>
-                </div>
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+            {/* Hierarchical Tables */}
+            <div className="dasha-container" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="table-wrapper" style={{ border: '2px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden', background: '#ffffff' }}>
+                    <div style={{ padding: '0.75rem 1rem', background: '#f8fafc', borderBottom: '2px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#1e3a8a', textTransform: 'uppercase' }}>Level 1 – Mahadasha Table</h3>
+                    </div>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                         <thead>
-                            <tr style={{ background: 'var(--secondary-light)', color: 'var(--secondary)', textAlign: 'left' }}>
+                            <tr style={{ background: '#f1f5f9', color: '#475569', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>
                                 <th style={{ padding: '0.75rem 1rem' }}>Planet</th>
                                 <th style={{ padding: '0.75rem 1rem' }}>Start Date</th>
                                 <th style={{ padding: '0.75rem 1rem' }}>End Date</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {dasha.mahadasha_sequence.map((md: DashaSequenceItem, mdIdx: number) => (
+                            {dasha.mahadasha_sequence.map((md, mdIdx) => (
                                 <React.Fragment key={mdIdx}>
                                     <tr
                                         onClick={() => toggleMD(mdIdx)}
                                         style={{
                                             cursor: 'pointer',
-                                            background: md.planet === dasha.current_dasha ? '#1d4ed8' : 'white',
-                                            color: md.planet === dasha.current_dasha ? 'white' : 'inherit',
-                                            borderBottom: '1px solid #e2e8f0'
+                                            background: md.planet === dasha.current_dasha ? '#eff6ff' : 'white',
+                                            borderBottom: '1px solid #f1f5f9',
+                                            fontWeight: md.planet === dasha.current_dasha ? 700 : 500
                                         }}
                                     >
-                                        <td style={{ padding: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            {expandedMD === mdIdx ? <ChevronDown size={16} color={md.planet === dasha.current_dasha ? 'white' : 'currentColor'} /> : <ChevronRight size={16} color={md.planet === dasha.current_dasha ? 'white' : 'currentColor'} />}
+                                        <td style={{ padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '8px', color: md.planet === dasha.current_dasha ? '#1d4ed8' : '#334155' }}>
+                                            {expandedMD === mdIdx ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                                             {md.planet}
                                         </td>
-                                        <td style={{ padding: '0.75rem 0.5rem', fontSize: '0.75rem', whiteSpace: 'nowrap', color: md.planet === dasha.current_dasha ? 'rgba(255,255,255,0.8)' : '#64748b' }}>{md.start_date}</td>
-                                        <td style={{ padding: '0.75rem 0.5rem', fontSize: '0.75rem', whiteSpace: 'nowrap', color: md.planet === dasha.current_dasha ? 'rgba(255,255,255,0.8)' : '#64748b' }}>{md.end_date}</td>
+                                        <td style={{ padding: '0.75rem 1rem', color: '#64748b', fontSize: '0.75rem' }}>{md.start_date}</td>
+                                        <td style={{ padding: '0.75rem 1rem', color: '#64748b', fontSize: '0.75rem' }}>{md.end_date}</td>
                                     </tr>
 
-                                    {/* Bukthis (AD) */}
-                                    {expandedMD === mdIdx && md.bukthis?.map((ad: DashaSequenceItem, adIdx: number) => (
-                                        <React.Fragment key={adIdx}>
-                                            <tr
-                                                onClick={(e) => { e.stopPropagation(); toggleAD(mdIdx, adIdx); }}
-                                                style={{
-                                                    background: ad.planet === dasha.current_bukthi ? '#15803d' : (expandedAD === `${mdIdx}-${adIdx}` ? '#eff6ff' : '#fafafa'),
-                                                    color: ad.planet === dasha.current_bukthi ? 'white' : 'inherit',
-                                                    borderBottom: '1px solid #e2e8f0',
-                                                    cursor: 'pointer'
-                                                }}
-                                            >
-                                                <td style={{ padding: '0.75rem 1rem 0.75rem 2.5rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', color: ad.planet === dasha.current_bukthi ? 'white' : '#475569' }}>
-                                                    {expandedAD === `${mdIdx}-${adIdx}` ? <ChevronDown size={14} color={ad.planet === dasha.current_bukthi ? 'white' : 'currentColor'} /> : <ChevronRight size={14} color={ad.planet === dasha.current_bukthi ? 'white' : 'currentColor'} />}
-                                                    {ad.planet}
-                                                </td>
-                                                <td style={{ padding: '0.5rem 0.5rem', fontSize: '0.7rem', whiteSpace: 'nowrap', color: ad.planet === dasha.current_bukthi ? 'rgba(255,255,255,0.8)' : '#94a3b8' }}>{ad.start_date}</td>
-                                                <td style={{ padding: '0.5rem 0.5rem', fontSize: '0.7rem', whiteSpace: 'nowrap', color: ad.planet === dasha.current_bukthi ? 'rgba(255,255,255,0.8)' : '#94a3b8' }}>{ad.end_date}</td>
-                                            </tr>
+                                    {/* Level 2 - Bhukti Table */}
+                                    {expandedMD === mdIdx && (
+                                        <tr>
+                                            <td colSpan={3} style={{ padding: '0 0.5rem 0.5rem' }}>
+                                                <div style={{ border: '1.5px solid #d1fae5', borderRadius: '8px', overflow: 'hidden', marginTop: '0.5rem' }}>
+                                                    <div style={{ padding: '0.5rem', background: '#ecfdf5', borderBottom: '1px solid #d1fae5', fontSize: '0.75rem', fontWeight: 800, color: '#065f46', textTransform: 'uppercase' }}>
+                                                        Level 2 – {md.planet} Bhukti Table
+                                                    </div>
+                                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+                                                        <thead style={{ background: '#f9fafb', color: '#6b7280' }}>
+                                                            <tr>
+                                                                <th style={{ padding: '0.4rem 0.75rem', textAlign: 'left' }}>Bhukti Lord</th>
+                                                                <th style={{ padding: '0.4rem 0.75rem', textAlign: 'left' }}>Start</th>
+                                                                <th style={{ padding: '0.4rem 0.75rem', textAlign: 'left' }}>End</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {md.bukthis?.map((ad, adIdx) => (
+                                                                <React.Fragment key={adIdx}>
+                                                                    <tr
+                                                                        onClick={(e) => { e.stopPropagation(); toggleAD(mdIdx, adIdx); }}
+                                                                        style={{
+                                                                            cursor: 'pointer',
+                                                                            background: ad.planet === dasha.current_bukthi ? '#f0fdf4' : 'white',
+                                                                            borderBottom: '1px solid #f3f4f6'
+                                                                        }}
+                                                                    >
+                                                                        <td style={{ padding: '0.4rem 0.75rem', display: 'flex', alignItems: 'center', gap: '6px', color: ad.planet === dasha.current_bukthi ? '#16a34a' : '#4b5563', fontWeight: ad.planet === dasha.current_bukthi ? 700 : 500 }}>
+                                                                            {expandedAD === `${mdIdx}-${adIdx}` ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                                                                            {ad.planet}
+                                                                        </td>
+                                                                        <td style={{ padding: '0.4rem 0.75rem', color: '#9ca3af', fontSize: '0.7rem' }}>{ad.start_date}</td>
+                                                                        <td style={{ padding: '0.4rem 0.75rem', color: '#9ca3af', fontSize: '0.7rem' }}>{ad.end_date}</td>
+                                                                    </tr>
 
-                                            {/* Antaras (PD) */}
-                                            {expandedAD === `${mdIdx}-${adIdx}` && ad.antaras?.map((pd: DashaSequenceItem, pdIdx: number) => (
-                                                <React.Fragment key={pdIdx}>
-                                                    <tr
-                                                        onClick={(e) => { e.stopPropagation(); togglePD(mdIdx, adIdx, pdIdx); }}
-                                                        style={{
-                                                            background: pd.planet === dasha.current_antara ? '#b45309' : (expandedPD === `${mdIdx}-${adIdx}-${pdIdx}` ? '#fffbeb' : '#ffffff'),
-                                                            color: pd.planet === dasha.current_antara ? 'white' : 'inherit',
-                                                            borderBottom: '1px solid #f8fafc',
-                                                            cursor: 'pointer'
-                                                        }}
-                                                    >
-                                                        <td style={{ padding: '0.5rem 1rem 0.5rem 4rem', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', color: pd.planet === dasha.current_antara ? 'white' : '#64748b' }}>
-                                                            {expandedPD === `${mdIdx}-${adIdx}-${pdIdx}` ? <ChevronDown size={12} color={pd.planet === dasha.current_antara ? 'white' : 'currentColor'} /> : <ChevronRight size={12} color={pd.planet === dasha.current_antara ? 'white' : 'currentColor'} />}
-                                                            {pd.planet}
-                                                        </td>
-                                                        <td style={{ padding: '0.4rem 0.5rem', fontSize: '0.65rem', whiteSpace: 'nowrap', color: pd.planet === dasha.current_antara ? 'rgba(255,255,255,0.8)' : '#cbd5e1' }}>{pd.start_date}</td>
-                                                        <td style={{ padding: '0.4rem 0.5rem', fontSize: '0.65rem', whiteSpace: 'nowrap', color: pd.planet === dasha.current_antara ? 'rgba(255,255,255,0.8)' : '#cbd5e1' }}>{pd.end_date}</td>
-                                                    </tr>
+                                                                    {/* Level 3 - Antar Table */}
+                                                                    {expandedAD === `${mdIdx}-${adIdx}` && (
+                                                                        <tr>
+                                                                            <td colSpan={3} style={{ padding: '0 0.4rem 0.4rem' }}>
+                                                                                <div style={{ border: '1px solid #ffedd5', borderRadius: '6px', overflow: 'hidden', marginTop: '0.4rem' }}>
+                                                                                    <div style={{ padding: '0.4rem', background: '#fff7ed', borderBottom: '1px solid #ffedd5', fontSize: '0.7rem', fontWeight: 800, color: '#9a3412', textTransform: 'uppercase' }}>
+                                                                                        Level 3 – {ad.planet} Antar Table
+                                                                                    </div>
+                                                                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
+                                                                                        <tbody>
+                                                                                            {ad.antaras?.map((pd, pdIdx) => (
+                                                                                                <React.Fragment key={pdIdx}>
+                                                                                                    <tr
+                                                                                                        onClick={(e) => { e.stopPropagation(); togglePD(mdIdx, adIdx, pdIdx); }}
+                                                                                                        style={{
+                                                                                                            cursor: 'pointer',
+                                                                                                            background: pd.planet === dasha.current_antara ? '#fffbeb' : 'white',
+                                                                                                            borderBottom: '1px solid #fff7ed'
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        <td style={{ padding: '0.35rem 0.75rem', display: 'flex', alignItems: 'center', gap: '5px', color: pd.planet === dasha.current_antara ? '#b45309' : '#6b7280', fontWeight: pd.planet === dasha.current_antara ? 700 : 500 }}>
+                                                                                                            {expandedPD === `${mdIdx}-${adIdx}-${pdIdx}` ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
+                                                                                                            {pd.planet}
+                                                                                                        </td>
+                                                                                                        <td style={{ padding: '0.35rem 0.75rem', color: '#d1d5db', fontSize: '0.65rem' }}>{pd.start_date}</td>
+                                                                                                        <td style={{ padding: '0.35rem 0.75rem', color: '#d1d5db', fontSize: '0.65rem' }}>{pd.end_date}</td>
+                                                                                                    </tr>
 
-                                                    {/* Sukshmas (SD) */}
-                                                    {expandedPD === `${mdIdx}-${adIdx}-${pdIdx}` && pd.sukshmas?.map((sd: DashaSequenceItem, sdIdx: number) => (
-                                                        <tr key={sdIdx} style={{
-                                                            background: sd.planet === dasha.current_sukshma ? '#7c2d12' : '#ffffff',
-                                                            color: sd.planet === dasha.current_sukshma ? 'white' : 'inherit',
-                                                            borderBottom: '1px solid #f8fafc'
-                                                        }}>
-                                                            <td style={{ padding: '0.35rem 1rem 0.35rem 5.5rem', fontSize: '0.8rem', color: sd.planet === dasha.current_sukshma ? 'white' : '#94a3b8' }}>
-                                                                • {sd.planet}
-                                                            </td>
-                                                            <td style={{ padding: '0.3rem 0.5rem', fontSize: '0.6rem', whiteSpace: 'nowrap', color: sd.planet === dasha.current_sukshma ? 'rgba(255,255,255,0.8)' : '#e2e8f0' }}>{sd.start_date}</td>
-                                                            <td style={{ padding: '0.3rem 0.5rem', fontSize: '0.6rem', whiteSpace: 'nowrap', color: sd.planet === dasha.current_sukshma ? 'rgba(255,255,255,0.8)' : '#e2e8f0' }}>{sd.end_date}</td>
-                                                        </tr>
-                                                    ))}
-                                                </React.Fragment>
-                                            ))}
-                                        </React.Fragment>
-                                    ))}
+                                                                                                    {/* Level 4 - Sukshma Table */}
+                                                                                                    {expandedPD === `${mdIdx}-${adIdx}-${pdIdx}` && (
+                                                                                                        <tr>
+                                                                                                            <td colSpan={3} style={{ padding: '0 0.3rem 0.3rem' }}>
+                                                                                                                <div style={{ border: '1px solid #f3e8ff', borderRadius: '4px', overflow: 'hidden', marginTop: '0.3rem' }}>
+                                                                                                                    <div style={{ padding: '0.3rem', background: '#faf5ff', borderBottom: '1px solid #f3e8ff', fontSize: '0.65rem', fontWeight: 800, color: '#6b21a8', textTransform: 'uppercase' }}>
+                                                                                                                        Level 4 – {pd.planet} Sukshma Table
+                                                                                                                    </div>
+                                                                                                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.7rem' }}>
+                                                                                                                        <tbody style={{ background: 'white' }}>
+                                                                                                                            {pd.sukshmas?.map((sd, sdIdx) => (
+                                                                                                                                <tr key={sdIdx} style={{ background: sd.planet === dasha.current_sukshma ? '#f3e8ff' : 'white', borderBottom: '1px solid #f3f4f6' }}>
+                                                                                                                                    <td style={{ padding: '0.25rem 0.75rem', color: sd.planet === dasha.current_sukshma ? '#7e22ce' : '#9ca3af', fontWeight: sd.planet === dasha.current_sukshma ? 700 : 400 }}>
+                                                                                                                                        • {sd.planet}
+                                                                                                                                    </td>
+                                                                                                                                    <td style={{ padding: '0.25rem 0.75rem', color: '#e5e7eb', fontSize: '0.6rem' }}>{sd.start_date}</td>
+                                                                                                                                    <td style={{ padding: '0.25rem 0.75rem', color: '#e5e7eb', fontSize: '0.6rem' }}>{sd.end_date}</td>
+                                                                                                                                </tr>
+                                                                                                                            ))}
+                                                                                                                        </tbody>
+                                                                                                                    </table>
+                                                                                                                </div>
+                                                                                                            </td>
+                                                                                                        </tr>
+                                                                                                    )}
+                                                                                                </React.Fragment>
+                                                                                            ))}
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                    )}
+                                                                </React.Fragment>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
                                 </React.Fragment>
                             ))}
                         </tbody>
