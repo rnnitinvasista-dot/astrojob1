@@ -9,7 +9,8 @@ import PlanetTable from './components/tables/PlanetTable';
 import DashaTable from './components/tables/DashaTable';
 import NakshatraNadiTable from './components/tables/NakshatraNadiTable';
 import JobPredictionTable from './components/tables/JobPredictionTable';
-import { getApiUrl, fetchMixedPrashna } from './services/api';
+import ChildAnalysisTable from './components/tables/ChildAnalysisTable';
+import { getApiUrl, fetchMixedPrashna, fetchChildAnalysis } from './services/api';
 import { useAuth } from './contexts/AuthContext';
 import LoginPage from './components/auth/LoginPage';
 import { AlertCircle } from 'lucide-react';
@@ -50,6 +51,8 @@ const App = () => {
   const [birthDetails, setBirthDetails] = useState<any>(null);
   const [chartMode] = useState<'Rashi' | 'Bhava'>('Bhava');
   const [selectedArea, setSelectedArea] = useState('Job');
+  const [childAnalysisData, setChildAnalysisData] = useState<any>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
 
   const { currentUser, userData, isExpired, logout } = useAuth();
 
@@ -118,6 +121,7 @@ const App = () => {
 
       if (responseData.status === 'success') {
         setKundliData(responseData);
+        setChildAnalysisData(null);
         setActiveTab('planets');
         setShowPlanetTable(false);
         setView('result');
@@ -128,6 +132,37 @@ const App = () => {
       setError(err.message || 'Connection error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadChildAnalysis = async () => {
+    if (!kundliData || childAnalysisData || analysisLoading) return;
+    setAnalysisLoading(true);
+    try {
+      const request = {
+        birth_details: birthDetails,
+        calculation_settings: {
+          ayanamsa: birthDetails.ayanamsa || "KP",
+          house_system: "Placidus",
+          node_type: "Mean"
+        },
+        horary_number: birthDetails.horary_number
+      };
+      const data = await fetchChildAnalysis(request as any);
+      if (data.status === 'success') {
+        setChildAnalysisData(data);
+      }
+    } catch (err) {
+      console.error("Child analysis failed:", err);
+    } finally {
+      setAnalysisLoading(false);
+    }
+  };
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    if (tab === 'fertility') {
+      loadChildAnalysis();
     }
   };
 
@@ -235,6 +270,30 @@ const App = () => {
             <DashaTable dasha={kundliData.dasha} />
           </div>
         );
+      case 'fertility':
+        if (analysisLoading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Analyzing Fertility...</div>;
+        if (!childAnalysisData) return <div style={{ padding: '2rem', textAlign: 'center' }}>No analysis data.</div>;
+        return (
+          <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
+            {kundliData.planets.map((p: any) => {
+              const planetName = p.planet;
+              let dashaType = '';
+              if (planetName === kundliData.dasha.current_dasha) dashaType = 'Dasha';
+              if (planetName === kundliData.dasha.current_bukthi) dashaType = 'Bukthi';
+              if (planetName === kundliData.dasha.current_antara) dashaType = 'Antar Bhukthi';
+
+              return (
+                <ChildAnalysisTable
+                  key={planetName}
+                  reports={childAnalysisData.reports}
+                  planets={kundliData.planets}
+                  dashaType={dashaType}
+                  planetName={planetName}
+                />
+              );
+            })}
+          </div>
+        );
       default:
         return null;
     }
@@ -256,7 +315,7 @@ const App = () => {
   return (
     <Layout
       activeTab={activeTab}
-      onTabChange={setActiveTab}
+      onTabChange={handleTabChange}
       showTabs={view === 'result'}
       isAdmin={userData?.role === 'admin'}
       expiryDate={userData?.expiryDate}

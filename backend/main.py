@@ -207,6 +207,8 @@ async def job_analysis(req: KundliRequest):
             pl_houses = [s["house"] for s in entry["pl_signified"]]
             nl_houses = [s["house"] for s in entry["nl_signified"]]
             sl_houses = [s["house"] for s in entry["sl_signified"]]
+            
+            combo_all = set(pl_houses) | set(nl_houses) | set(sl_houses)
 
             # 4-Scenario Hit Theory Categorization (Page 8)
             has_11 = 11 in combo_all
@@ -290,9 +292,6 @@ async def job_analysis(req: KundliRequest):
         csl6_name = next(h["sub_lord"] for h in result["houses"] if h["house_number"] == 6)
         csl10_name = next(h["sub_lord"] for h in result["houses"] if h["house_number"] == 10)
 
-        # 3. Skip AI for now (user requested stability and pure tables)
-        analysis_summary = None # Disabled to stop blank page crashes
-
         job_response = {
             "status": "success",
             "csl_focus": {"csl6": csl6_name, "csl10": csl10_name},
@@ -301,28 +300,132 @@ async def job_analysis(req: KundliRequest):
                 "bhukti": result["dasha"]["current_bukthi"],
                 "antara": result["dasha"]["current_antara"]
             },
-            "reports": planet_reports,
-            "ai_summary": analysis_summary
+            "reports": planet_reports
         }
         
-        # Limit cache size simple way
         if len(prediction_cache) > 1000:
             prediction_cache.clear()
         prediction_cache[cache_key] = job_response
-        
         return job_response
+    except Exception as e:
+        traceback.print_exc()
+        return JSONResponse(status_code=500, content={"status": "error", "message": str(e)})
+
+@app.post("/api/v1/kp/child-analysis")
+async def child_analysis(req: KundliRequest):
+    try:
+        cache_key = "child_" + get_cache_key(req)
+        if cache_key in prediction_cache:
+            return prediction_cache[cache_key]
+
+        # 1. Get Base Kundli
+        dt_str = f"{req.birth_details.date_of_birth} {req.birth_details.time_of_birth}"
+        lat_val = float(req.birth_details.latitude)
+        lon_val = float(req.birth_details.longitude)
+        
+        request_engine = get_engine(node_type=req.calculation_settings.node_type, ayanamsa=req.calculation_settings.ayanamsa, house_system=req.calculation_settings.house_system)
+        result = request_engine.calculate_kundli(dt_str, req.birth_details.timezone, lat_val, lon_val, horary_number=req.horary_number)
+        
+        if result.get("status") == "error":
+            return result
+
+        # 2. Process ALL 9 Planets for Child Birth
+        planet_reports = []
+        planet_positions = {p["planet"]: p["house"] for p in result["planets"]}
+
+        from nadi_core import CHILD_BIRTH_GROUPS, ABORTION_GROUPS, IVF_GROUP
+
+        for entry in result["nakshatra_nadi"]:
+            p_name = entry["planet"]
+            p_house = planet_positions.get(p_name)
+            
+            # Significators
+            pl_houses = [s["house"] for s in entry["pl_signified"]]
+            nl_houses = [s["house"] for s in entry["nl_signified"]]
+            sl_houses = [s["house"] for s in entry["sl_signified"]]
+            
+            combo_all = set(nl_houses) | set(sl_houses)
+
+            # Identify "Hits" for Child Birth (NL and SL ONLY)
+            def get_child_hit(houses, pos):
+                if pos in houses: return pos
+                # Priority for Child Birth: Good followed by Bad
+                priority = [11, 5, 2, 9, 12, 8, 4, 10, 1, 6, 3, 7]
+                for h in priority:
+                    if h in houses: return h
+                return None
+
+            # User explicitly said: NL and SL for box, DONT see PL
+            # Use ONLY "Boxed" (Hit) houses for the final analysis
+            nl_hit = get_child_hit(nl_houses, p_house)
+            sl_hit = get_child_hit(sl_houses, p_house)
+            pl_hit = None # Disabled
+
+            # Analysis strictly based on NL/SL Hits (Boxed elements)
+            fertility_res = "Low / No Promise"
+            hit_set = {h for h in [nl_hit, sl_hit] if h is not None}
+            
+            # 1. Childlessness (Bad houses in SL take priority)
+            if sl_hit in {1, 4, 8, 10, 12}:
+                fertility_res = "Childlessness / No Child"
+            # 2. Good Combinations
+            elif sl_hit in {2, 5, 9, 11}:
+                if nl_hit in {2, 5, 9, 11}:
+                    fertility_res = "High Fertility"
+                else:
+                    fertility_res = "Medium Fertility"
+            elif nl_hit in {2, 5, 9, 11}:
+                fertility_res = "Low Fertility (Difficulty)"
+
+            # 3. Special Cases
+            if sl_hit in {6, 8, 12} and nl_hit in {2, 5, 9, 11}:
+                fertility_res = "Risk of Abortion"
+            
+            if sl_hit == 8 and nl_hit in {2, 5, 11}:
+                fertility_res = "Possible Caesarian / IVF"
+
+            prediction = {
+                "overall_combination": {
+                    "good": [h for h in combo_all if h in {2, 5, 9, 11}],
+                    "medium": [h for h in combo_all if h in {1, 3, 7}],
+                    "bad": [h for h in combo_all if h in {1, 4, 8, 10, 12}]
+                },
+                "fertility_report": fertility_res,
+                "hits": {"pl": None, "nl": nl_hit, "sl": sl_hit}
+            }
+
+            planet_reports.append({
+                "planet": p_name,
+                "star_lord": entry["star_lord"],
+                "sub_lord": entry["sub_lord"],
+                "pl": pl_houses,
+                "nl": nl_houses,
+                "sl": sl_houses,
+                "prediction": prediction
+            })
+
+        # CSL 5 for child birth focus
+        csl5_name = next(h["sub_lord"] for h in result["houses"] if h["house_number"] == 5)
+
+        child_response = {
+            "status": "success",
+            "csl_focus": {"csl5": csl5_name},
+            "dasha_info": {
+                "dasha": result["dasha"]["current_dasha"],
+                "bhukti": result["dasha"]["current_bukthi"],
+                "antara": result["dasha"]["current_antara"]
+            },
+            "reports": planet_reports
+        }
+        
+        if len(prediction_cache) > 1000:
+            prediction_cache.clear()
+        prediction_cache[cache_key] = child_response
+        return child_response
         
     except Exception as e:
-        error_msg = traceback.format_exc()
-        print(f"❌ Analysis Crash:\n{error_msg}")
-        return JSONResponse(
-            status_code=500,
-            content={
-                "status": "error", 
-                "message": f"Server Crash: {str(e)}", 
-                "details": error_msg
-            }
-        )
+        traceback.print_exc()
+        return JSONResponse(status_code=500, content={"status": "error", "message": str(e)})
 
 @app.get("/api/v1/kp/health/ai")
 async def health_ai():

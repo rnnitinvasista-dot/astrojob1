@@ -34,6 +34,16 @@ HOUSE_JOB_AREAS = {
     12: "Foreign Ties, Investments, Social Service, Isolation Science"
 }
 
+CHILD_BIRTH_GROUPS = {
+    "HIGH": [{2, 5, 9, 11}, {2, 5, 11}],
+    "MEDIUM": [{5, 9, 11}, {5, 11}],
+    "LOW": [{5}, {2}, {11}],
+    "BAD": [{1, 4, 8, 10, 12}, {1, 4, 8, 10}, {1, 4, 10}, {4, 10}, {4}, {1, 10}]
+}
+
+ABORTION_GROUPS = [{2, 5, 6, 8, 12}, {2, 5, 8, 12}, {5, 8, 12}]
+IVF_GROUP = {2, 5, 8, 11}
+
 import swisseph as swe
 import datetime
 import pytz

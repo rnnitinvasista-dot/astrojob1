@@ -85,3 +85,22 @@ export const fetchMixedPrashna = async (request: any): Promise<KundliResponse> =
         } as KundliResponse;
     }
 };
+
+export const fetchChildAnalysis = async (request: KundliRequest): Promise<any> => {
+    const baseUrl = getApiUrl();
+    try {
+        const response = await axios.post(`${baseUrl}/child-analysis`, request, {
+            timeout: 60000 // 60 seconds
+        });
+        return response.data;
+    } catch (error) {
+        let errorMsg = 'Network error occurred';
+        if (axios.isAxiosError(error)) {
+            errorMsg = `Analysis failed at ${baseUrl}. ${error.message}`;
+        }
+        return {
+            status: 'error',
+            message: errorMsg,
+        };
+    }
+};
