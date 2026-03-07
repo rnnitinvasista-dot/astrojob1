@@ -19,9 +19,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code
 COPY . .
 
-# Expose port
+# Expose port (Render uses 8000 by default)
 EXPOSE 8000
 
 # Run the application
-# We use main:app now that files are in root
-CMD gunicorn main:app --bind 0.0.0.0:$PORT -k uvicorn.workers.UvicornWorker
+CMD gunicorn main:app --bind 0.0.0.0:${PORT:-8000} -k uvicorn.workers.UvicornWorker

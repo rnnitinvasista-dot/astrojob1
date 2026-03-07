@@ -1,8 +1,11 @@
 import axios from 'axios';
 import type { KundliRequest, KundliResponse } from '../types/astrology';
 
-// Default to Render, but allow localStorage override
-const DEFAULT_API_URL = 'https://astrojob.onrender.com/api/v1/kp';
+// Stay on Render for now
+const RENDER_API_URL = 'https://astrojob.onrender.com/api/v1/kp';
+const HUGGINGFACE_API_URL = 'https://nitin324444-astro.hf.space/api/v1/kp';
+
+const DEFAULT_API_URL = RENDER_API_URL;
 
 export const getApiUrl = () => {
     return localStorage.getItem('custom_api_url') || DEFAULT_API_URL;
