@@ -811,14 +811,22 @@ class NadiEngine:
         elapsed_yrs = total_yrs * traversed_fraction
         y_ela, m_ela, d_ela = float_years_to_ymd(elapsed_yrs)
         
-        # Hypothetical start date of the first Mahadasha
-        md_curs = birth_dt_loc - relativedelta(years=y_ela, months=m_ela, days=d_ela)
+        # Start date iterator
+        md_curs = birth_dt_loc
         
         for i in range(9):
             p = self.DASHA_ORDER[(start_idx + i) % 9]
-            md_yrs = self.DASHA_YEARS[p]
+            
+            # The FIRST lord uses the remaining fraction for the main MD
+            if i == 0:
+                y_bal, m_bal, d_bal = float_years_to_ymd(bal_yrs_f)
+                md_end = md_curs + relativedelta(years=y_bal, months=m_bal, days=d_bal)
+                md_yrs = self.DASHA_YEARS[p] # We still need full yrs for sub-calculations
+            else:
+                md_yrs = self.DASHA_YEARS[p]
+                md_end = md_curs + relativedelta(years=md_yrs)
+            
             md_start = md_curs
-            md_end = md_start + relativedelta(years=md_yrs)
             
             md_item = {
                 "planet": p, "start_date": fmt_date(md_start), "end_date": fmt_date(md_end),
@@ -831,14 +839,33 @@ class NadiEngine:
             
             ad_cum_f = 0.0
             ad_curs = md_start
+            # Re-anchor the sub-periods to the Hypothetical Mahadasha start 
+            # so the exact fractional geometry remains untouched!
+            # Example: Even if they were born in year 18 out of 20 for Venus, 
+            # we must calculate 18 years of sub-periods mathematically backwards 
+            # to know exactly which Bukthi/Antara they are in today.
+            if i == 0:
+                total_md_yrs = self.DASHA_YEARS[p]
+                elapsed = total_md_yrs * traversed_fraction
+                y_ela, m_ela, d_ela = float_years_to_ymd(elapsed)
+                hypo_start = birth_dt_loc - relativedelta(years=y_ela, months=m_ela, days=d_ela)
+            else:
+                hypo_start = md_start
+            
+            ad_cum_f = 0.0
+            ad_curs = hypo_start
             for ap in ad_seq:
                 ad_yrs_f = (self.DASHA_YEARS[ap] / 120.0) * md_yrs
                 ad_cum_f += ad_yrs_f
                 y_ad, m_ad, d_ad = float_years_to_ymd(ad_cum_f)
-                ad_end = md_start + relativedelta(years=y_ad, months=m_ad, days=d_ad)
+                ad_end = hypo_start + relativedelta(years=y_ad, months=m_ad, days=d_ad)
                 
-                ad_item = { "planet": ap, "start_date": fmt_date(ad_curs), "end_date": fmt_date(ad_end), "antaras": [] }
-                if ad_curs <= today <= ad_end: act_ad = ap
+                # Filter out bukthis that ended BEFORE the person was born
+                if ad_end > birth_dt_loc:
+                    ad_item = { "planet": ap, "start_date": fmt_date(max(ad_curs, birth_dt_loc)), "end_date": fmt_date(ad_end), "antaras": [] }
+                    if max(ad_curs, birth_dt_loc) <= today <= ad_end: act_ad = ap
+                else:
+                    ad_item = None
                 
                 pd_seq_start = self.DASHA_ORDER.index(ap)
                 pd_seq = self.DASHA_ORDER[pd_seq_start:] + self.DASHA_ORDER[:pd_seq_start]
@@ -849,14 +876,17 @@ class NadiEngine:
                     pd_yrs_f = (self.DASHA_YEARS[pp] / 120.0) * ad_yrs_f
                     pd_cum_f += pd_yrs_f
                     y_pd, m_pd, d_pd = float_years_to_ymd(pd_cum_f)
-                    pd_end = md_start + relativedelta(years=y_pd, months=m_pd, days=d_pd)
+                    pd_end = hypo_start + relativedelta(years=y_pd, months=m_pd, days=d_pd)
                     
-                    if pd_curs <= today <= pd_end: act_pd = pp
-                    ad_item["antaras"].append({
-                        "planet": pp, "start_date": fmt_date(pd_curs), "end_date": fmt_date(pd_end)
-                    })
+                    
+                    if ad_item and pd_end > birth_dt_loc:
+                        if max(pd_curs, birth_dt_loc) <= today <= pd_end: act_pd = pp
+                        ad_item["antaras"].append({
+                            "planet": pp, "start_date": fmt_date(max(pd_curs, birth_dt_loc)), "end_date": fmt_date(pd_end)
+                        })
                     pd_curs = pd_end
-                md_item["bukthis"].append(ad_item)
+                if ad_item:
+                    md_item["bukthis"].append(ad_item)
                 ad_curs = ad_end
             mahadasha_tree.append(md_item)
             md_curs = md_end
