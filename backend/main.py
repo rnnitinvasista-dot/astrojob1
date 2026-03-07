@@ -95,11 +95,11 @@ engine = get_engine(node_type="Mean", ayanamsa="KP")
 
 @app.get("/")
 def health_check():
-    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.65-KUNDA-FIX"}
+    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.66-AYAN-PRECISION"}
 
 @app.get("/health")
 def health_check_alias():
-    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.63-HIT-THEORY"}
+    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.66-AYAN-PRECISION"}
 
 # Global Result Cache for performance
 prediction_cache = {}

@@ -450,14 +450,17 @@ class NadiEngine:
         # Calculate Planets
         planets_raw = []
         for name, code in self.PLANETS.items():
-            # CRITICAL: Must include FLG_SPEED to get accurate speed!
-            res, _ = swe.calc_ut(jd, code, swe.FLG_SIDEREAL | swe.FLG_SPEED)
-            lon_val = res[0]
+            # CRITICAL: Use Tropical (FLG_SWIEPH) and manually subtract our calibrated ayan_val.
+            # This ensures 100% consistency with houses and ayanamsa toggle.
+            res, _ = swe.calc_ut(jd, code, swe.FLG_SWIEPH | swe.FLG_SPEED)
+            lon_trop = res[0]
+            lon_sid = (lon_trop - ayan_val) % 360
             speed_val = res[3]
-            if name == "Ketu": lon_val = (lon_val + 180) % 360
-            planets_raw.append({"planet": name, "lon": lon_val, "speed": speed_val})
+            
+            if name == "Ketu": lon_sid = (lon_sid + 180) % 360
+            planets_raw.append({"planet": name, "lon": lon_sid, "speed": speed_val})
             if name == "Venus":
-                print(f"DEBUG VENUS: Lon: {lon_val}")
+                print(f"DEBUG VENUS: Lon: {lon_sid}")
 
             
         planets_raw_map = {p["planet"]: p for p in planets_raw}
