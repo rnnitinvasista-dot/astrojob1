@@ -1,0 +1,81 @@
+Example of Dasha Balance calculation:-
+A native is born on 18 Sep 2014 at 8:30 AM. First find out the longitude of the Moon in a sign. In thiscase Moon is posited with a longitude of 23°56’ in a Gemini sign. The nakshatras or stars belonging toGemini sign are Mrigasira, Ardra and Punarvasu. First 10 degrees are covered by Mrigasira and Ardraand remaining 10° will be covered by 3 padas of Punarvasu star. Therefore it is understood that Moonis posited in Punarvasu star. So the first dasha will be of lord of Punarvasu star which is Jupiter. SinceMoon has already covered 3°56’ in Punarvasu star, some dasa period has already been elapsed.Each star will cover 13°20’ or 800’ (13*60+20) of the arc. Moon has already covered 3°56’ (or3*60+56=236’) in Punarvasu. So the remainder of Punarvasu which is yet to be covered is:.                                                                   800’-236 = 564’Dasha period of Punarvasu with full 800’ whoselord is Jupiter is                                                  = 16 yearsTherefore 564’ arc will be                                   = 564*16 / 800
+.                                                                          = 11.28.                                                                          = 11 years and 0.280.28*12 = 3.36 which means 3 months0.36*30 = 10.8 which means 10 days0.8*24  = 19.2 which means 19 hrs0.2*60 =  12 which means 12 MinutesVimshottari dasha balance at birth for Jupiter will be 11 years 3 months 10 days 19 hours 12 Min. orsimply 11 years 3 months 11 days
+zÀ±Á ¨Áå¯É£ïì ¯ÉPÁÌZÁgÀzÀ GzÁºÀgÀuÉ: -
+¸ÀÜ½ÃAiÀÄgÀÄ 18 ¸É¥ÉÖA§gï 2014 gÀAzÀÄ ¨É½UÉÎ 8:30 PÉÌ d¤¹zÀgÀÄ. ªÉÆzÀ®Ä MAzÀÄ aºÉßAiÀÄ°è ZÀAzÀ æ£À gÉÃSÁA±ÀªÀ£ÀÄß
+PÀAqÀÄ»r¬Äj. F ¸ÀAzÀ¨sÀðzÀ°è ZÀAzÀ æ£À£ÀÄß eÉ«Ä¤ aºÉßAiÀÄ°è 23 ° 56 ’gÉÃSÁA±ÀzÉÆA¢UÉ Ej¸À¯ÁUÀÄvÀÛzÉ. eÉ«Ä¤ aºÉßUÉ ¸ÉÃjzÀ
+£ÀPÀëvÀæUÀ¼ÀÄ CxÀªÁ £ÀPÀëvÀ æUÀ¼ÀÄ ªÀÄÈUÁ¹ÃgÀ, CzÁ æð ªÀÄvÀÄÛ ¥ÀÅ£ÀªÁð¸ÀÄ. ªÉÆzÀ® 10 rV æUÀ¼À£ÀÄß ²æÃUÀ¹gÁ ªÀÄvÀÄÛ CqÁ æð ªÀÄvÀÄÛ G½zÀ
+10 ° C£ÀÄß ¥ÀÅ£ÀªÁð¸ÀÄ £ÀPÀëvÀ æzÀ 3 ¥ÁzÀUÀ½AzÀ ªÀÄÄZÀÑ¯ÁUÀÄvÀÛzÉ. DzÀÝjAzÀ ¥ÀÅ£ÀªÁð¸ÀÄ £ÀPÀëvÀ æzÀ°è ZÀAzÀ æ£À£ÀÄß ºÉÆA¢¸À¯ÁVzÉ
+JAzÀÄ w½AiÀÄ§ºÀÄzÀÄ. DzÀÝjAzÀ ªÉÆzÀ® zÀ±Á UÀÄgÀÄ UÀ æºÀªÁzÀ ¥ÀÅ£ÀªÁð¸ÀÄ £ÀPÀëvÀ æzÀ C¢ü¥ÀwAiÀiÁVgÀÄvÀÛzÉ. ¥ÀÅ£ÀªÁð¸ÀÄ £ÀPÀëvÀ æzÀ°è
+ZÀAzÀæ£ÀÄ FUÁUÀ¯ÉÃ 3 ° 56 ’C£ÀÄß DªÀj¹gÀÄªÀ PÁgÀt, PÉ®ªÀÅ zÁ¸À CªÀ¢ü FUÁUÀ¯ÉÃ ªÀÄÄV¢zÉ.
+¥Àæw £ÀPÀëvÀæªÀÅ ZÁ¥ÀzÀ 13 ° 20 ’CxÀªÁ 800’ (13 * 60 + 20) C£ÀÄß DªÀj¸ÀÄvÀÛzÉ. ¥ÀÅ£ÀªÁð¸ÀÄ«£À°è ZÀAzÀ æ£ÀÄ FUÁUÀ¯ÉÃ 3 °
+56 ’(CxÀªÁ 3 * 60 + 56 = 236’) C£ÀÄß DªÀj¹zÁÝ£É. DzÀÝjAzÀ ¥ÀÅ£ÀgÀ¸ÀÄ«£À G½zÀ ¨sÁUÀªÀ£ÀÄß E£ÀÆß M¼ÀUÉÆArzÉ:. 800’-236 = 564 ’¥ÀÇtð 800 gÉÆA¢UÉ ¥ÀÅ£ÀªÁð¸ÀÄ«£À zÀ±Á CªÀ¢ü¯Áqïð UÀÄgÀÄ = 16 ªÀµÀðUÀ¼ÀÄDzÀÝjAzÀ 564 ’ZÁ¥À = 564 * 16/800 DVgÀÄvÀÛzÉ. = 11.28. = 11 ªÀµÀð ªÀÄvÀÄÛ 0.280.28 * 12 = 3.36 CAzÀgÉ 3 wAUÀ¼ÀÄ0.36 * 30 = 10.8 CAzÀgÉ 10 ¢£ÀUÀ¼ÀÄ0.8 * 24 = 19.2 CAzÀgÉ 19 UÀAmÉ0.2 * 60 = 12 CAzÀgÉ 12 ¤«ÄµÀUÀ¼ÀÄUÀÄgÀÄUÀæºÀzÀ d£À£ÀzÀ ¸ÀªÀÄAiÀÄzÀ°è «ªÀiï±ÉÆÃmÁj zÀ±Á ¸ÀªÀÄvÉÆÃ®£ÀªÀÅ 11 ªÀµÀð 3 wAUÀ¼ÀÄ 10 ¢£ÀUÀ¼ÀÄ 19 UÀAmÉUÀ¼ÀÄ 12
+¤«ÄµÀUÀ¼ÀÄ. CxÀªÁ ¸ÀgÀ¼ÀªÁV 11 ªÀµÀð 3 wAUÀ¼ÀÄ 11 ¢£ÀUÀ¼ÀÄ
+Bukthi example - To find Antardasha  or Bhukti of the Sun in the Mahadasha of Venus, multiply the
+dasha of Venus with the dasha of Sun and then divide the product with 120 to get the result.Venus dasa - 20 years
+Sun dasa - 6 years20 x 6 ÷120 = 12 months .
+Thus the Antardasha of the Sun in Mahadasha of Venus will be 12 months or 1 year.
+¨sÀÄQÛ GzÁºÀgÀuÉ - ±ÀÄPÀ æ£À ªÀÄºÁzÀ±ÀzÀ°è ¸ÀÆAiÀÄð£À CAvÀzÀð±Á CxÀªÁ ¨sÀÄQÛAiÀÄ£ÀÄß PÀAqÀÄ»rAiÀÄ®Ä, ±ÀÄPÀ æ£À
+zÀ±ÁªÀ£ÀÄß ¸ÀÆAiÀÄð£À zÀ±Á eÉÆvÉ UÀÄtÂ¹ £ÀAvÀgÀ GvÀà£ÀßªÀ£ÀÄß 120 gÉÆA¢UÉ ¨sÁV¹ ¥sÀ°vÁA±ÀªÀ£ÀÄß ¥ÀqÉ¬Äj. ±ÀÄPÀæ zÀ±À - 20 ªÀµÀðUÀ¼ÀÄ
+ ¸ÀÆAiÀÄð zÀ±À - 6 ªÀµÀð 20 x 6 ÷ 120 = 12 wAUÀ¼ÀÄUÀ¼ÀÄ.
+ »ÃUÉ ±ÀÄPÀ æ£À ªÀÄºÁzÀ±ÀzÀ°è ¸ÀÆAiÀÄð£À CAvÀzÀð±Á 12 wAUÀ¼ÀÄ CxÀªÁ 1 ªÀµÀð EgÀÄvÀÛzÉ.
+Calculation of Antar Dasha or Bhukti periods :-
+Now we know that all the nine planets have to be fit in under mahadasha period. The antardasha periods alsovary according to their mahadasa periods. We also know that the first antardasha will be of same planet. Fromthe above example, the first antardasha will be of Jupiter under Jupiter mahadasha.The proportion allotted to Jupiter is 16 years under mahadasha scheme. Same proportion will be applied tocalculate antardashas.Formula for calculation of dasa period = (Period of major planet * Sub period of planet) / 120Therefore Antardasha of Jupiter underJupiter dasha will be                                                          = (16/120) * 16.                                                                                          = 2.1333.                                                                                          = 2 years 1 Month 15 daysSimilarly, next Antardasha in the order will be of Saturn = (16/120) * 19(Note: Saturn is allotted 19 years in 120 years system)    = 2.5333.                                                                                         = 2 years 6 months 12 daysIn the same manner Antar dashas for all the lords will be calculated.Note that for the above example, some part of Jupiter dasa has already been lapsed at the time of birth. Out of16 years of Jupiter dasha, 4 yrs and 8 months are elapsed. Therefore Jupiter and Saturn Bhuktis would havebeen completed. The next antardasha will be of Mercury. Hence the native was having Jupiter mahadasha andMercury antardasha (or Bhukti) running at the time birth.
+CAvÀgï zÀ±Á CxÀªÁ ¨sÀÄQÛ CªÀ¢üUÀ¼À ¯ÉPÁÌZÁgÀ: -
+ ªÀÄºÁzÀ±Á CªÀ¢üAiÀÄ°è J¯Áè MA§vÀÄÛ UÀ æºÀUÀ¼ÀÄ ºÉÆA¢PÉÆ¼Àî¨ÉÃPÀÄ JAzÀÄ FUÀ £ÀªÀÄUÉ w½¢zÉ.  CAvÀzÀð±Á CªÀ¢üUÀ¼ÀÄ CªÀÅUÀ¼À
+ªÀÄºÁzÀ±À CªÀ¢üUÀ½UÉ C£ÀÄUÀÄtªÁV §zÀ¯ÁUÀÄvÀÛªÉ.  ªÉÆzÀ® CAvÀzÀð±Á CzÉÃ UÀ æºÀ¢AzÀ PÀÆrgÀÄvÀÛzÉ JAzÀÄ £ÀªÀÄUÉ w½¢zÉ.
+ªÉÄÃ°£À GzÁºÀgÀuÉ¬ÄAzÀ, ªÉÆzÀ® CAvÀzÀð±Á UÀÄgÀÄ ªÀÄºÁzÀ±À£À CrAiÀÄ°è UÀÄgÀÄUÀ æºÀªÁVgÀÄvÀÛzÉ.
+ ªÀÄºÁzÀ±Á AiÉÆÃd£ÉAiÀÄr UÀÄgÀÄUÀ æºÀPÉÌ ¤UÀ¢¥Àr¹zÀ ¥À æªÀiÁtªÀÅ 16 ªÀµÀðUÀ¼ÀÄ.  CAvÀzÀð±ÀUÀ¼À£ÀÄß ¯ÉPÀÌºÁPÀ®Ä CzÉÃ ¥À æªÀiÁtªÀ£ÀÄß
+C£Àé¬Ä¸À¯ÁUÀÄvÀÛzÉ. zÀ±À CªÀ¢üAiÀÄ ¯ÉPÁÌZÁgÀzÀ ¸ÀÆvÀ æ = (¥ÀæªÀÄÄR UÀæºÀzÀ CªÀ¢ü * UÀ æºÀzÀ G¥À CªÀ¢ü) / 120
+ DzÀÝjAzÀ UÀÄgÀÄUÀ æºÀzÀ CAvÀzÀð±À
+ UÀÄgÀÄ zÀ±À = (16/120) * 16 DVgÀÄvÀÛzÉ .  = 2.1333 .  = 2 ªÀµÀð 1 wAUÀ¼ÀÄ 15 ¢£ÀUÀ¼ÀÄ CAvÉAiÉÄÃ, PÀ æªÀÄzÀ°è ªÀÄÄA¢£À CAvÀzÀð±À ±À¤ = (16/120) * 19 DVgÀÄvÀÛzÉ
+ (UÀªÀÄ¤¹: ±À¤AiÀÄÄ 120 ªÀµÀðUÀ¼À ªÀåªÀ¸ÉÜAiÀÄ°è 19 ªÀµÀðUÀ¼À£ÀÄß ¤UÀ¢¥Àr¸À¯ÁVzÉ) = 2.5333 .  = 2 ªÀµÀð 6 wAUÀ¼ÀÄ 12 ¢£ÀUÀ¼ÀÄ CzÉÃ jÃwAiÀÄ°è J¯Áè ¥À æ¨sÀÄUÀ½UÉ CAvÀgï zÀ±ÀUÀ¼À£ÀÄß ¯ÉPÀÌºÁPÀ¯ÁUÀÄvÀÛzÉ.
+ ªÉÄÃ°£À GzÁºÀgÀuÉUÁV, UÀÄgÀÄ zÀ±ÀzÀ PÉ®ªÀÅ ¨sÁUÀªÀÅ ºÀÄnÖzÀ ¸ÀªÀÄAiÀÄzÀ°è FUÁUÀ¯ÉÃ PÀ¼ÉzÀÄºÉÆÃVzÉ JA§ÄzÀ£ÀÄß UÀªÀÄ¤¹.  UÀÄgÀÄzÀ±ÀzÀ 16 ªÀµÀðUÀ¼À°è, 4 ªÀµÀðUÀ¼ÀÄ ªÀÄvÀÄÛ 8 wAUÀ¼ÀÄUÀ¼ÀÄ PÀ¼ÉzÀªÀÅ.  DzÀÝjAzÀ UÀÄgÀÄ ªÀÄvÀÄÛ ±À¤ ¨sÀÄQÛUÀ¼ÀÄ ¥ÀÇtðUÉÆ¼ÀÄîwÛzÀ ÝªÀÅ.
+ªÀÄÄA¢£À CAvÀzÀð±À §ÄzsÀ¢AzÀ PÀÆrgÀÄvÀÛzÉ.  DzÀÝjAzÀ ¸ÀÜ½ÃAiÀÄgÀÄ UÀÄgÀÄ ªÀÄºÁzÀ±À ªÀÄvÀÄÛ §ÄzsÀ CAvÀzÀð±À (CxÀªÁ ¨sÀÄQÛ) ºÀÄnÖ zÀ
+¸ÀªÀÄAiÀÄzÀ°è ºÉÆÃUÀÄwÛzÀÝgÀÄ.
+Each Major Period (or Mahadasha) is subdivided into 9 Sub-periods (or Bhuktis).
+Ketu Dasha: 7 yearsKetu- Ketu: 0 years 4 months 27 daysKetu-Venus: 1 year 2 months 0 daysKetu-Sun: 0 years 4 months 6 daysKetu-Moon: 0 years 7 months 0 daysKetu-Mars: 0 years 4 months 27 daysKetu-Rahu: 1 year 0 months 18 daysKetu-Jupiter: 0 years 11 months 6 daysKetu-Saturn: 1 year 1 month 9 daysKetu-Mercury: 0 years 11 months 27 daysVenus Dasha: 20 yearsVenus-Venus: 3 years 4 months 0 daysVenus-Sun: 1 year 0 months 0 daysVenus-Moon: 1 year 8 months 0 daysVenus-Mars: 1 year 2 months 0 daysVenus-Rahu: 3 years 0 months 0 daysVenus-Jupiter: 2 years 8 months 0 daysVenus-Saturn: 3 years 2 months 0 daysVenus-Mercury: 2 years 10 months 0 daysVenus-Ketu: 1 year 2 months 0 daysSun Dasha: 6 yearsSun-Sun: 0 years 3 months 18 daysSun-Moon: 0 years 6 months 0 daysSun-Mars: 0 years 4 months 6 daysSun-Rahu: 0 years 10 months 24 daysSun-Jupiter: 0 years 9 months 18 daysSun-Saturn: 0 years 11 months 12 daysSun-Mercury: 0 years 10 months 6 daysSun-Ketu: 0 years 4 months 6 daysSun-Venus: 1 year 0 months 0 daysMoon Dasha: 10 yearsMoon-Moon: 0 years 10 months 0 daysMoon-Mars: 0 years 7 months 0 daysMoon-Rahu: 1 year 6 months 0 daysMoon-Jupiter: 1 year 4 months 0 daysMoon-Saturn: 1 year 7 months 0 daysMoon-Mercury: 1 year 5 months 0 daysMoon-Ketu: 0 years 7 months 0 daysMoon-Venus: 1 year 8 months 0 daysMoon-Sun: 0 years 6 months 0 daysMars Dasha: 7 yearsMars-Mars: 0 years 4 months 27 daysMars-Rahu: 1 year 0 months 18 daysMars-Jupiter: 0 years 11 months 6 daysMars-Saturn: 1 year 1 month 9 daysMars-Mercury: 0 years 11 months 27 daysMars-Ketu: 0 years 4 months 27 daysMars-Venus: 1 year 2 months 0 daysMars-Sun: 0 years 4 months 6 daysMars-Moon: 0 years 7 months 0 daysRahu Dasha: 18 years
+Rahu-Rahu: 2 years 8 month 12 daysRahu-Jupiter: 2 years 4 months 24 daysRahu-Saturn: 2 years 10 months 6 daysRahu-Mercury: 2 years 6 months 18 daysRahu-Ketu: 1 year 0 months 18 daysRahu-Venus: 3 years 0 months 0 daysRahu-Sun: 0 years 10 months 24 daysRahu-Moon: 1 year 6 months 0 daysRahu-Mars: 1 year 0 months 18 daysJupiter Dasha: 16 yearsJupiter-Jupiter: 2 years 1 month 18 daysJupiter-Saturn: 2 years 6 months 12 daysJupiter-Mercury: 2 years 3 months 6 daysJupiter-Ketu: 0 years 11 months 6 daysJupiter-Venus: 2 years 8 months 0 daysJupiter-Sun: 0 years 9 months 18 daysJupiter-Moon: 1 year 4 months 0 daysJupiter-Mars: 0 years 11 months 6 daysJupiter-Rahu: 2 years 4 months 24 daysSaturn Dasha: 19 yearsSaturn-Saturn: 3 years 0 months 3 daysSaturn-Mercury: 2 years 8 months 9 daysSaturn-Ketu: 1 year 9 months 9 daysSaturn-Venus: 3 years 2 months 0 daysSaturn-Sun: 0 years 11 months 12 daysSaturn-Moon: 1 year 7 months 0 daysSaturn-Mars: 1 year 1 month 9 daysSaturn-Rahu: 2 years 10 months 6 daysSaturn-Jupiter: 2 years 6 months 12 daysMercury Dasha: 17 yearsMercury-Mercury: 2 years 4 months 27 daysMercury-Ketu: 0 years 11 months 27 daysMercury-Venus: 2 years 10 months 0 daysMercury-Sun: 0 years 10 months 6 daysMercury-Moon: 1 year 5 months 0 daysMercury-Mars: 0 years 11 months 27 daysMercury-Rahu: 2 years 6 months 18 daysMercury-Jupiter: 2 years 3 months 6 daysMercury-Saturn: 2 years 8 months 9 days
+¥ÀæwAiÉÆAzÀÄ ¥À æªÀÄÄR CªÀ¢üAiÀÄ£ÀÄß (CxÀªÁ ªÀÄºÁzÀ±Á)
+9 G¥À-CªÀ¢üUÀ¼ÁV (CxÀªÁ ¨sÀÄQÛUÀ¼ÀÄ) «AUÀr¸À¯ÁVzÉ.PÉÃvÀÄ zÀ±Á: 7 ªÀµÀðPÉÃvÀÄ- PÉÃvÀÄ: 0 ªÀµÀð 4 wAUÀ¼ÀÄ 27 ¢£ÀUÀ¼ÀÄPÉÃvÀÄ-±ÀÄPÀ æ: 1 ªÀµÀð 2 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+PÉÃvÀÄ-¸ÀÆAiÀÄð: 0 ªÀµÀð 4 wAUÀ¼ÀÄ 6 ¢£ÀUÀ¼ÀÄPÉÃvÀÄ-ZÀAzÀ æ: 0 ªÀµÀð 7 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+PÉÃvÀÄ-ªÀÄAUÀ¼À: 0 ªÀµÀð 4 wAUÀ¼ÀÄ 27 ¢£ÀUÀ¼ÀÄPÉÃvÀÄ-gÁºÀÄ: 1 ªÀµÀð 0 wAUÀ¼ÀÄ 18 ¢£ÀUÀ¼ÀÄPÉÃvÀÄ-UÀÄgÀÄ: 0 ªÀµÀð 11 wAUÀ¼ÀÄ 6 ¢£ÀUÀ¼ÀÄPÉÃvÀÄ-±À¤: 1 ªÀµÀð 1 wAUÀ¼ÀÄ 9 ¢£ÀUÀ¼ÀÄPÉÃvÀÄ-§ÄzsÀ: 0 ªÀµÀð 11 wAUÀ¼ÀÄ 27 ¢£ÀUÀ¼ÀÄ±ÀÄPÀæ zÀ±À: 20 ªÀµÀð
+±ÀÄPÀæ-±ÀÄPÀæ: 3 ªÀµÀð 4 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+±ÀÄPÀæ-¸ÀÆAiÀÄð: 1 ªÀµÀð 0 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+±ÀÄPÀæ-ZÀAzÀæ: 1 ªÀµÀð 8 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+±ÀÄPÀæ-ªÀÄAUÀ¼À: 1 ªÀµÀð 2 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+±ÀÄPÀæ-gÁºÀÄ: 3 ªÀµÀð 0 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+±ÀÄPÀæ-UÀÄgÀÄ: 2 ªÀµÀð 8 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+±ÀÄPÀæ-±À¤: 3 ªÀµÀð 2 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+±ÀÄPÀæ-§ÄzsÀ: 2 ªÀµÀð 10 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+±ÀÄPÀæ-PÉÃvÀÄ: 1 ªÀµÀð 2 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+¸ÀÆAiÀÄð zÀ±Á: 6 ªÀµÀð¸ÀÆAiÀÄð-¸ÀÆAiÀÄð: 0 ªÀµÀð 3 wAUÀ¼ÀÄ 18 ¢£ÀUÀ¼ÀÄ¸ÀÆAiÀÄð-ZÀAzÀ æ: 0 ªÀµÀð 6 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+¸ÀÆAiÀÄð-ªÀÄAUÀ¼À: 0 ªÀµÀð 4 wAUÀ¼ÀÄ 6 ¢£ÀUÀ¼ÀÄ¸ÀÆAiÀÄð-gÁºÀÄ: 0 ªÀµÀð 10 wAUÀ¼ÀÄ 24 ¢£ÀUÀ¼ÀÄ¸ÀÆAiÀÄð-UÀÄgÀÄ: 0 ªÀµÀð 9 wAUÀ¼ÀÄ 18 ¢£ÀUÀ¼ÀÄ¸ÀÆAiÀÄð-±À¤: 0 ªÀµÀð 11 wAUÀ¼ÀÄ 12 ¢£ÀUÀ¼ÀÄ¸ÀÆAiÀÄð-§ÄzsÀ: 0 ªÀµÀð 10 wAUÀ¼ÀÄ 6 ¢£ÀUÀ¼ÀÄ¸ÀÆAiÀÄð-PÉÃvÀÄ: 0 ªÀµÀð 4 wAUÀ¼ÀÄ 6 ¢£ÀUÀ¼ÀÄ¸ÀÆAiÀÄð-±ÀÄPÀ æ: 1 ªÀµÀð 0 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+ZÀAzÀæ zÀ±Á: 10 ªÀµÀð
+ZÀAzÀæ-ZÀAzÀæ: 0 ªÀµÀð 10 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+ZÀAzÀæ-ªÀÄAUÀ¼À: 0 ªÀµÀð 7 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+ZÀAzÀæ-gÁºÀÄ: 1 ªÀµÀð 6 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+ZÀAzÀæ-UÀÄgÀÄ: 1 ªÀµÀð 4 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+ZÀAzÀæ-±À¤: 1 ªÀµÀð 7 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+ZÀAzÀæ-§ÄzsÀ: 1 ªÀµÀð 5 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+ZÀAzÀæ-PÉÃvÀÄ: 0 ªÀµÀð 7 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+ZÀAzÀæ-±ÀÄPÀæ: 1 ªÀµÀð 8 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+ZÀAzÀæ-¸ÀÆAiÀÄð: 0 ªÀµÀð 6 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+ªÀÄAUÀ¼À zÀ±À: 7 ªÀµÀðªÀÄAUÀ¼À-ªÀÄAUÀ¼À: 0 ªÀµÀð 4 wAUÀ¼ÀÄ 27 ¢£ÀUÀ¼ÀÄªÀÄAUÀ¼À-gÁºÀÄ: 1 ªÀµÀð 0 wAUÀ¼ÀÄ 18 ¢£ÀUÀ¼ÀÄªÀÄAUÀ¼À-UÀÄgÀÄ: 0 ªÀµÀð 11 wAUÀ¼ÀÄ 6 ¢£ÀUÀ¼ÀÄªÀÄAUÀ¼À-±À¤: 1 ªÀµÀð 1 wAUÀ¼ÀÄ 9 ¢£ÀUÀ¼ÀÄªÀÄAUÀ¼À-§ÄzsÀ: 0 ªÀµÀð 11 wAUÀ¼ÀÄ 27 ¢£ÀUÀ¼ÀÄªÀÄAUÀ¼À-PÉÃvÀÄ: 0 ªÀµÀð 4 wAUÀ¼ÀÄ 27 ¢£ÀUÀ¼ÀÄªÀÄAUÀ¼À-±ÀÄPÀ æ: 1 ªÀµÀð 2 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+ªÀÄAUÀ¼À-¸ÀÆAiÀÄð: 0 ªÀµÀð 4 wAUÀ¼ÀÄ 6 ¢£ÀUÀ¼ÀÄªÀÄAUÀ¼À-ZÀAzÀ æ: 0 ªÀµÀð 7 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄgÁºÀÄ zÀ±Á: 18 ªÀµÀð
+gÁºÀÄ-gÁºÀÄ: 2 ªÀµÀð 8 wAUÀ¼ÀÄ 12 ¢£ÀUÀ¼ÀÄgÁºÀÄ-UÀÄgÀÄ: 2 ªÀµÀð 4 wAUÀ¼ÀÄ 24 ¢£ÀUÀ¼ÀÄgÁºÀÄ-±À¤: 2 ªÀµÀð 10 wAUÀ¼ÀÄ 6 ¢£ÀUÀ¼ÀÄgÁºÀÄ-§ÄzsÀ: 2 ªÀµÀð 6 wAUÀ¼ÀÄ 18 ¢£ÀUÀ¼ÀÄgÁºÀÄ-PÉÃvÀÄ: 1 ªÀµÀð 0 wAUÀ¼ÀÄ 18 ¢£ÀUÀ¼ÀÄgÁºÀÄ-±ÀÄPÀ æ: 3 ªÀµÀð 0 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+gÁºÀÄ-¸ÀÆAiÀÄð: 0 ªÀµÀð 10 wAUÀ¼ÀÄ 24 ¢£ÀUÀ¼ÀÄgÁºÀÄ-ZÀAzÀ æ: 1 ªÀµÀð 6 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+gÁºÀÄ-ªÀÄAUÀ¼À: 1 ªÀµÀð 0 wAUÀ¼ÀÄ 18 ¢£ÀUÀ¼ÀÄUÀÄgÀÄ zÀ±Á: 16 ªÀµÀðUÀÄgÀÄ-UÀÄgÀÄ: 2 ªÀµÀð 1 wAUÀ¼ÀÄ 18 ¢£ÀUÀ¼ÀÄUÀÄgÀÄ-±À¤: 2 ªÀµÀð 6 wAUÀ¼ÀÄ 12 ¢£ÀUÀ¼ÀÄUÀÄgÀÄ-§ÄzsÀ: 2 ªÀµÀð 3 wAUÀ¼ÀÄ 6 ¢£ÀUÀ¼ÀÄUÀÄgÀÄ-PÉÃvÀÄ: 0 ªÀµÀð 11 wAUÀ¼ÀÄ 6 ¢£ÀUÀ¼ÀÄUÀÄgÀÄ-±ÀÄPÀ æ: 2 ªÀµÀð 8 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+UÀÄgÀÄ-¸ÀÆAiÀÄð: 0 ªÀµÀð 9 wAUÀ¼ÀÄ 18 ¢£ÀUÀ¼ÀÄ
+UÀÄgÀÄ-ZÀAzÀ æ: 1 ªÀµÀð 4 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+UÀÄgÀÄ-ªÀÄAUÀ¼À: 0 ªÀµÀð 11 wAUÀ¼ÀÄ 6 ¢£ÀUÀ¼ÀÄUÀÄgÀÄ-gÁºÀÄ: 2 ªÀµÀð 4 wAUÀ¼ÀÄ 24 ¢£ÀUÀ¼ÀÄ±À¤ zÀ±À: 19 ªÀµÀð±À¤-±À¤: 3 ªÀµÀð 0 wAUÀ¼ÀÄ 3 ¢£ÀUÀ¼ÀÄ±À¤-§ÄzsÀ: 2 ªÀµÀð 8 wAUÀ¼ÀÄ 9 ¢£ÀUÀ¼ÀÄ±À¤-PÉÃvÀÄ: 1 ªÀµÀð 9 wAUÀ¼ÀÄ 9 ¢£ÀUÀ¼ÀÄ±À¤-±ÀÄPÀæ: 3 ªÀµÀð 2 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+±À¤-¸ÀÆAiÀÄð: 0 ªÀµÀð 11 wAUÀ¼ÀÄ 12 ¢£ÀUÀ¼ÀÄ±À¤-ZÀAzÀ æ: 1 ªÀµÀð 7 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+±À¤-ªÀÄAUÀ¼À: 1 ªÀµÀð 1 wAUÀ¼ÀÄ 9 ¢£ÀUÀ¼ÀÄ±À¤-gÁºÀÄ: 2 ªÀµÀð 10 wAUÀ¼ÀÄ 6 ¢£ÀUÀ¼ÀÄ±À¤-UÀÄgÀÄ: 2 ªÀµÀð 6 wAUÀ¼ÀÄ 12 ¢£ÀUÀ¼ÀÄ§ÄzsÀ zÀ±Á: 17 ªÀµÀð§ÄzsÀ-§ÄzsÀ: 2 ªÀµÀð 4 wAUÀ¼ÀÄ 27 ¢£ÀUÀ¼ÀÄ§ÄzsÀ-PÉÃvÀÄ: 0 ªÀµÀð 11 wAUÀ¼ÀÄ 27 ¢£ÀUÀ¼ÀÄ§ÄzsÀ-±ÀÄPÀ æ: 2 ªÀµÀð 10 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+§ÄzsÀ-¸ÀÆAiÀÄð: 0 ªÀµÀð 10 wAUÀ¼ÀÄ 6 ¢£ÀUÀ¼ÀÄ§ÄzsÀ-ZÀAzÀ æ: 1 ªÀµÀð 5 wAUÀ¼ÀÄ 0 ¢£ÀUÀ¼ÀÄ
+§ÄzsÀ-ªÀÄAUÀ¼À: 0 ªÀµÀð 11 wAUÀ¼ÀÄ 27 ¢£ÀUÀ¼ÀÄ§ÄzsÀ-gÁºÀÄ: 2 ªÀµÀð 6 wAUÀ¼ÀÄ 18 ¢£ÀUÀ¼ÀÄ§ÄzsÀ-UÀÄgÀÄ: 2 ªÀµÀð 3 wAUÀ¼ÀÄ 6 ¢£ÀUÀ¼ÀÄ§ÄzsÀ-±À¤: 2 ªÀµÀð 8 wAUÀ¼ÀÄ 9 ¢£ÀUÀ¼ÀÄ
+Each Mahadasa is subdivided into planetary periods called Antra-dasa or Bhukti. Each antra-dasa is further
+divided into Paryantra-dasa which run their course in the same order as the mahadasa and with the same pro-portional length.For example, the first bhukti of Mahadasa Ketu is Ketu/Ketu, the second is Ketu/Venus, the third Ketu/Sun andso on. 
+¥ÀæwAiÉÆAzÀÄ ªÀÄºÁzÁ¸ÀªÀ£ÀÄß UÀ æºÀUÀ¼À CªÀ¢üUÀ¼ÁV DAmÁ æ-zÁ¸À CxÀªÁ ¨sÀÄQÛ JAzÀÄ «AUÀr¸À¯ÁVzÉ. ¥À æwAiÉÆAzÀÄ DAmÁ æ-
+zÁ¸ÀªÀ£ÀÄß ªÀÄvÀÛµÀÄÖ ¥ÀjAvï-zÁ¸À JAzÀÄ «AUÀr¸À¯ÁVzÉ, EzÀÄ ªÀÄºÁzÁ¸ÀzÀAvÉAiÉÄÃ ªÀÄvÀÄÛ CzÉÃ ¥À æªÀiÁtzÀ°è C£ÀÄ¥ÁvÀzÀ°è
+vÀªÀÄä PÉÆÃ¸ïð C£ÀÄß £ÀqÉ¸ÀÄvÀÛzÉ.GzÁºÀgÀuÉUÉ, ªÀÄºÁzÁ¸À PÉÃvÀÄUÀ¼À ªÉÆzÀ® ¨sÀÄQÛ PÉÃvÀÄ / PÉÃvÀÄ, JgÀqÀ£ÉAiÀÄzÀÄ PÉÃvÀÄ / ±ÀÄPÀ æ, ªÀÄÆgÀ£ÉAiÀÄ PÉÃvÀÄ / ¸ÀÆAiÀÄð
+»ÃUÉ.

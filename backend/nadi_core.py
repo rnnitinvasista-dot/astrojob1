@@ -410,10 +410,17 @@ class NadiEngine:
         
         
         # Set Ayanamsa dynamically
-        # User's reference software uses a specific Ayanamsa shift.
+        if self.ayanamsa.upper() == "LAHIRI":
+            swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+        else:
+            swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
+            
+        ayan_val = swe.get_ayanamsa_ut(jd)
+        
         # Calibration against Horary #45 (Sun 19°33'30"): requires +1600 arcseconds shift.
-        swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
-        ayan_val = swe.get_ayanamsa_ut(jd) + (1600.0 / 3600.0)
+        # CRITICAL: Only apply this shift for Prashna (horary_number present) AND if using KP.
+        if horary_number and self.ayanamsa.upper() == "KP":
+            ayan_val += (1600.0 / 3600.0)
         
         # Calculate Houses (Placidus Default for Cusps/Placement)
         h_sys = b'P' if self.house_system == "Placidus" else b'E'
@@ -826,13 +833,15 @@ class NadiEngine:
                 md_yrs = self.DASHA_YEARS[p]
                 md_end = md_curs + relativedelta(years=md_yrs)
             
+            # Transition dates for linked sequence
             md_start = md_curs
-            
             md_item = {
-                "planet": p, "start_date": fmt_date(md_start), "end_date": fmt_date(md_end),
+                "planet": p, 
+                "start_date": fmt_date(md_start), 
+                "end_date": fmt_date(md_end),
                 "bukthis": []
             }
-            if md_start <= today <= md_end: act_md = p
+            if md_start <= today < md_end: act_md = p
             
             ad_seq_start = self.DASHA_ORDER.index(p)
             ad_seq = self.DASHA_ORDER[ad_seq_start:] + self.DASHA_ORDER[:ad_seq_start]
@@ -863,7 +872,7 @@ class NadiEngine:
                 # Filter out bukthis that ended BEFORE the person was born
                 if ad_end > birth_dt_loc:
                     ad_item = { "planet": ap, "start_date": fmt_date(max(ad_curs, birth_dt_loc)), "end_date": fmt_date(ad_end), "antaras": [] }
-                    if max(ad_curs, birth_dt_loc) <= today <= ad_end: act_ad = ap
+                    if max(ad_curs, birth_dt_loc) <= today < ad_end: act_ad = ap
                 else:
                     ad_item = None
                 
@@ -880,7 +889,7 @@ class NadiEngine:
                     
                     
                     if ad_item and pd_end > birth_dt_loc:
-                        if max(pd_curs, birth_dt_loc) <= today <= pd_end: act_pd = pp
+                        if max(pd_curs, birth_dt_loc) <= today < pd_end: act_pd = pp
                         ad_item["antaras"].append({
                             "planet": pp, "start_date": fmt_date(max(pd_curs, birth_dt_loc)), "end_date": fmt_date(pd_end)
                         })
