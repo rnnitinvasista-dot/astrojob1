@@ -806,10 +806,15 @@ class NadiEngine:
         def fmt_date(dt):
             return dt.strftime("%Y-%m-%d %H:%M:%S")
 
-        # Constants for precision
-        SEC_PER_YEAR = 365.2425 * 24 * 3600
+        SEC_PER_YEAR = 365.25 * 24 * 3600
+        ABBR = {
+            'Ketu': 'Ke', 'Venus': 'Ve', 'Sun': 'Su', 'Moon': 'Mo', 
+            'Mars': 'Ma', 'Rahu': 'Ra', 'Jupiter': 'Ju', 'Saturn': 'Sa', 'Mercury': 'Me'
+        }
 
-        # Calculate chronological Mahadasha sequence starting from EXACT start of first MD
+        def fmt_date(dt):
+            return dt.strftime("%d/%m/%Y")
+
         # Standard Rule: MD Start = Birth - (Traversed Fraction * Lord Total Years)
         total_md1_yrs = self.DASHA_YEARS[lord_name]
         elapsed_md1_sec = total_md1_yrs * traversed_fraction * SEC_PER_YEAR
@@ -823,7 +828,8 @@ class NadiEngine:
             md_end = add_seconds(md_start, md_duration_sec)
             
             md_item = {
-                "planet": md_p, "start_date": fmt_date(md_start), "end_date": fmt_date(md_end),
+                "planet": md_p, "abbr": ABBR.get(md_p, md_p[:2]),
+                "start_date": fmt_date(md_start), "end_date": fmt_date(md_end),
                 "bhuktis": [] 
             }
             if md_start <= today <= md_end: act_md = md_p
@@ -838,7 +844,8 @@ class NadiEngine:
                 ad_end = add_seconds(ad_curs, ad_duration_sec)
                 
                 ad_item = { 
-                    "planet": ad_p, "start_date": fmt_date(ad_curs), "end_date": fmt_date(ad_end), 
+                    "planet": ad_p, "abbr": ABBR.get(ad_p, ad_p[:2]),
+                    "start_date": fmt_date(ad_curs), "end_date": fmt_date(ad_end), 
                     "antar_bhuktis": [] 
                 }
                 if ad_curs <= today <= ad_end: act_bh = ad_p
@@ -853,7 +860,8 @@ class NadiEngine:
                     pd_end = add_seconds(pd_curs, pd_duration_sec)
                     
                     pd_item = {
-                        "planet": pd_p, "start_date": fmt_date(pd_curs), "end_date": fmt_date(pd_end),
+                        "planet": pd_p, "abbr": ABBR.get(pd_p, pd_p[:2]),
+                        "start_date": fmt_date(pd_curs), "end_date": fmt_date(pd_end),
                         "pratyantars": []
                     }
                     if pd_curs <= today <= pd_end: act_ab = pd_p
@@ -868,7 +876,8 @@ class NadiEngine:
                         sd_end = add_seconds(sd_curs, sd_duration_sec)
                         
                         sd_item = {
-                            "planet": sd_p, "start_date": fmt_date(sd_curs), "end_date": fmt_date(sd_end),
+                            "planet": sd_p, "abbr": ABBR.get(sd_p, sd_p[:2]),
+                            "start_date": fmt_date(sd_curs), "end_date": fmt_date(sd_end),
                             "sukshmas": []
                         }
                         if sd_curs <= today <= sd_end: act_pr = sd_p
@@ -885,7 +894,8 @@ class NadiEngine:
                             if pr_curs <= today <= pr_end: act_sk = pr_p
                             
                             sd_item["sukshmas"].append({
-                                "planet": pr_p, "start_date": fmt_date(pr_curs), "end_date": fmt_date(pr_end)
+                                "planet": pr_p, "abbr": ABBR.get(pr_p, pr_p[:2]),
+                                "start_date": fmt_date(pr_curs), "end_date": fmt_date(pr_end)
                             })
                             pr_curs = pr_end
 
