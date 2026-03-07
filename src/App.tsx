@@ -161,7 +161,11 @@ const App = () => {
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    if (tab === 'fertility') {
+  };
+
+  const handleAreaChange = (area: string) => {
+    setSelectedArea(area);
+    if (area === 'Child Birth') {
       loadChildAnalysis();
     }
   };
@@ -230,7 +234,7 @@ const App = () => {
             <div style={{ padding: '8px', marginBottom: '1rem', background: '#eff6ff', borderRadius: '12px', border: '1px solid #3b82f6' }}>
               <select
                 value={selectedArea}
-                onChange={(e) => setSelectedArea(e.target.value)}
+                onChange={(e) => handleAreaChange(e.target.value)}
                 style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #3b82f6', background: 'white', fontWeight: 'bold', color: '#1e3a8a' }}
               >
                 <option>Job</option>
@@ -248,6 +252,21 @@ const App = () => {
               if (planetName === kundliData.dasha.current_dasha) activeTypes.push('Dasha');
               if (planetName === kundliData.dasha.current_bukthi) activeTypes.push('Bhukti');
               if (planetName === kundliData.dasha.current_antara) activeTypes.push('Antara');
+
+              if (selectedArea === 'Child Birth') {
+                if (analysisLoading) return <div key={planetName} style={{ padding: '2rem', textAlign: 'center' }}>Analyzing Fertility...</div>;
+                if (!childAnalysisData) return <div key={planetName} style={{ padding: '2rem', textAlign: 'center' }}>No analysis data.</div>;
+
+                return (
+                  <ChildAnalysisTable
+                    key={planetName}
+                    reports={childAnalysisData.reports}
+                    planets={kundliData.planets}
+                    dashaType={activeTypes[0] || 'Transit'}
+                    planetName={planetName}
+                  />
+                );
+              }
 
               return (
                 <JobPredictionTable
@@ -268,30 +287,6 @@ const App = () => {
         return (
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
             <DashaTable dasha={kundliData.dasha} />
-          </div>
-        );
-      case 'fertility':
-        if (analysisLoading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Analyzing Fertility...</div>;
-        if (!childAnalysisData) return <div style={{ padding: '2rem', textAlign: 'center' }}>No analysis data.</div>;
-        return (
-          <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
-            {kundliData.planets.map((p: any) => {
-              const planetName = p.planet;
-              let dashaType = '';
-              if (planetName === kundliData.dasha.current_dasha) dashaType = 'Dasha';
-              if (planetName === kundliData.dasha.current_bukthi) dashaType = 'Bukthi';
-              if (planetName === kundliData.dasha.current_antara) dashaType = 'Antar Bhukthi';
-
-              return (
-                <ChildAnalysisTable
-                  key={planetName}
-                  reports={childAnalysisData.reports}
-                  planets={kundliData.planets}
-                  dashaType={dashaType}
-                  planetName={planetName}
-                />
-              );
-            })}
           </div>
         );
       default:
