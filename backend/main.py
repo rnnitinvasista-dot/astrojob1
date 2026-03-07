@@ -62,6 +62,7 @@ def get_engine(settings: CalculationSettings = None):
     return NadiEngine(node_type=node_type, ayanamsa=ayanamsa, house_system=house_system)
 
 @app.post("/api/v1/kp/kundli")
+@app.post("/kundli")
 def generate_kundli(req: KundliRequest):
     try:
         re = get_engine(req.calculation_settings)
@@ -70,6 +71,31 @@ def generate_kundli(req: KundliRequest):
             req.birth_details.timezone,
             req.birth_details.latitude,
             req.birth_details.longitude,
+            horary_number=req.prashna_number
+        )
+        return res
+    except Exception as e:
+        traceback.print_exc()
+        return {"status": "error", "message": str(e)}
+
+class PrashnaRequest(BaseModel):
+    prashna_number: int
+    date: str
+    time: str
+    latitude: float
+    longitude: float
+    timezone: Optional[str] = "Asia/Kolkata"
+
+@app.post("/api/v1/kp/mixed-prashna")
+@app.post("/mixed-prashna")
+def mixed_prashna(req: PrashnaRequest):
+    try:
+        re = get_engine()
+        res = re.calculate_kundli(
+            f"{req.date} {req.time}",
+            req.timezone,
+            req.latitude,
+            req.longitude,
             horary_number=req.prashna_number
         )
         return res

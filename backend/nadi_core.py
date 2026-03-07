@@ -522,9 +522,12 @@ class NadiEngine:
         bal_yrs_f = self.DASHA_YEARS[lord_name] * remaining_fraction
         
         def add_period(dt, float_yrs):
-            """Add a fractional year period using total-days precision."""
-            total_days = float_yrs * 365.25
-            return dt + datetime.timedelta(days=round(total_days))
+            """Add a fractional year period using y/m/d decomposition."""
+            y = int(float_yrs)
+            m_f = (float_yrs - y) * 12
+            m = int(m_f)
+            d = int((m_f - m) * 30.436875)
+            return dt + relativedelta(years=y, months=m, days=d)
 
         fmt_date = lambda dt: dt.isoformat()[:10]
         today = datetime.datetime.now(pytz.UTC)
