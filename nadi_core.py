@@ -526,7 +526,7 @@ class NadiEngine:
             y = int(float_yrs)
             m_f = (float_yrs - y) * 12
             m = int(m_f)
-            d = int((m_f - m) * 30.436875)
+            d = round((m_f - m) * 30.436875)
             return dt + relativedelta(years=y, months=m, days=d)
 
         fmt_date = lambda dt: dt.isoformat()[:10]
