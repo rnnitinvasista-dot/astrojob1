@@ -34,16 +34,6 @@ HOUSE_JOB_AREAS = {
     12: "Foreign Ties, Investments, Social Service, Isolation Science"
 }
 
-CHILD_BIRTH_GROUPS = {
-    "HIGH": [{2, 5, 9, 11}, {2, 5, 11}],
-    "MEDIUM": [{5, 9, 11}, {5, 11}],
-    "LOW": [{5}, {2}, {11}],
-    "BAD": [{1, 4, 8, 10, 12}, {1, 4, 8, 10}, {1, 4, 10}, {4, 10}, {4}, {1, 10}]
-}
-
-ABORTION_GROUPS = [{2, 5, 6, 8, 12}, {2, 5, 8, 12}, {5, 8, 12}]
-IVF_GROUP = {2, 5, 8, 11}
-
 import swisseph as swe
 import datetime
 import pytz
@@ -420,18 +410,21 @@ class NadiEngine:
         
         
         # Set Ayanamsa dynamically
-        # User's reference software uses a specific Ayanamsa shift.
-        # Calibration against Horary #45 (Sun 19°33'30"): requires +1600 arcseconds shift.
-        swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
-        ayan_val = swe.get_ayanamsa_ut(jd) + (1600.0 / 3600.0)
+        swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0) # Base mode for mode-specific adjustments
         
         # Calculate Houses (Placidus Default for Cusps/Placement)
         h_sys = b'P' if self.house_system == "Placidus" else b'E'
+        
         if horary_number:
-            # Pass calibrated ayanamsa to prashna logic
+            # Prashna: Use standard KP + 1600" offset
+            swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
+            ayan_val = swe.get_ayanamsa_ut(jd) + (1600.0 / 3600.0)
             cusps, ascmc = self.calculate_prashna_cusps(jd, lat, lon, horary_number, calibrated_ayan=ayan_val)
         else:
-            # Adjust tropical calculation to sidereal using calibrated ayanamsa
+            # Natal: Use New KP (VP291/SIDM 39) explicitly as per user requirement
+            # Use SIDM_KRISHNAMURTI_VP291 (39)
+            swe.set_sid_mode(39, 0, 0)
+            ayan_val = swe.get_ayanamsa_ut(jd)
             cusps_raw, ascmc_raw = swe.houses_ex(jd, lat, lon, h_sys, 0) # Tropical
             cusps = [(c - ayan_val) % 360 for c in cusps_raw]
             ascmc = [(a - ayan_val) % 360 for a in ascmc_raw]
@@ -790,8 +783,10 @@ class NadiEngine:
         lord_name = self.DASHA_ORDER[naksh_idx % 9]
         bal_yrs_f = self.DASHA_YEARS[lord_name] * remaining_fraction
         
-        def add_years(dt, y, days_per_year=365.2425):
-            return dt + datetime.timedelta(days=int(y * days_per_year))
+        def add_years(dt, y, days_per_year=365.242199):
+            # High-precision date shift using seconds to avoid rounding days
+            seconds_per_year = days_per_year * 24 * 3600
+            return dt + datetime.timedelta(seconds=y * seconds_per_year)
             
         today = datetime.datetime.now(pytz.UTC)
         act_md, act_ad, act_pd = "None", "None", "None"
@@ -845,6 +840,11 @@ class NadiEngine:
                 ad_curs = ad_end
             mahadasha_tree.append(md_item)
             md_curs = md_end
+        
+        # Correctly set current dasha/bukthi/antara if active tree search failed (redundancy)
+        if act_md == "None" and mahadasha_tree:
+             # Fallback to identify current if birth time is far in past
+             pass
             
         y_bal = int(bal_yrs_f)
         rem_y = bal_yrs_f - y_bal

@@ -176,6 +176,12 @@ const JOB_BAD_02 = [
     [6, 8, 9, 12], [7, 8, 9, 12], [6, 8, 12], [7, 8, 12], [6, 12], [7, 12], [9, 12]
 ];
 
+const CHILD_BIRTH_HIGH = [[2, 5, 9, 11], [2, 5, 11]];
+const CHILD_BIRTH_MEDIUM = [[5, 9, 11], [5, 11]];
+const CHILD_BIRTH_LOW = [[5], [2], [11]];
+const CHILD_BIRTH_NEGATIVE = [[1, 4, 8, 10, 12], [1, 4, 8, 10], [1, 4, 10], [4, 10], [4], [1, 10]];
+const CHILD_BIRTH_ABORTION = [[2, 5, 6, 8, 12], [2, 5, 8, 12], [5, 8, 12]];
+
 const checkSubset = (target: Set<number>, subsets: number[][]) => {
     return subsets.some(sub => sub.every(h => target.has(h)));
 };
@@ -378,6 +384,12 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
     const comboGoodSet = new Set([...plBif.good, ...nlBif.good, ...slBif.good]);
     const comboBadSet = new Set([...plBif.bad, ...nlBif.bad, ...slBif.bad]);
 
+    const allHousesSet = new Set([
+        ...plHouses, plHit,
+        ...nlHouses, nlHit,
+        ...slHouses, slHit
+    ]);
+
     const counts: Record<number, number> = {};
     [...plHouses, ...nlHouses, ...slHouses].forEach(h => { counts[h] = (counts[h] || 0) + 1; });
 
@@ -512,7 +524,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
 
                 <div style={{ borderBottom: '1.5px solid #000000', padding: '8px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
                     <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>
-                        {isEducation ? "EXAM" : isMarriage ? "INDICATION" : isChildBirth ? "FERTILITY" : isHealth ? "HEALTH STATUS" : "INCOME/EXPENSES"}
+                        {isEducation ? "EXAM" : isMarriage ? "INDICATION" : isChildBirth ? "INDICATION" : isHealth ? "HEALTH STATUS" : "INCOME/EXPENSES"}
                     </div>
                     <div style={{ display: 'flex', gap: '8px', fontWeight: 800, fontSize: '0.85rem', alignItems: 'center' }}>
                         <span style={{ color: '#16a34a' }}>
@@ -527,7 +539,12 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
                                     if (greenCount === 2) return "Medium Indication";
                                     return "Low";
                                 })()
-                                : isMarriage ? "High Indication" : isChildBirth ? "High Indication" : isHealth ? "Excellent" : (() => {
+                                : isMarriage ? "High Indication" : isChildBirth ? (() => {
+                                    if (checkSubset(allHousesSet, CHILD_BIRTH_HIGH)) return "High Indication";
+                                    if (checkSubset(allHousesSet, CHILD_BIRTH_MEDIUM)) return "Medium Indication";
+                                    if (checkSubset(allHousesSet, CHILD_BIRTH_LOW)) return "Low Indication";
+                                    return "No Indication";
+                                })() : isHealth ? "Excellent" : (() => {
                                     if (checkSubset(comboGoodSet, JOB_GOOD_A_PLUS)) return "Very High";
                                     if (checkSubset(comboGoodSet, JOB_GOOD_A)) return "High";
                                     if (checkSubset(comboGoodSet, JOB_GOOD_B)) return "Medium";
@@ -537,7 +554,11 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
                         </span>
                         <span style={{ color: '#cbd5e1', fontWeight: 400 }}>/</span>
                         <span style={{ color: '#ef4444' }}>
-                            {isEducation ? "Low" : isMarriage ? "Low Loss" : isHealth ? "Neutral" : (() => {
+                            {isChildBirth ? (() => {
+                                if (checkSubset(allHousesSet, CHILD_BIRTH_NEGATIVE)) return "High Difficulty";
+                                if (checkSubset(allHousesSet, CHILD_BIRTH_ABORTION)) return "Abortion Risk";
+                                return "Low Loss";
+                            })() : isEducation ? "Low" : isMarriage ? "Low Loss" : isHealth ? "Neutral" : (() => {
                                 if (checkSubset(comboBadSet, JOB_BAD_01)) return "High Loss";
                                 if (checkSubset(comboBadSet, JOB_BAD_02)) return "Medium Loss";
                                 return "Low Loss";

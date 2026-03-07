@@ -3,6 +3,7 @@ import type { KundliRequest, KundliResponse } from '../types/astrology';
 
 // Stay on Render for now
 const RENDER_API_URL = 'https://astrojob.onrender.com/api/v1/kp';
+// const HUGGINGFACE_API_URL = 'https://nitin324444-astro.hf.space/api/v1/kp';
 
 const DEFAULT_API_URL = RENDER_API_URL;
 
@@ -82,24 +83,5 @@ export const fetchMixedPrashna = async (request: any): Promise<KundliResponse> =
             status: 'error',
             message: errorMsg,
         } as KundliResponse;
-    }
-};
-
-export const fetchChildAnalysis = async (request: KundliRequest): Promise<any> => {
-    const baseUrl = getApiUrl();
-    try {
-        const response = await axios.post(`${baseUrl}/child-analysis`, request, {
-            timeout: 60000 // 60 seconds
-        });
-        return response.data;
-    } catch (error) {
-        let errorMsg = 'Network error occurred';
-        if (axios.isAxiosError(error)) {
-            errorMsg = `Analysis failed at ${baseUrl}. ${error.message}`;
-        }
-        return {
-            status: 'error',
-            message: errorMsg,
-        };
     }
 };
