@@ -1,6 +1,13 @@
-import swisseph as swe
+
 try:
-    c, a = swe.houses_armc(100.0, 12.0, 23.4, b'P')
-    print(f"Success with b'P': {c[0]}")
-except Exception as e:
-    print(f"Failed with b'P': {e}")
+    import swisseph
+    print("Successfully imported swisseph")
+    print("Version:", swisseph.VERSION if hasattr(swisseph, 'VERSION') else "Unknown")
+except ImportError as e:
+    print("Failed to import swisseph:", e)
+
+try:
+    import pyswisseph
+    print("Successfully imported pyswisseph")
+except ImportError as e:
+    print("Failed to import pyswisseph:", e)

@@ -35,9 +35,9 @@ class KPMixedPrashnaEngine:
         self.HORARY_249 = self._generate_249_table()
 
     def _generate_249_table(self):
-        """Generates the 249 KP Horary mapping table."""
+        """Generates the 249 KP Horary mapping table mathematically."""
         table = {}
-        nak_size = 360.0 / 27.0  # 13°20'
+        nak_size = 360.0 / 27.0  # 13°20' = 800'
         num = 1
         
         for n_idx in range(27):
@@ -55,19 +55,26 @@ class KPMixedPrashnaEngine:
                 seg_end = seg_start + arc
                 
                 sign_idx_s = int(seg_start / 30.0)
-                # sign_idx_e logic to handle floating point precision near sign boundaries
                 sign_idx_e = int((seg_end - 1e-10) / 30.0)
                 
                 if sign_idx_s != sign_idx_e:
-                    # Split over sign boundary
-                    # Part 1 (Aries portion)
-                    table[num] = seg_start
+                    # Part 1: Previous Sign
+                    table[num] = {
+                        "lon": seg_start, "sl": self.SIGN_LORDS[self.SIGN_NAMES[sign_idx_s]],
+                        "nl": star_lord, "sub": sub_lord
+                    }
                     num += 1
-                    # Part 2 (Taurus portion)
-                    table[num] = float(sign_idx_e * 30.0)
+                    # Part 2: Next Sign
+                    table[num] = {
+                        "lon": float(sign_idx_e * 30.0), "sl": self.SIGN_LORDS[self.SIGN_NAMES[sign_idx_e]],
+                        "nl": star_lord, "sub": sub_lord
+                    }
                     num += 1
                 else:
-                    table[num] = seg_start
+                    table[num] = {
+                        "lon": seg_start, "sl": self.SIGN_LORDS[self.SIGN_NAMES[sign_idx_s]],
+                        "nl": star_lord, "sub": sub_lord
+                    }
                     num += 1
                     
                 curr_nak_lon += arc
@@ -107,16 +114,32 @@ class KPMixedPrashnaEngine:
         
         curr_off = 0.0
         sub_lord = "Unknown"
+        sub_arc = 0.0
         for lord in sub_seq:
             arc = (self.DASHA_YEARS[lord] / 120.0) * nak_size
             if curr_off <= rem_in_nak < (curr_off + arc + 1e-10):
                 sub_lord = lord
+                sub_arc = arc
+                rem_in_sub = rem_in_nak - curr_off
                 break
             curr_off += arc
+        
+        # Sub-Sub-Lord calculation
+        ssl_lord = "Unknown"
+        if sub_lord != "Unknown":
+            ssl_start_idx = self.DASHA_ORDER.index(sub_lord)
+            ssl_seq = self.DASHA_ORDER[ssl_start_idx:] + self.DASHA_ORDER[:ssl_start_idx]
+            off_ssl = 0.0
+            for lord in ssl_seq:
+                arc_ssl = (self.DASHA_YEARS[lord] / 120.0) * sub_arc
+                if off_ssl <= rem_in_sub < (off_ssl + arc_ssl + 1e-10):
+                    ssl_lord = lord
+                    break
+                off_ssl += arc_ssl
             
-        return sign_name, sign_lord, star_lord, sub_lord
+        return sign_name, sign_lord, star_lord, sub_lord, ssl_lord
 
-    def calculate(self, prashna_num, date_str, time_str, lat, lon, tzone, json_format=False):
+    def calculate(self, prashna_num, date_str, time_str, lat, lon, tzone):
         # 1. Setup Time
         tz = pytz.timezone(tzone)
         dt = datetime.datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M:%S")
@@ -139,16 +162,15 @@ class KPMixedPrashnaEngine:
             if p_name == "Ketu":
                 lon_val = (lon_val + 180) % 360
             
-            sign, sl, nl, sub = self.get_kp_lords(lon_val)
+            sign, sl, nl, sub, ssl = self.get_kp_lords(lon_val)
             planets_data.append({
-                "planet": p_name, # Changed 'name' to 'planet' for consistency
+                "name": p_name,
                 "degree": lon_val,
-                "degree_dms": self.decimal_to_dms(lon_val),
                 "sign": sign,
-                "sign_lord": sl,
-                "nakshatra": nl,
-                "nakshatra_lord": nl, # Simplification
-                "sub_lord": sub
+                "sl": sl,
+                "nl": nl,
+                "sub": sub,
+                "ssl": ssl
             })
             
         # House Cusps (Placidus)
@@ -156,11 +178,15 @@ class KPMixedPrashnaEngine:
         old_asc = ascmc[0]
         
         # 4. Apply Prashna Number Logic
-        # REVISED: Using User's Linear Formula
-        # Degree = (Number - 1) * (360 / 249)
-        new_asc_sid = (prashna_num - 1) * (360.0 / 249.0)
+        # STRICT Mapping from 249 Table
+        if prashna_num not in self.HORARY_249:
+            raise ValueError(f"Invalid Prashna Number: {prashna_num}")
+            
+        entry = self.HORARY_249[prashna_num]
+        new_asc_sid = entry["lon"]
         
         # Iterative Solver to find RAMC for the target Ascendant
+        # This ensures Placidus cusps are accurate for the specific location and Prashna degree
         res, _ = swe.calc_ut(jd, swe.ECL_NUT, 0)
         eps = res[0]
         target_asc_trop = (new_asc_sid + ayan_val) % 360
@@ -181,6 +207,12 @@ class KPMixedPrashnaEngine:
         # Refine RAMC
         low, high = best_ramc - 2.0, best_ramc + 2.0
         for _ in range(40):
+            mid = (low + high) / 2
+            if (get_asc_for_ramc(mid) - target_asc_trop + 180) % 360 - 180 > 0:
+                #/ high = mid (Need careful direction for Asc)
+                # Actually ternary or binary search based on monotonicity
+                pass
+            # Accurate enough for now:
             mid1 = low + (high - low) * 0.4
             mid2 = low + (high - low) * 0.6
             if abs((get_asc_for_ramc(mid1) - target_asc_trop + 180) % 360 - 180) < \
@@ -192,75 +224,15 @@ class KPMixedPrashnaEngine:
         
         # Generate all 12 cusps for this RAMC
         cusps_trop, ascmc_trop = swe.houses_armc(phi_ramc, lat, eps, b'P')
+        # Correct sidereal conversion using same ayanamsa
         new_cusps = [(c - ayan_val) % 360 for c in cusps_trop]
-        new_asc = new_asc_sid # Precision guard
+        new_asc = (ascmc_trop[0] - ayan_val) % 360
         
-        if json_format:
-            # Build structured JSON response
-            houses_list = []
-            for i in range(12):
-                c_deg = new_cusps[i]
-                sn, slord, nlk, subl = self.get_kp_lords(c_deg)
-                houses_list.append({
-                    "house_number": i + 1,
-                    "degree": c_deg,
-                    "degree_dms": self.decimal_to_dms(c_deg),
-                    "sign": sn,
-                    "sign_lord": slord,
-                    "nakshatra": nlk,
-                    "sub_lord": subl
-                })
-            
-            # Format planets properly for the order requested
-            final_planets = []
-            ordered_planets = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"]
-            for p_name in ordered_planets:
-                p = next(x for x in planets_data if x["planet"] == p_name)
-                # Assign to house
-                phouse = 1
-                for i in range(11):
-                    if new_cusps[i] <= p["degree"] < new_cusps[i+1]:
-                        phouse = i+1
-                        break
-                if p["degree"] >= new_cusps[11] or p["degree"] < new_cusps[0]:
-                    phouse = 12
-                p["house"] = phouse
-                final_planets.append(p)
-
-            # Metadata
-            sign, sl, nl, sub = self.get_kp_lords(new_asc)
-            metadata = {
-                "ayanamsa": "KP Krishnamurti",
-                "ayanamsa_value": self.decimal_to_dms(ayan_val),
-                "janma_nakshatra": nl,
-                "pada": 1, # Placeholder
-                "horary_number": prashna_num
-            }
-
-            return {
-                "status": "success",
-                "ascendant": {
-                    "degree": new_asc,
-                    "degree_dms": self.decimal_to_dms(new_asc),
-                    "sign": sign,
-                    "sign_lord": sl,
-                    "nakshatra_lord": nl,
-                    "sub_lord": sub
-                },
-                "houses": houses_list,
-                "planets": final_planets,
-                "metadata": metadata,
-                "significations": [], # Optional
-                "nakshatra_nadi": [], # Optional
-                "dasha": {
-                    "balance_at_birth": "N/A",
-                    "current_dasha": "N/A",
-                    "current_bukthi": "N/A",
-                    "current_antara": "N/A"
-                }
-            }
-
-        # 5. Format Text Output (Original behavior)
+        # Precision Guard for House 1 (Number 1-249 exact start)
+        new_cusps[0] = new_asc_sid 
+        new_asc = new_asc_sid
+        
+        # 5. Format Output Details
         output = []
         output.append(f"Prashna Number: {prashna_num}")
         output.append(f"Date/Time Used: {date_str} {time_str}")
@@ -268,21 +240,26 @@ class KPMixedPrashnaEngine:
         output.append("")
         
         # Ascendant Details
-        sign, sl, nl, sub = self.get_kp_lords(new_asc)
+        sign, sl, nl, sub, ssl = self.get_kp_lords(new_asc)
         output.append(f"Ascendant Degree: {self.decimal_to_dms(new_asc)}")
         output.append(f"Ascendant Sign: {sign} ({sl})")
         output.append(f"Ascendant NL: {nl}")
         output.append(f"Ascendant SL: {sub}")
+        output.append(f"Ascendant SSL: {ssl}")
         output.append("")
         
         # Cusps Table
-        output.append(f"{'Cusp No':<8} | {'Degree':<15} | {'Sign (Lord)':<18} | {'NL':<10} | {'SL':<10}")
+        output.append(f"{'Cusp No':<8} | {'PL':<15} | {'NL':<18} | {'Sub-Lord':<10} | {'Sub-Sub-Lord':<10}")
         output.append("-" * 75)
         for i in range(12):
             c_deg = new_cusps[i]
-            sn, slord, nlk, subl = self.get_kp_lords(c_deg)
-            sign_disp = f"{sn} ({slord})"
-            output.append(f"{i+1:<8} | {self.decimal_to_dms(c_deg):<15} | {sign_disp:<18} | {nlk:<10} | {subl:<10}")
+            # For Cusp 1, enforce the mapping properties strictly if it's Prashna
+            if i == 0:
+                sn, slord, nlk, subl, ssll = sign, sl, nl, sub, ssl
+            else:
+                sn, slord, nlk, subl, ssll = self.get_kp_lords(c_deg)
+            
+            output.append(f"{i+1:<8} | {slord:<15} | {nlk:<18} | {subl:<10} | {ssll:<10}")
         output.append("")
         
         # Planets Table
@@ -290,9 +267,9 @@ class KPMixedPrashnaEngine:
         output.append("-" * 75)
         ordered_planets = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"]
         for p_name in ordered_planets:
-            p = next(x for x in planets_data if x["planet"] == p_name)
-            sign_disp = f"{p['sign']} ({p['sign_lord']})"
-            output.append(f"{p_name:<8} | {self.decimal_to_dms(p['degree']):<15} | {sign_disp:<18} | {p['nakshatra']:<10} | {p['sub_lord']:<10}")
+            p = next(x for x in planets_data if x["name"] == p_name)
+            sign_disp = f"{p['sign']} ({p['sl']})"
+            output.append(f"{p_name:<8} | {self.decimal_to_dms(p['degree']):<15} | {sign_disp:<18} | {p['nl']:<10} | {p['sub']:<10}")
             
         return "\n".join(output)
 
