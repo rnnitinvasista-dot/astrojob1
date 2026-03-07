@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import type { Dasha, DashaSequenceItem } from '../../types/astrology';
 
@@ -76,8 +76,8 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                             >
                                 <div className="flex items-center gap-6">
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm border-2 transition-transform group-hover:scale-110 ${isActive
-                                            ? 'bg-orange-600 border-orange-600 text-white shadow-lg shadow-orange-200'
-                                            : 'bg-white border-gray-200 text-gray-600'
+                                        ? 'bg-orange-600 border-orange-600 text-white shadow-lg shadow-orange-200'
+                                        : 'bg-white border-gray-200 text-gray-600'
                                         }`}>
                                         {item.abbr || item.planet.substring(0, 2)}
                                     </div>
