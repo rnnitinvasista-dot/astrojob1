@@ -530,14 +530,17 @@ class NadiEngine:
 
         fmt_date = lambda dt: dt.isoformat()[:10]
         today = datetime.datetime.now(pytz.UTC)
-        md_end = add_period(birth_dt_loc, bal_yrs_f)
-        md_curs = md_end - relativedelta(years=self.DASHA_YEARS[lord_name])
+        md_end_first = add_period(birth_dt_loc, bal_yrs_f)
+        # Entire cycle start = (First MD End) minus (19 years of Saturn if Saturn is lord)
+        md_curs = md_end_first - relativedelta(years=self.DASHA_YEARS[lord_name])
         
         tree, act_md, act_ad, act_pd = [], "None", "None", "None"
         start_idx = self.DASHA_ORDER.index(lord_name)
         for i in range(9):
             p = self.DASHA_ORDER[(start_idx + i) % 9]
-            md_start, md_end = md_curs, md_curs + relativedelta(years=self.DASHA_YEARS[p])
+            md_start = md_curs
+            md_end = md_start + relativedelta(years=self.DASHA_YEARS[p])
+            
             md_item = {"planet": p, "start_date": fmt_date(md_start), "end_date": fmt_date(md_end), "bukthis": []}
             if md_start <= today <= md_end: act_md = p
             

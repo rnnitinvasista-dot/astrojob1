@@ -83,7 +83,7 @@ def health():
     return {
         "status": "online", 
         "service": "Nadi Precision Engine Gold", 
-        "version": "1.67-RELATIVEDELTA-FIX"
+        "version": "1.68-PRECISION-ANCHOR"
     }
 
 if __name__ == "__main__":
