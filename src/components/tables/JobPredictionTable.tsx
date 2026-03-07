@@ -4,7 +4,7 @@ import type { NakshatraNadiItem, Planet } from '../../types/astrology';
 interface JobPredictionTableProps {
     data: NakshatraNadiItem[];
     planets: Planet[];
-    types: ('Dasha' | 'Bhukti' | 'Antara')[];
+    types: ('Dasha' | 'Bhukti' | 'Antara' | 'Sukshma')[];
     planetName: string;
     selectedArea: string;
 }
@@ -431,7 +431,8 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
     const activeThemes = types.map(t => ({
         Dasha: { color: '#1d4ed8', text: '#ffffff', label: 'Dasha' },
         Bhukti: { color: '#15803d', text: '#ffffff', label: 'Bukthi' },
-        Antara: { color: '#b45309', text: '#ffffff', label: 'Antar Bhukthi' }
+        Antara: { color: '#b45309', text: '#ffffff', label: 'Antar Bhukthi' },
+        Sukshma: { color: '#7c2d12', text: '#ffffff', label: 'Sukshma' }
     }[t]));
 
     // Determine header background based on highest priority type
@@ -439,6 +440,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
         if (types.includes('Dasha')) return { background: '#1d4ed8', color: '#ffffff' };
         if (types.includes('Bhukti')) return { background: '#15803d', color: '#ffffff' };
         if (types.includes('Antara')) return { background: '#b45309', color: '#ffffff' };
+        if (types.includes('Sukshma')) return { background: '#7c2d12', color: '#ffffff' };
         return { background: '#f8fafc', color: '#1e3a8a' };
     };
     const headerStyle = getHeaderStyle();

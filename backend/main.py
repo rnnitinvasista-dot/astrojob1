@@ -296,10 +296,10 @@ async def job_analysis(req: KundliRequest):
         job_response = {
             "status": "success",
             "csl_focus": {"csl6": csl6_name, "csl10": csl10_name},
-            "dasha_info": {
                 "dasha": result["dasha"]["current_dasha"],
                 "bhukti": result["dasha"]["current_bukthi"],
-                "antara": result["dasha"]["current_antara"]
+                "antara": result["dasha"]["current_antara"],
+                "sukshma": result["dasha"]["current_sukshma"]
             },
             "reports": planet_reports,
             "ai_summary": analysis_summary

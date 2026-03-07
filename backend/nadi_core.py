@@ -807,7 +807,8 @@ class NadiEngine:
         
         # Pre-format logic helper
         def fmt_date(dt):
-            return dt.isoformat()[:10]
+            # Using ISO format with space instead of T for readability
+            return dt.strftime("%Y-%m-%d %H:%M:%S")
 
         # Absolute start of the first Mahadasha in the cycle
         total_md_yrs = self.DASHA_YEARS[lord_name]

@@ -210,10 +210,11 @@ const App = () => {
 
             {kundliData.planets.map((p: any) => {
               const planetName = p.planet;
-              const activeTypes: ('Dasha' | 'Bhukti' | 'Antara')[] = [];
+              const activeTypes: ('Dasha' | 'Bhukti' | 'Antara' | 'Sukshma')[] = [];
               if (planetName === kundliData.dasha.current_dasha) activeTypes.push('Dasha');
               if (planetName === kundliData.dasha.current_bukthi) activeTypes.push('Bhukti');
               if (planetName === kundliData.dasha.current_antara) activeTypes.push('Antara');
+              if (planetName === kundliData.dasha.current_sukshma) activeTypes.push('Sukshma');
 
               return (
                 <JobPredictionTable

@@ -105,8 +105,8 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                                             {expandedMD === mdIdx ? <ChevronDown size={16} color={md.planet === dasha.current_dasha ? 'white' : 'currentColor'} /> : <ChevronRight size={16} color={md.planet === dasha.current_dasha ? 'white' : 'currentColor'} />}
                                             {md.planet}
                                         </td>
-                                        <td style={{ padding: '1rem', color: md.planet === dasha.current_dasha ? 'rgba(255,255,255,0.8)' : '#64748b' }}>{md.start_date}</td>
-                                        <td style={{ padding: '1rem', color: md.planet === dasha.current_dasha ? 'rgba(255,255,255,0.8)' : '#64748b' }}>{md.end_date}</td>
+                                        <td style={{ padding: '0.75rem 0.5rem', fontSize: '0.75rem', whiteSpace: 'nowrap', color: md.planet === dasha.current_dasha ? 'rgba(255,255,255,0.8)' : '#64748b' }}>{md.start_date}</td>
+                                        <td style={{ padding: '0.75rem 0.5rem', fontSize: '0.75rem', whiteSpace: 'nowrap', color: md.planet === dasha.current_dasha ? 'rgba(255,255,255,0.8)' : '#64748b' }}>{md.end_date}</td>
                                     </tr>
 
                                     {/* Bukthis (AD) */}
@@ -125,8 +125,8 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                                                     {expandedAD === `${mdIdx}-${adIdx}` ? <ChevronDown size={14} color={ad.planet === dasha.current_bukthi ? 'white' : 'currentColor'} /> : <ChevronRight size={14} color={ad.planet === dasha.current_bukthi ? 'white' : 'currentColor'} />}
                                                     {ad.planet}
                                                 </td>
-                                                <td style={{ padding: '0.75rem 1rem', fontSize: '0.8rem', color: ad.planet === dasha.current_bukthi ? 'rgba(255,255,255,0.8)' : '#94a3b8' }}>{ad.start_date}</td>
-                                                <td style={{ padding: '0.75rem 1rem', fontSize: '0.8rem', color: ad.planet === dasha.current_bukthi ? 'rgba(255,255,255,0.8)' : '#94a3b8' }}>{ad.end_date}</td>
+                                                <td style={{ padding: '0.5rem 0.5rem', fontSize: '0.7rem', whiteSpace: 'nowrap', color: ad.planet === dasha.current_bukthi ? 'rgba(255,255,255,0.8)' : '#94a3b8' }}>{ad.start_date}</td>
+                                                <td style={{ padding: '0.5rem 0.5rem', fontSize: '0.7rem', whiteSpace: 'nowrap', color: ad.planet === dasha.current_bukthi ? 'rgba(255,255,255,0.8)' : '#94a3b8' }}>{ad.end_date}</td>
                                             </tr>
 
                                             {/* Antaras (PD) */}
@@ -145,8 +145,8 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                                                             {expandedPD === `${mdIdx}-${adIdx}-${pdIdx}` ? <ChevronDown size={12} color={pd.planet === dasha.current_antara ? 'white' : 'currentColor'} /> : <ChevronRight size={12} color={pd.planet === dasha.current_antara ? 'white' : 'currentColor'} />}
                                                             {pd.planet}
                                                         </td>
-                                                        <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', color: pd.planet === dasha.current_antara ? 'rgba(255,255,255,0.8)' : '#cbd5e1' }}>{pd.start_date}</td>
-                                                        <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', color: pd.planet === dasha.current_antara ? 'rgba(255,255,255,0.8)' : '#cbd5e1' }}>{pd.end_date}</td>
+                                                        <td style={{ padding: '0.4rem 0.5rem', fontSize: '0.65rem', whiteSpace: 'nowrap', color: pd.planet === dasha.current_antara ? 'rgba(255,255,255,0.8)' : '#cbd5e1' }}>{pd.start_date}</td>
+                                                        <td style={{ padding: '0.4rem 0.5rem', fontSize: '0.65rem', whiteSpace: 'nowrap', color: pd.planet === dasha.current_antara ? 'rgba(255,255,255,0.8)' : '#cbd5e1' }}>{pd.end_date}</td>
                                                     </tr>
 
                                                     {/* Sukshmas (SD) */}
@@ -159,8 +159,8 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                                                             <td style={{ padding: '0.35rem 1rem 0.35rem 5.5rem', fontSize: '0.8rem', color: sd.planet === dasha.current_sukshma ? 'white' : '#94a3b8' }}>
                                                                 • {sd.planet}
                                                             </td>
-                                                            <td style={{ padding: '0.35rem 1rem', fontSize: '0.7rem', color: sd.planet === dasha.current_sukshma ? 'rgba(255,255,255,0.8)' : '#e2e8f0' }}>{sd.start_date}</td>
-                                                            <td style={{ padding: '0.35rem 1rem', fontSize: '0.7rem', color: sd.planet === dasha.current_sukshma ? 'rgba(255,255,255,0.8)' : '#e2e8f0' }}>{sd.end_date}</td>
+                                                            <td style={{ padding: '0.3rem 0.5rem', fontSize: '0.6rem', whiteSpace: 'nowrap', color: sd.planet === dasha.current_sukshma ? 'rgba(255,255,255,0.8)' : '#e2e8f0' }}>{sd.start_date}</td>
+                                                            <td style={{ padding: '0.3rem 0.5rem', fontSize: '0.6rem', whiteSpace: 'nowrap', color: sd.planet === dasha.current_sukshma ? 'rgba(255,255,255,0.8)' : '#e2e8f0' }}>{sd.end_date}</td>
                                                         </tr>
                                                     ))}
                                                 </React.Fragment>
