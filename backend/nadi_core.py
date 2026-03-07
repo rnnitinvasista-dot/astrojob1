@@ -533,8 +533,7 @@ class NadiEngine:
         today = datetime.datetime.now(pytz.UTC)
         # Balance: exact days from birth to end of first dasha
         md_end_first = add_period(birth_dt_loc, bal_yrs_f)
-        # Start of the current nakshatra lord's dasha period (before birth)
-        md_curs = add_period(birth_dt_loc, bal_yrs_f - self.DASHA_YEARS[lord_name])
+        md_curs = md_end_first - relativedelta(years=self.DASHA_YEARS[lord_name])
         
         # Helper to get sequence from a start planet
         def get_seq(p):
