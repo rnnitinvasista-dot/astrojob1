@@ -24,11 +24,11 @@ interface KundliResponse {
   nakshatra_nadi: any[];
   dasha: {
     balance_at_birth: string;
-    current_dasha: string;
-    current_bukthi: string;
-    current_antara: string;
-    current_sukshma: string;
-    current_prana: string;
+    dasha: string;
+    bhukti: string;
+    antar_bhukti: string;
+    pratyantar: string;
+    sukshma: string;
     mahadasha_sequence: any[];
   };
   metadata: {
@@ -211,12 +211,12 @@ const App = () => {
 
             {kundliData.planets.map((p: any) => {
               const planetName = p.planet;
-              const activeTypes: ('Dasha' | 'Bhukti' | 'Antara' | 'Sukshma' | 'Prana')[] = [];
-              if (planetName === kundliData.dasha.current_dasha) activeTypes.push('Dasha');
-              if (planetName === kundliData.dasha.current_bukthi) activeTypes.push('Bhukti');
-              if (planetName === kundliData.dasha.current_antara) activeTypes.push('Antara');
-              if (planetName === kundliData.dasha.current_sukshma) activeTypes.push('Sukshma');
-              if (planetName === kundliData.dasha.current_prana) activeTypes.push('Prana');
+              const activeTypes: ('Dasha' | 'Bhukti' | 'Antar Bhukti' | 'Pratyantar' | 'Sukshma')[] = [];
+              if (planetName === kundliData.dasha.dasha) activeTypes.push('Dasha');
+              if (planetName === kundliData.dasha.bhukti) activeTypes.push('Bhukti');
+              if (planetName === kundliData.dasha.antar_bhukti) activeTypes.push('Antar Bhukti');
+              if (planetName === kundliData.dasha.pratyantar) activeTypes.push('Pratyantar');
+              if (planetName === kundliData.dasha.sukshma) activeTypes.push('Sukshma');
 
               return (
                 <JobPredictionTable

@@ -1,207 +1,185 @@
-import React from 'react';
-import type { Dasha } from '../../types/astrology';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronRight } from 'lucide-react';
+import type { Dasha, DashaSequenceItem } from '../../types/astrology';
 
 interface DashaTableProps {
     dasha: Dasha;
 }
 
 const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
-    const [expandedMD, setExpandedMD] = React.useState<number | null>(null);
-    const [expandedAD, setExpandedAD] = React.useState<string | null>(null);
-    const [expandedPD, setExpandedPD] = React.useState<string | null>(null);
-    const [expandedSD, setExpandedSD] = React.useState<string | null>(null);
+    // Level selections
+    const [selectedMD, setSelectedMD] = useState<DashaSequenceItem | null>(null);
+    const [selectedBH, setSelectedBH] = useState<DashaSequenceItem | null>(null);
+    const [selectedAB, setSelectedAB] = useState<DashaSequenceItem | null>(null);
+    const [selectedPR, setSelectedPR] = useState<DashaSequenceItem | null>(null);
 
-    // Auto-expand current period on load
-    React.useEffect(() => {
-        const mdIdx = dasha.mahadasha_sequence.findIndex(md => md.planet === dasha.current_dasha);
-        if (mdIdx !== -1) {
-            setExpandedMD(mdIdx);
-            const adIdx = dasha.mahadasha_sequence[mdIdx].bukthis?.findIndex(ad => ad.planet === dasha.current_bukthi);
-            if (adIdx !== undefined && adIdx !== -1) {
-                setExpandedAD(`${mdIdx}-${adIdx}`);
-                const pdIdx = dasha.mahadasha_sequence[mdIdx].bukthis?.[adIdx].antaras?.findIndex(pd => pd.planet === dasha.current_antara);
-                if (pdIdx !== undefined && pdIdx !== -1) {
-                    setExpandedPD(`${mdIdx}-${adIdx}-${pdIdx}`);
-                    const sdIdx = dasha.mahadasha_sequence[mdIdx].bukthis?.[adIdx].antaras?.[pdIdx].sukshmas?.findIndex(sd => sd.planet === dasha.current_sukshma);
-                    if (sdIdx !== undefined && sdIdx !== -1) {
-                        setExpandedSD(`${mdIdx}-${adIdx}-${pdIdx}-${sdIdx}`);
+    // Auto-select current dasha periods on load
+    useEffect(() => {
+        if (dasha && dasha.mahadasha_sequence) {
+            const activeMD = dasha.mahadasha_sequence.find(m => m.planet === dasha.dasha);
+            if (activeMD) {
+                setSelectedMD(activeMD);
+                const activeBH = activeMD.bhuktis?.find(b => b.planet === dasha.bhukti);
+                if (activeBH) {
+                    setSelectedBH(activeBH);
+                    const activeAB = activeBH.antar_bhuktis?.find(a => a.planet === dasha.antar_bhukti);
+                    if (activeAB) {
+                        setSelectedAB(activeAB);
+                        const activePR = activeAB.pratyantars?.find(p => p.planet === dasha.pratyantar);
+                        if (activePR) {
+                            setSelectedPR(activePR);
+                        }
                     }
                 }
             }
         }
-    }, [dasha.current_dasha, dasha.current_bukthi, dasha.current_antara, dasha.current_sukshma, dasha.mahadasha_sequence]);
+    }, [dasha]);
 
-    const toggleMD = (idx: number) => {
-        setExpandedMD(expandedMD === idx ? null : idx);
-        setExpandedAD(null);
-        setExpandedPD(null);
-        setExpandedSD(null);
-    };
+    const renderTable = (
+        title: string,
+        items: DashaSequenceItem[] | undefined,
+        selectedItem: DashaSequenceItem | null,
+        onSelect: (item: DashaSequenceItem) => void,
+        activePlanet: string,
+        levelColor: string
+    ) => {
+        if (!items || items.length === 0) return null;
 
-    const toggleAD = (mdIdx: number, adIdx: number) => {
-        const key = `${mdIdx}-${adIdx}`;
-        setExpandedAD(expandedAD === key ? null : key);
-        setExpandedPD(null);
-        setExpandedSD(null);
-    };
-
-    const togglePD = (mdIdx: number, adIdx: number, pdIdx: number) => {
-        const key = `${mdIdx}-${adIdx}-${pdIdx}`;
-        setExpandedPD(expandedPD === key ? null : key);
-        setExpandedSD(null);
-    };
-
-    const toggleSD = (mdIdx: number, adIdx: number, pdIdx: number, sdIdx: number) => {
-        const key = `${mdIdx}-${adIdx}-${pdIdx}-${sdIdx}`;
-        setExpandedSD(expandedSD === key ? null : key);
-    };
-
-    return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%', maxWidth: '100%' }}>
-            {/* Summary Card */}
-            <div className="card" style={{
-                borderLeft: '4px solid #35a4f4',
-                borderTop: '5px solid #35a4f4',
-                padding: '1.25rem',
-                background: '#ffffff'
-            }}>
-                <h2 style={{ marginBottom: '1rem', color: '#1e3a8a', fontSize: '1.1rem', fontWeight: 800, textTransform: 'uppercase' }}>Vimshottari Dasha Summary</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem' }}>
-                    <div>
-                        <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>MD / AD</label>
-                        <div style={{ fontSize: '1rem', fontWeight: 800, color: '#1d4ed8' }}>{dasha.current_dasha} / {dasha.current_bukthi}</div>
-                    </div>
-                    <div>
-                        <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>PD / SD</label>
-                        <div style={{ fontSize: '1rem', fontWeight: 800, color: '#b45309' }}>{dasha.current_antara} / {dasha.current_sukshma}</div>
-                    </div>
-                    <div>
-                        <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Prana</label>
-                        <div style={{ fontSize: '1rem', fontWeight: 800, color: '#7c2d12' }}>{dasha.current_prana}</div>
-                    </div>
+        return (
+            <div className="mb-6 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div className="px-4 py-3 text-white font-bold flex justify-between items-center" style={{ backgroundColor: levelColor }}>
+                    <span>{title}</span>
+                    <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded uppercase tracking-wider">Sequential View</span>
                 </div>
-            </div>
-
-            {/* Nested Table View */}
-            <div className="card" style={{ padding: 0, overflow: 'hidden', borderTop: '5px solid #35a4f4' }}>
-                <div style={{ padding: '1.25rem', borderBottom: '1px solid #e2e8f0', background: 'white' }}>
-                    <h2 style={{ color: '#1e3a8a', fontSize: '1.1rem', fontWeight: 700 }}>Dasha Sequence</h2>
-                </div>
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                        <thead>
-                            <tr style={{ background: '#f8fafc', color: '#475569', textAlign: 'left' }}>
-                                <th style={{ padding: '0.75rem 1rem' }}>Planet</th>
-                                <th style={{ padding: '0.75rem 1rem' }}>Start Date</th>
-                                <th style={{ padding: '0.75rem 1rem' }}>End Date</th>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left border-collapse">
+                        <thead className="bg-gray-50 text-gray-700 uppercase text-[10px] font-bold tracking-wider">
+                            <tr>
+                                <th className="px-4 py-3 border-b border-gray-200">Planet</th>
+                                <th className="px-4 py-3 border-b border-gray-200">Start Date & Time</th>
+                                <th className="px-4 py-3 border-b border-gray-200">End Date & Time</th>
+                                <th className="px-4 py-3 border-b border-gray-200 w-12"></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {dasha.mahadasha_sequence.map((md, mdIdx) => (
-                                <React.Fragment key={mdIdx}>
+                            {items.map((item, idx) => {
+                                const isActive = item.planet === activePlanet;
+                                const isSelected = selectedItem?.planet === item.planet;
+
+                                return (
                                     <tr
-                                        onClick={() => toggleMD(mdIdx)}
-                                        style={{
-                                            cursor: 'pointer',
-                                            background: md.planet === dasha.current_dasha ? '#1d4ed8' : 'white',
-                                            color: md.planet === dasha.current_dasha ? 'white' : 'inherit',
-                                            borderBottom: '1px solid #e2e8f0'
-                                        }}
+                                        key={idx}
+                                        onClick={() => onSelect(item)}
+                                        className={`cursor-pointer transition-all duration-200 ${isActive ? 'bg-amber-50' : isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'
+                                            }`}
                                     >
-                                        <td style={{ padding: '0.85rem 1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            {expandedMD === mdIdx ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                                            {md.planet}
+                                        <td className="px-4 py-3 border-b border-gray-100 font-bold">
+                                            <div className="flex items-center gap-2">
+                                                <span className={isActive ? 'text-amber-700' : isSelected ? 'text-blue-700' : 'text-gray-900'}>
+                                                    {item.planet}
+                                                </span>
+                                                {isActive && (
+                                                    <span className="text-[9px] bg-amber-200 text-amber-800 px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter">
+                                                        Active
+                                                    </span>
+                                                )}
+                                            </div>
                                         </td>
-                                        <td style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', opacity: 0.8 }}>{md.start_date}</td>
-                                        <td style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', opacity: 0.8 }}>{md.end_date}</td>
+                                        <td className={`px-4 py-3 border-b border-gray-100 font-mono text-xs ${isActive ? 'text-amber-600' : 'text-gray-500'}`}>
+                                            {item.start_date}
+                                        </td>
+                                        <td className={`px-4 py-3 border-b border-gray-100 font-mono text-xs ${isActive ? 'text-amber-600' : 'text-gray-500'}`}>
+                                            {item.end_date}
+                                        </td>
+                                        <td className="px-4 py-3 border-b border-gray-100 text-right">
+                                            <ChevronRight size={18} className={`${isSelected ? 'text-blue-600' : isActive ? 'text-amber-400' : 'text-gray-300'}`} />
+                                        </td>
                                     </tr>
-
-                                    {/* Bhuktis */}
-                                    {expandedMD === mdIdx && md.bukthis?.map((ad, adIdx) => (
-                                        <React.Fragment key={`${mdIdx}-${adIdx}`}>
-                                            <tr
-                                                onClick={(e) => { e.stopPropagation(); toggleAD(mdIdx, adIdx); }}
-                                                style={{
-                                                    cursor: 'pointer',
-                                                    background: ad.planet === dasha.current_bukthi ? '#15803d' : '#f8fafc',
-                                                    color: ad.planet === dasha.current_bukthi ? 'white' : 'inherit',
-                                                    borderBottom: '1px solid #e2e8f0'
-                                                }}
-                                            >
-                                                <td style={{ padding: '0.7rem 1rem 0.7rem 2rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    {expandedAD === `${mdIdx}-${adIdx}` ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-                                                    {ad.planet}
-                                                </td>
-                                                <td style={{ padding: '0.7rem 1rem', fontSize: '0.7rem', opacity: 0.8 }}>{ad.start_date}</td>
-                                                <td style={{ padding: '0.7rem 1rem', fontSize: '0.7rem', opacity: 0.8 }}>{ad.end_date}</td>
-                                            </tr>
-
-                                            {/* Antaras */}
-                                            {expandedAD === `${mdIdx}-${adIdx}` && ad.antaras?.map((pd, pdIdx) => (
-                                                <React.Fragment key={`${mdIdx}-${adIdx}-${pdIdx}`}>
-                                                    <tr
-                                                        onClick={(e) => { e.stopPropagation(); togglePD(mdIdx, adIdx, pdIdx); }}
-                                                        style={{
-                                                            cursor: 'pointer',
-                                                            background: pd.planet === dasha.current_antara ? '#b45309' : '#ffffff',
-                                                            color: pd.planet === dasha.current_antara ? 'white' : 'inherit',
-                                                            borderBottom: '1px solid #f1f5f9'
-                                                        }}
-                                                    >
-                                                        <td style={{ padding: '0.6rem 1rem 0.6rem 3rem', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                            {expandedPD === `${mdIdx}-${adIdx}-${pdIdx}` ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
-                                                            {pd.planet}
-                                                        </td>
-                                                        <td style={{ padding: '0.6rem 1rem', fontSize: '0.65rem', opacity: 0.8 }}>{pd.start_date}</td>
-                                                        <td style={{ padding: '0.6rem 1rem', fontSize: '0.65rem', opacity: 0.8 }}>{pd.end_date}</td>
-                                                    </tr>
-
-                                                    {/* Sukshmas */}
-                                                    {expandedPD === `${mdIdx}-${adIdx}-${pdIdx}` && pd.sukshmas?.map((sd, sdIdx) => (
-                                                        <React.Fragment key={`${mdIdx}-${adIdx}-${pdIdx}-${sdIdx}`}>
-                                                            <tr
-                                                                onClick={(e) => { e.stopPropagation(); toggleSD(mdIdx, adIdx, pdIdx, sdIdx); }}
-                                                                style={{
-                                                                    cursor: 'pointer',
-                                                                    background: sd.planet === dasha.current_sukshma ? '#7c2d12' : '#f8f9fa',
-                                                                    color: sd.planet === dasha.current_sukshma ? 'white' : 'inherit',
-                                                                    borderBottom: '1px solid #f1f5f9'
-                                                                }}
-                                                            >
-                                                                <td style={{ padding: '0.5rem 1rem 0.5rem 4rem', fontSize: '0.8rem', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                                    {expandedSD === `${mdIdx}-${adIdx}-${pdIdx}-${sdIdx}` ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
-                                                                    • {sd.planet}
-                                                                </td>
-                                                                <td style={{ padding: '0.5rem 1rem', fontSize: '0.6rem', opacity: 0.8 }}>{sd.start_date}</td>
-                                                                <td style={{ padding: '0.5rem 1rem', fontSize: '0.6rem', opacity: 0.8 }}>{sd.end_date}</td>
-                                                            </tr>
-
-                                                            {/* Pranas */}
-                                                            {expandedSD === `${mdIdx}-${adIdx}-${pdIdx}-${sdIdx}` && sd.pranas?.map((pr, prIdx) => (
-                                                                <tr key={prIdx} style={{
-                                                                    background: pr.planet === dasha.current_prana ? '#451a03' : '#ffffff',
-                                                                    color: pr.planet === dasha.current_prana ? 'white' : '#64748b',
-                                                                    borderBottom: '1px solid #f8f9fa'
-                                                                }}>
-                                                                    <td style={{ padding: '0.4rem 1rem 0.4rem 5rem', fontSize: '0.75rem' }}>
-                                                                        » {pr.planet}
-                                                                    </td>
-                                                                    <td style={{ padding: '0.4rem 1rem', fontSize: '0.6rem', opacity: 0.7 }}>{pr.start_date}</td>
-                                                                    <td style={{ padding: '0.4rem 1rem', fontSize: '0.6rem', opacity: 0.7 }}>{pr.end_date}</td>
-                                                                </tr>
-                                                            ))}
-                                                        </React.Fragment>
-                                                    ))}
-                                                </React.Fragment>
-                                            ))}
-                                        </React.Fragment>
-                                    ))}
-                                </React.Fragment>
-                            ))}
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
+            </div>
+        );
+    };
+
+    return (
+        <div className="w-full p-2 md:p-6 space-y-2 bg-gray-50/50">
+            {/* Professional Summary Header */}
+            <div className="bg-white p-5 rounded-xl mb-8 border border-gray-200 shadow-sm">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <h3 className="text-xl font-black text-gray-900 flex items-center gap-2">
+                        <span className="bg-blue-600 text-white p-1.5 rounded-lg">🕉️</span>
+                        VIMSHOTTARI DASHA
+                    </h3>
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full">
+                        BALANCE AT BIRTH: <span className="text-blue-700 underline">{dasha.balance_at_birth}</span>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    {[
+                        { label: 'Dasha', value: dasha.dasha, color: '#1d4ed8', bg: 'bg-blue-50' },
+                        { label: 'Bhukti', value: dasha.bhukti, color: '#15803d', bg: 'bg-green-50' },
+                        { label: 'Antar Bhukti', value: dasha.antar_bhukti, color: '#b45309', bg: 'bg-amber-50' },
+                        { label: 'Pratyantar', value: dasha.pratyantar, color: '#7c2d12', bg: 'bg-orange-50' },
+                        { label: 'Sukshma', value: dasha.sukshma, color: '#451a03', bg: 'bg-stone-50' }
+                    ].map((item, i) => (
+                        <div key={i} className={`${item.bg} p-3 rounded-lg border border-transparent hover:border-gray-200 transition-all`}>
+                            <span className="text-[9px] block font-black text-gray-400 uppercase tracking-widest mb-1">{item.label}</span>
+                            <span className="text-lg font-black block" style={{ color: item.color }}>{item.value}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Sequential Tables Container */}
+            <div className="max-w-4xl mx-auto space-y-4">
+                {renderTable(
+                    '1. DASHA (MAHADASHA)',
+                    dasha.mahadasha_sequence,
+                    selectedMD,
+                    (item) => { setSelectedMD(item); setSelectedBH(null); setSelectedAB(null); setSelectedPR(null); },
+                    dasha.dasha,
+                    '#1d4ed8'
+                )}
+
+                {selectedMD && renderTable(
+                    `2. BHUKTI OF ${selectedMD.planet}`,
+                    selectedMD.bhuktis,
+                    selectedBH,
+                    (item) => { setSelectedBH(item); setSelectedAB(null); setSelectedPR(null); },
+                    dasha.bhukti,
+                    '#15803d'
+                )}
+
+                {selectedBH && renderTable(
+                    `3. ANTAR BHUKTI OF ${selectedBH.planet}`,
+                    selectedBH.antar_bhuktis,
+                    selectedAB,
+                    (item) => { setSelectedAB(item); setSelectedPR(null); },
+                    dasha.antar_bhukti,
+                    '#b45309'
+                )}
+
+                {selectedAB && renderTable(
+                    `4. PRATYANTAR OF ${selectedAB.planet}`,
+                    selectedAB.pratyantars,
+                    selectedPR,
+                    (item) => setSelectedPR(item),
+                    dasha.pratyantar,
+                    '#7c2d12'
+                )}
+
+                {selectedPR && renderTable(
+                    `5. SUKSHMA OF ${selectedPR.planet}`,
+                    selectedPR.sukshmas,
+                    null,
+                    () => { },
+                    dasha.sukshma,
+                    '#451a03'
+                )}
             </div>
         </div>
     );
