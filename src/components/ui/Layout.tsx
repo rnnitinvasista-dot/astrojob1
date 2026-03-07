@@ -235,7 +235,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                         <div className={`tab-item ${activeTab === 'dasha' ? 'active' : ''}`}
                             onClick={() => onTabChange('dasha')}
                             style={{ fontWeight: 'bold', color: '#000000' }}>
-                            Vimshottari Dasha
+                            Dasha
                         </div>
                         <div className={`tab-item ${activeTab === 'houses' ? 'active' : ''}`}
                             onClick={() => onTabChange('houses')}

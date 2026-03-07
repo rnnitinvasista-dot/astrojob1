@@ -99,13 +99,10 @@ export interface Signification {
 
 export interface DashaSequenceItem {
     planet: string;
-    abbr?: string;
     start_date: string;
     end_date: string;
-    bhuktis?: DashaSequenceItem[];
-    antar_bhuktis?: DashaSequenceItem[];
-    pratyantars?: DashaSequenceItem[];
-    sukshmas?: DashaSequenceItem[];
+    bukthis?: DashaSequenceItem[];
+    antaras?: DashaSequenceItem[];
 }
 
 export interface HouseDetail {
@@ -115,11 +112,9 @@ export interface HouseDetail {
 
 export interface Dasha {
     balance_at_birth: string;
-    dasha: string;
-    bhukti: string;
-    antar_bhukti: string;
-    pratyantar: string;
-    sukshma: string;
+    current_dasha: string;
+    current_bukthi: string;
+    current_antara: string;
     mahadasha_sequence: DashaSequenceItem[];
 }
 
