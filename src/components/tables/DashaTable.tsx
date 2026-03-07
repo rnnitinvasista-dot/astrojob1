@@ -45,33 +45,33 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
     const activePlanets = [dasha.dasha, dasha.bhukti, dasha.antar_bhukti, dasha.pratyantar, dasha.sukshma];
 
     return (
-        <div className="w-full max-w-lg mx-auto bg-white min-h-screen flex flex-col font-sans">
+        <div className="w-full max-w-lg mx-auto bg-white min-h-[500px] flex flex-col font-sans mb-10 overflow-hidden rounded-xl shadow-lg border border-gray-100">
             {/* Title / Header */}
-            <div className="p-6 text-center border-b border-gray-50 bg-white sticky top-0 z-10">
-                <div className="flex items-center justify-between mb-2">
+            <div className="p-8 text-center border-b border-gray-50 bg-white">
+                <div className="flex items-center justify-between mb-4">
                     {history.length > 0 && (
-                        <button onClick={goBack} className="p-1 hover:bg-gray-100 rounded-full text-gray-400">
-                            <ChevronLeft size={28} />
+                        <button onClick={goBack} className="p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors">
+                            <ChevronLeft size={32} />
                         </button>
                     )}
-                    <div className="flex-1">
-                        <h2 className="text-xl font-black text-gray-900 tracking-tight">
+                    <div className={`flex-1 ${history.length === 0 ? 'text-center' : 'pl-2'}`}>
+                        <h2 className="text-2xl font-black text-gray-900 tracking-tight leading-tight">
                             {currentView.title}
                         </h2>
                     </div>
-                    {history.length > 0 && <div className="w-8" />} {/* Spacer */}
+                    {history.length > 0 && <div className="w-10" />} {/* Spacer */}
                 </div>
 
                 {history.length === 0 && (
-                    <div className="text-[13px] font-bold text-gray-400 uppercase tracking-widest mt-2">
+                    <div className="text-[14px] font-bold text-gray-400 uppercase tracking-widest mt-2 bg-gray-50 inline-block px-4 py-1.5 rounded-full">
                         Balance at Birth: <span className="text-gray-900">{dasha.balance_at_birth}</span>
                     </div>
                 )}
             </div>
 
             {/* List Container */}
-            <div className="flex-1 px-4 py-2">
-                <div className="space-y-1">
+            <div className="flex-1">
+                <div className="divide-y divide-gray-50">
                     {currentView.items.map((item, idx) => {
                         const isActive = activePlanets.includes(item.planet);
 
@@ -79,33 +79,34 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                             <div
                                 key={idx}
                                 onClick={() => handleRowClick(item)}
-                                className="flex items-center justify-between py-6 px-4 cursor-pointer active:bg-gray-50 border-b border-gray-50 group"
+                                className={`flex items-center justify-between py-6 px-8 cursor-pointer active:bg-gray-100 transition-colors group ${isActive ? 'bg-orange-50/40' : 'hover:bg-gray-50/50'
+                                    }`}
                             >
-                                <div className="flex items-center gap-6">
-                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-base border-2 transition-all ${isActive
-                                            ? 'bg-orange-600 border-orange-600 text-white shadow-xl shadow-orange-100'
+                                <div className="flex items-center gap-8">
+                                    <div className={`w-14 h-14 rounded-full flex items-center justify-center font-black text-lg border-2 transition-all group-hover:scale-105 ${isActive
+                                            ? 'bg-orange-600 border-orange-600 text-white shadow-2xl shadow-orange-200'
                                             : 'bg-white border-gray-100 text-gray-400 group-hover:border-orange-200 group-hover:text-orange-400'
                                         }`}>
                                         {item.abbr || item.planet.substring(0, 2)}
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className={`font-bold text-xl leading-none mb-1 ${isActive ? 'text-gray-900' : 'text-gray-500'
+                                        <span className={`font-black text-2xl leading-none mb-1.5 tracking-tight ${isActive ? 'text-gray-900' : 'text-gray-600'
                                             }`}>
                                             {item.planet}
                                         </span>
-                                        <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">
+                                        <span className="text-[11px] font-black text-gray-300 uppercase tracking-[0.1em]">
                                             Ending Date
                                         </span>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-4">
-                                    <span className={`font-mono font-black text-xl tracking-tight ${isActive ? 'text-orange-600' : 'text-gray-800'
+                                <div className="flex items-center gap-6">
+                                    <span className={`font-mono font-black text-2xl tracking-tighter ${isActive ? 'text-orange-600' : 'text-gray-900'
                                         }`}>
                                         {item.end_date}
                                     </span>
                                     {(item.bhuktis || item.antar_bhuktis || item.pratyantars || item.sukshmas) && (
-                                        <ChevronRight size={22} className="text-gray-200 group-hover:text-orange-300 transition-colors" />
+                                        <ChevronRight size={24} className={`transition-transform group-hover:translate-x-1 ${isActive ? 'text-orange-300' : 'text-gray-200'}`} />
                                     )}
                                 </div>
                             </div>
@@ -115,11 +116,11 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
             </div>
 
             {/* Persistence Note Footer */}
-            <div className="p-8 bg-white text-center">
-                <p className="text-[14px] text-orange-500 font-bold leading-7">
+            <div className="p-10 bg-white text-center mt-4">
+                <p className="text-[15px] text-orange-500 font-black leading-8 tracking-tight">
                     Note :- Click on row above for sub-period.
                 </p>
-                <p className="text-[14px] text-orange-500 font-bold leading-7">
+                <p className="text-[15px] text-orange-500 font-black leading-8 tracking-tight">
                     Date mentioned above are ending dates.
                 </p>
             </div>
