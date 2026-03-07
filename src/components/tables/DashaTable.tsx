@@ -7,7 +7,7 @@ interface DashaTableProps {
 }
 
 const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
-    // Navigation stack for drill-down
+    // Navigation stack for drill-down (5 levels: MD -> BH -> AB -> PR -> SK)
     const [history, setHistory] = useState<{ title: string, items: DashaSequenceItem[] }[]>([]);
 
     const currentView = history.length > 0
@@ -15,22 +15,22 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
         : { title: 'Vimshottari Maha Dasha', items: dasha.mahadasha_sequence };
 
     const handleRowClick = (item: DashaSequenceItem) => {
-        // Determine next level
         let nextItems: DashaSequenceItem[] | undefined;
         let nextTitle = '';
 
+        // Check depth
         if (item.bhuktis && item.bhuktis.length > 0) {
             nextItems = item.bhuktis;
-            nextTitle = `Bhukti of ${item.planet}`;
+            nextTitle = `${item.planet} Bhukti`;
         } else if (item.antar_bhuktis && item.antar_bhuktis.length > 0) {
             nextItems = item.antar_bhuktis;
-            nextTitle = `Antar Bhukti of ${item.planet}`;
+            nextTitle = `${item.planet} Antar Bhukti`;
         } else if (item.pratyantars && item.pratyantars.length > 0) {
             nextItems = item.pratyantars;
-            nextTitle = `Pratyantar of ${item.planet}`;
+            nextTitle = `${item.planet} Pratyantar`;
         } else if (item.sukshmas && item.sukshmas.length > 0) {
             nextItems = item.sukshmas;
-            nextTitle = `Sukshma of ${item.planet}`;
+            nextTitle = `${item.planet} Sukshma`;
         }
 
         if (nextItems) {
@@ -42,62 +42,71 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
         setHistory(history.slice(0, -1));
     };
 
+    const activePlanets = [dasha.dasha, dasha.bhukti, dasha.antar_bhukti, dasha.pratyantar, dasha.sukshma];
+
     return (
-        <div className="w-full max-w-2xl mx-auto bg-white min-h-[400px] flex flex-col font-sans">
-            {/* Header */}
-            <div className="border-b border-gray-100 p-4 shrink-0">
-                <div className="flex items-center gap-3 mb-1">
+        <div className="w-full max-w-lg mx-auto bg-white min-h-screen flex flex-col font-sans">
+            {/* Title / Header */}
+            <div className="p-6 text-center border-b border-gray-50 bg-white sticky top-0 z-10">
+                <div className="flex items-center justify-between mb-2">
                     {history.length > 0 && (
-                        <button onClick={goBack} className="p-1 hover:bg-gray-100 rounded-full text-gray-600 transition-colors">
-                            <ChevronLeft size={24} />
+                        <button onClick={goBack} className="p-1 hover:bg-gray-100 rounded-full text-gray-400">
+                            <ChevronLeft size={28} />
                         </button>
                     )}
-                    <h2 className="text-xl font-bold text-gray-900">{currentView.title}</h2>
+                    <div className="flex-1">
+                        <h2 className="text-xl font-black text-gray-900 tracking-tight">
+                            {currentView.title}
+                        </h2>
+                    </div>
+                    {history.length > 0 && <div className="w-8" />} {/* Spacer */}
                 </div>
+
                 {history.length === 0 && (
-                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-widest mt-1">
-                        Balance at Birth: <span className="text-orange-600">{dasha.balance_at_birth}</span>
+                    <div className="text-[13px] font-bold text-gray-400 uppercase tracking-widest mt-2">
+                        Balance at Birth: <span className="text-gray-900">{dasha.balance_at_birth}</span>
                     </div>
                 )}
             </div>
 
-            {/* List */}
-            <div className="flex-1 overflow-y-auto">
-                <div className="divide-y divide-gray-50">
+            {/* List Container */}
+            <div className="flex-1 px-4 py-2">
+                <div className="space-y-1">
                     {currentView.items.map((item, idx) => {
-                        const isActive = [dasha.dasha, dasha.bhukti, dasha.antar_bhukti, dasha.pratyantar, dasha.sukshma].includes(item.planet);
+                        const isActive = activePlanets.includes(item.planet);
 
                         return (
                             <div
                                 key={idx}
                                 onClick={() => handleRowClick(item)}
-                                className={`flex items-center justify-between p-4 cursor-pointer transition-all duration-200 group active:bg-gray-100 ${isActive ? 'bg-orange-50/50' : 'hover:bg-gray-50/30'
-                                    }`}
+                                className="flex items-center justify-between py-6 px-4 cursor-pointer active:bg-gray-50 border-b border-gray-50 group"
                             >
                                 <div className="flex items-center gap-6">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm border-2 transition-transform group-hover:scale-110 ${isActive
-                                        ? 'bg-orange-600 border-orange-600 text-white shadow-lg shadow-orange-200'
-                                        : 'bg-white border-gray-200 text-gray-600'
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-base border-2 transition-all ${isActive
+                                            ? 'bg-orange-600 border-orange-600 text-white shadow-xl shadow-orange-100'
+                                            : 'bg-white border-gray-100 text-gray-400 group-hover:border-orange-200 group-hover:text-orange-400'
                                         }`}>
                                         {item.abbr || item.planet.substring(0, 2)}
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className={`font-bold text-lg leading-tight transition-colors ${isActive ? 'text-orange-950' : 'text-gray-800'
+                                        <span className={`font-bold text-xl leading-none mb-1 ${isActive ? 'text-gray-900' : 'text-gray-500'
                                             }`}>
                                             {item.planet}
                                         </span>
-                                        <span className="text-[11px] font-bold text-gray-400 uppercase tracking-tighter">
+                                        <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">
                                             Ending Date
                                         </span>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center gap-4">
-                                    <span className={`font-mono font-bold text-lg tracking-tight ${isActive ? 'text-orange-700' : 'text-gray-900'
+                                    <span className={`font-mono font-black text-xl tracking-tight ${isActive ? 'text-orange-600' : 'text-gray-800'
                                         }`}>
                                         {item.end_date}
                                     </span>
-                                    <ChevronRight size={20} className={`${isActive ? 'text-orange-400' : 'text-gray-300'} group-hover:translate-x-1 transition-transform`} />
+                                    {(item.bhuktis || item.antar_bhuktis || item.pratyantars || item.sukshmas) && (
+                                        <ChevronRight size={22} className="text-gray-200 group-hover:text-orange-300 transition-colors" />
+                                    )}
                                 </div>
                             </div>
                         );
@@ -105,12 +114,12 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                 </div>
             </div>
 
-            {/* Footer Note (Screenshot Style) */}
-            <div className="p-6 bg-gray-50/50 border-t border-gray-100 italic">
-                <p className="text-[13px] text-orange-600 font-bold leading-relaxed mb-1">
+            {/* Persistence Note Footer */}
+            <div className="p-8 bg-white text-center">
+                <p className="text-[14px] text-orange-500 font-bold leading-7">
                     Note :- Click on row above for sub-period.
                 </p>
-                <p className="text-[13px] text-orange-600 font-bold leading-relaxed">
+                <p className="text-[14px] text-orange-500 font-bold leading-7">
                     Date mentioned above are ending dates.
                 </p>
             </div>
