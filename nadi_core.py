@@ -38,6 +38,7 @@ import swisseph as swe
 import datetime
 import pytz
 import math
+from dateutil.relativedelta import relativedelta
 
 class NadiEngine:
     def __init__(self, node_type="Mean", ayanamsa="KP", house_system="Placidus"):
@@ -778,8 +779,15 @@ class NadiEngine:
         lord_name = self.DASHA_ORDER[naksh_idx % 9]
         bal_yrs_f = self.DASHA_YEARS[lord_name] * remaining_fraction
         
-        def add_years(dt, y, days_per_year=365.2425):
-            return dt + datetime.timedelta(days=int(y * days_per_year))
+        # Helper to add fractional years using relativedelta
+        def add_period(dt, float_yrs):
+            y = int(float_yrs)
+            rem_y = float_yrs - y
+            m_float = rem_y * 12
+            m = int(m_float)
+            d_float = (m_float - m) * 30.436875 # Average month length
+            d = int(d_float)
+            return dt + relativedelta(years=y, months=m, days=d)
             
         today = datetime.datetime.now(pytz.UTC)
         act_md, act_ad, act_pd = "None", "None", "None"
@@ -793,14 +801,18 @@ class NadiEngine:
 
         # Absolute start of the first Mahadasha in the cycle
         total_yrs = self.DASHA_YEARS[lord_name]
-        elapsed_yrs = total_yrs * traversed_fraction
-        md_curs = add_years(birth_dt_loc, -elapsed_yrs)
+        # 1st Mahadasha End Date (Birth + Balance)
+        md_end = add_period(birth_dt_loc, bal_yrs_f)
+        
+        # Now reconstruct the sequence. We start from the lord's MD start.
+        md_curs = md_end - relativedelta(years=total_yrs)
         
         for i in range(9):
             p = self.DASHA_ORDER[(start_idx + i) % 9]
             md_yrs = self.DASHA_YEARS[p]
             md_start = md_curs
-            md_end = add_years(md_start, md_yrs)
+            # Use relativedelta for exact calendar addition (AstroSage style)
+            md_end = md_start + relativedelta(years=md_yrs)
             
             md_item = {
                 "planet": p, "start_date": fmt_date(md_start), "end_date": fmt_date(md_end),
@@ -812,8 +824,9 @@ class NadiEngine:
             ad_seq = self.DASHA_ORDER[ad_seq_start:] + self.DASHA_ORDER[:ad_seq_start]
             ad_curs = md_start
             for ap in ad_seq:
-                ad_yrs = (self.DASHA_YEARS[ap] / 120.0) * md_yrs
-                ad_end = add_years(ad_curs, ad_yrs)
+                ad_yrs_f = (self.DASHA_YEARS[ap] / 120.0) * md_yrs
+                # Bukthis also follow calendar fractions
+                ad_end = add_period(ad_curs, ad_yrs_f)
                 
                 ad_item = { "planet": ap, "start_date": fmt_date(ad_curs), "end_date": fmt_date(ad_end), "antaras": [] }
                 if ad_curs <= today <= ad_end: act_ad = ap
@@ -822,8 +835,8 @@ class NadiEngine:
                 pd_seq = self.DASHA_ORDER[pd_seq_start:] + self.DASHA_ORDER[:pd_seq_start]
                 pd_curs = ad_curs
                 for pp in pd_seq:
-                    pd_yrs = (self.DASHA_YEARS[pp] / 120.0) * ad_yrs
-                    pd_end = add_years(pd_curs, pd_yrs)
+                    pd_yrs_f = (self.DASHA_YEARS[pp] / 120.0) * ad_yrs_f
+                    pd_end = add_period(pd_curs, pd_yrs_f)
                     if pd_curs <= today <= pd_end: act_pd = pp
                     ad_item["antaras"].append({
                         "planet": pp, "start_date": fmt_date(pd_curs), "end_date": fmt_date(pd_end)

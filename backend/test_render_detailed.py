@@ -21,19 +21,27 @@ def test_render_detailed():
             }
         }
         res = requests.post(url, json=payload, timeout=30).json()
+        if res["status"] != "success":
+            print(f"Error: {res.get('message')}")
+            return 0.0, "ERROR"
+            
         moon = next(p for p in res["planets"] if p["planet"] == "Moon")
-        return moon["lon"], res["dasha"]["mahadasha_sequence"][1]["start_date"]
+        return moon["degree_decimal"], res["dasha"]["mahadasha_sequence"][1]["start_date"]
 
-    print("Testing KP vs Lahiri on Live Render:")
+    print("Testing KP vs Lahiri on Live Render (v1.66):")
     kp_lon, kp_date = check_ayan("KP")
     lah_lon, lah_date = check_ayan("Lahiri")
     
     print(f"KP Moon: {kp_lon:.4f}  | Mercury Start: {kp_date}")
     print(f"Lahiri Moon: {lah_lon:.4f} | Mercury Start: {lah_date}")
     
-    if kp_lon == lah_lon:
+    if abs(kp_lon - lah_lon) < 0.0001:
         print("!!! ERROR: Ayanamsa selection is being IGNORED by the server !!!")
     else:
         print("Success: Ayanamsa shift is detected.")
+        if lah_date == "2018-01-21" or "2018-01" in lah_date:
+            print("MATCH: Lahiri results match AstroSage (January 2018)!")
+        else:
+            print(f"MISMATCH: Lahiri results show {lah_date} but we want Jan 2018.")
 
 test_render_detailed()

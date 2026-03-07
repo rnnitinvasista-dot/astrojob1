@@ -78,7 +78,7 @@ get_engine()
 @app.get("/health")
 @app.get("/api/v1/kp/health")
 def health():
-    return {"status": "online", "version": "1.1.9-PROD"}
+    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.67-RELATIVEDELTA-FIX"}
 
 prediction_cache = {}
 

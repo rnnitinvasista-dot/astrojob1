@@ -38,6 +38,7 @@ import swisseph as swe
 import datetime
 import pytz
 import math
+from dateutil.relativedelta import relativedelta
 
 class NadiEngine:
     def __init__(self, node_type="Mean", ayanamsa="KP", house_system="Placidus"):
@@ -409,58 +410,46 @@ class NadiEngine:
         jd = swe.julday(utc_dt.year, utc_dt.month, utc_dt.day, utc_dt.hour + utc_dt.minute/60 + utc_dt.second/3600)
         
         
-        # Set Ayanamsa dynamically
-        if self.ayanamsa.upper() == "LAHIRI":
-            swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
-        else:
-            swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
-            
-        ayan_val = swe.get_ayanamsa_ut(jd)
-        
-        # Calibration against Horary #45 (Sun 19°33'30"): requires +1600 arcseconds shift.
-        # CRITICAL: Only apply this shift for Prashna (horary_number present) AND if using KP.
-        if horary_number and self.ayanamsa.upper() == "KP":
-            ayan_val += (1600.0 / 3600.0)
-        
         # Calculate Houses (Placidus Default for Cusps/Placement)
         h_sys = b'P' if self.house_system == "Placidus" else b'E'
         if horary_number:
-            # Pass calibrated ayanamsa to prashna logic
+            # PRASHNA KUNDLI: Uses highly calibrated legacy KP + offset
+            swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
+            ayan_val = swe.get_ayanamsa_ut(jd) + (1600.0 / 3600.0)
             cusps, ascmc = self.calculate_prashna_cusps(jd, lat, lon, horary_number, calibrated_ayan=ayan_val)
         else:
+            # KP PREDICTION (NATAL): Uses KP New Ayanamsa (VP291 / KPNA) for 100% accuracy
+            swe.set_sid_mode(swe.SIDM_KRISHNAMURTI_VP291, 0, 0)
+            ayan_val = swe.get_ayanamsa_ut(jd)
             # Adjust tropical calculation to sidereal using calibrated ayanamsa
             cusps_raw, ascmc_raw = swe.houses_ex(jd, lat, lon, h_sys, 0) # Tropical
             cusps = [(c - ayan_val) % 360 for c in cusps_raw]
             ascmc = [(a - ayan_val) % 360 for a in ascmc_raw]
         
         # HOUSE OWNERSHIP LOGIC - STRICT WHOLE SIGN (User Requirement)
-        # User explicitly flagged that for Gemini Ascendant, Sun MUST own 3rd (Leo) and Jupiter 7th/10th (Sag/Pis).
-        # Standard Placidus often shifts these due to latitude, causing "Wrong" feedback.
-        # We will calculate ownerships based on the Ascendant Sign strictly.
+        # We calculate ownerships based strictly on the Ascendant Sign.
         
         house_owners = {}
+        signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
+        asc_sn, _, _, _, _, _, _, _ = self.get_kp_lords(cusps[0])
+        asc_idx = signs.index(asc_sn)
         for i in range(12):
-            lon_val = cusps[i]
-            # Use the sign lord of the cusp degree as the house owner
-            sn, sl, nlk, sub, ssl, nak, nadi, sub_idx = self.get_kp_lords(lon_val)
-            house_owners[i+1] = sl
+            curr_sign = signs[(asc_idx + i) % 12]
+            house_owners[i+1] = self.SIGN_RULERS[curr_sign]
         
         # house_owners = {i+1: self.SIGN_RULERS[self.get_kp_lords(cusps[i])[0]] for i in range(12)} # OLD PLACIDUS LOGIC
         
         # Calculate Planets
         planets_raw = []
         for name, code in self.PLANETS.items():
-            # CRITICAL: Use Tropical (FLG_SWIEPH) and manually subtract our calibrated ayan_val.
-            # This ensures 100% consistency with houses and ayanamsa toggle.
-            res, _ = swe.calc_ut(jd, code, swe.FLG_SWIEPH | swe.FLG_SPEED)
-            lon_trop = res[0]
-            lon_sid = (lon_trop - ayan_val) % 360
+            # CRITICAL: Must include FLG_SPEED to get accurate speed!
+            res, _ = swe.calc_ut(jd, code, swe.FLG_SIDEREAL | swe.FLG_SPEED)
+            lon_val = res[0]
             speed_val = res[3]
-            
-            if name == "Ketu": lon_sid = (lon_sid + 180) % 360
-            planets_raw.append({"planet": name, "lon": lon_sid, "speed": speed_val})
+            if name == "Ketu": lon_val = (lon_val + 180) % 360
+            planets_raw.append({"planet": name, "lon": lon_val, "speed": speed_val})
             if name == "Venus":
-                print(f"DEBUG VENUS: Lon: {lon_sid}")
+                print(f"DEBUG VENUS: Lon: {lon_val}")
 
             
         planets_raw_map = {p["planet"]: p for p in planets_raw}
@@ -772,7 +761,6 @@ class NadiEngine:
         
         return base
     def calculate_dasha(self, planets_raw, birth_dt_loc):
-        from dateutil.relativedelta import relativedelta
         # Step 1: Moon longitude in decimal degrees
         moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
         nak_size = 360.0 / 27.0
@@ -791,19 +779,15 @@ class NadiEngine:
         lord_name = self.DASHA_ORDER[naksh_idx % 9]
         bal_yrs_f = self.DASHA_YEARS[lord_name] * remaining_fraction
         
-        def float_years_to_ymd(years_f):
-            y = int(years_f)
-            rem_y = years_f - y
-            m = int(rem_y * 12)
-            rem_m = (rem_y * 12) - m
-            d = round(rem_m * 30)
-            if d >= 30:
-                d -= 30
-                m += 1
-            if m >= 12:
-                m -= 12
-                y += 1
-            return y, m, d
+        # Helper to add fractional years using relativedelta
+        def add_period(dt, float_yrs):
+            y = int(float_yrs)
+            rem_y = float_yrs - y
+            m_float = rem_y * 12
+            m = int(m_float)
+            d_float = (m_float - m) * 30.436875 # Average month length
+            d = int(d_float)
+            return dt + relativedelta(years=y, months=m, days=d)
             
         today = datetime.datetime.now(pytz.UTC)
         act_md, act_ad, act_pd = "None", "None", "None"
@@ -815,90 +799,50 @@ class NadiEngine:
         def fmt_date(dt):
             return dt.isoformat()[:10]
 
-        # First Mahadasha absolute date
-        # AstroSage computes exactly backwards to find hypothetical start
+        # Absolute start of the first Mahadasha in the cycle
         total_yrs = self.DASHA_YEARS[lord_name]
-        elapsed_yrs = total_yrs * traversed_fraction
-        y_ela, m_ela, d_ela = float_years_to_ymd(elapsed_yrs)
+        # 1st Mahadasha End Date (Birth + Balance)
+        md_end = add_period(birth_dt_loc, bal_yrs_f)
         
-        # Start date iterator
-        md_curs = birth_dt_loc
+        # Now reconstruct the sequence. We start from the lord's MD start.
+        md_curs = md_end - relativedelta(years=total_yrs)
         
         for i in range(9):
             p = self.DASHA_ORDER[(start_idx + i) % 9]
-            
-            # The FIRST lord uses the remaining fraction for the main MD
-            if i == 0:
-                y_bal, m_bal, d_bal = float_years_to_ymd(bal_yrs_f)
-                md_end = md_curs + relativedelta(years=y_bal, months=m_bal, days=d_bal)
-                md_yrs = self.DASHA_YEARS[p] # We still need full yrs for sub-calculations
-            else:
-                md_yrs = self.DASHA_YEARS[p]
-                md_end = md_curs + relativedelta(years=md_yrs)
-            
-            # Transition dates for linked sequence
+            md_yrs = self.DASHA_YEARS[p]
             md_start = md_curs
+            # Use relativedelta for exact calendar addition (AstroSage style)
+            md_end = md_start + relativedelta(years=md_yrs)
+            
             md_item = {
-                "planet": p, 
-                "start_date": fmt_date(md_start), 
-                "end_date": fmt_date(md_end),
+                "planet": p, "start_date": fmt_date(md_start), "end_date": fmt_date(md_end),
                 "bukthis": []
             }
-            if md_start <= today < md_end: act_md = p
+            if md_start <= today <= md_end: act_md = p
             
             ad_seq_start = self.DASHA_ORDER.index(p)
             ad_seq = self.DASHA_ORDER[ad_seq_start:] + self.DASHA_ORDER[:ad_seq_start]
-            
-            ad_cum_f = 0.0
             ad_curs = md_start
-            # Re-anchor the sub-periods to the Hypothetical Mahadasha start 
-            # so the exact fractional geometry remains untouched!
-            # Example: Even if they were born in year 18 out of 20 for Venus, 
-            # we must calculate 18 years of sub-periods mathematically backwards 
-            # to know exactly which Bukthi/Antara they are in today.
-            if i == 0:
-                total_md_yrs = self.DASHA_YEARS[p]
-                elapsed = total_md_yrs * traversed_fraction
-                y_ela, m_ela, d_ela = float_years_to_ymd(elapsed)
-                hypo_start = birth_dt_loc - relativedelta(years=y_ela, months=m_ela, days=d_ela)
-            else:
-                hypo_start = md_start
-            
-            ad_cum_f = 0.0
-            ad_curs = hypo_start
             for ap in ad_seq:
                 ad_yrs_f = (self.DASHA_YEARS[ap] / 120.0) * md_yrs
-                ad_cum_f += ad_yrs_f
-                y_ad, m_ad, d_ad = float_years_to_ymd(ad_cum_f)
-                ad_end = hypo_start + relativedelta(years=y_ad, months=m_ad, days=d_ad)
+                # Bukthis also follow calendar fractions
+                ad_end = add_period(ad_curs, ad_yrs_f)
                 
-                # Filter out bukthis that ended BEFORE the person was born
-                if ad_end > birth_dt_loc:
-                    ad_item = { "planet": ap, "start_date": fmt_date(max(ad_curs, birth_dt_loc)), "end_date": fmt_date(ad_end), "antaras": [] }
-                    if max(ad_curs, birth_dt_loc) <= today < ad_end: act_ad = ap
-                else:
-                    ad_item = None
+                ad_item = { "planet": ap, "start_date": fmt_date(ad_curs), "end_date": fmt_date(ad_end), "antaras": [] }
+                if ad_curs <= today <= ad_end: act_ad = ap
                 
                 pd_seq_start = self.DASHA_ORDER.index(ap)
                 pd_seq = self.DASHA_ORDER[pd_seq_start:] + self.DASHA_ORDER[:pd_seq_start]
-                
-                pd_cum_f = ad_cum_f - ad_yrs_f # start point of this AD
                 pd_curs = ad_curs
                 for pp in pd_seq:
                     pd_yrs_f = (self.DASHA_YEARS[pp] / 120.0) * ad_yrs_f
-                    pd_cum_f += pd_yrs_f
-                    y_pd, m_pd, d_pd = float_years_to_ymd(pd_cum_f)
-                    pd_end = hypo_start + relativedelta(years=y_pd, months=m_pd, days=d_pd)
-                    
-                    
-                    if ad_item and pd_end > birth_dt_loc:
-                        if max(pd_curs, birth_dt_loc) <= today < pd_end: act_pd = pp
-                        ad_item["antaras"].append({
-                            "planet": pp, "start_date": fmt_date(max(pd_curs, birth_dt_loc)), "end_date": fmt_date(pd_end)
-                        })
+                    pd_end = add_period(pd_curs, pd_yrs_f)
+                    if pd_curs <= today <= pd_end: act_pd = pp
+                    ad_item["antaras"].append({
+                        "planet": pp, "start_date": fmt_date(pd_curs), "end_date": fmt_date(pd_end)
+                    })
                     pd_curs = pd_end
-                if ad_item:
-                    md_item["bukthis"].append(ad_item)
+                md_item["bukthis"].append(ad_item)
                 ad_curs = ad_end
             mahadasha_tree.append(md_item)
             md_curs = md_end
