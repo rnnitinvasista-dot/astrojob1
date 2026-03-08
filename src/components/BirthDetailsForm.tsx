@@ -155,11 +155,12 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
             let data: LocationSuggestion[] = await response.json();
 
             // Filter: keep only city/town/village types, remove district/county/state
-            // Also remove variants like 'Urban', 'Rural', 'South', 'East', 'West' etc
-            const noiseWords = ['urban', 'rural', 'north', 'south', 'east', 'west', 'railway station', 'bus stand', 'terminal', 'airport', 'cantonment'];
+            // Also remove variants like 'Urban', 'Rural', 'North', 'South', 'East', 'West' etc
+            const noiseWords = ['urban', 'rural', 'north', 'south', 'east', 'west', 'railway station', 'bus stand', 'terminal', 'airport', 'cantonment', 'district', 'division', 'bbmp'];
             data = data.filter(item => {
                 const name = item.display_name.toLowerCase();
-                return !noiseWords.some(word => name.startsWith(word) || name.includes(`, ${word}`));
+                // Filter out any entries with noise keywords
+                return !noiseWords.some(word => name.includes(word));
             });
 
             // Deduplicate: if standard match exists, it goes first and we remove duplicates
@@ -167,16 +168,19 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
             const uniqueData: LocationSuggestion[] = [];
 
             if (standardMatch) {
+                const cleanName = standardMatch.name.split(',')[0].trim();
                 uniqueData.push({
                     display_name: standardMatch.name,
                     lat: standardMatch.lat.toString(),
                     lon: standardMatch.lon.toString()
                 });
-                seenCities.add(standardMatch.name.split(',')[0].toLowerCase());
+                seenCities.add(cleanName.toLowerCase());
             }
 
             for (const item of data) {
-                const cityKey = item.display_name.split(',')[0].toLowerCase().trim();
+                const cityName = item.display_name.split(',')[0].trim();
+                const cityKey = cityName.toLowerCase();
+                // If we haven't seen this specific city name yet, add it
                 if (!seenCities.has(cityKey)) {
                     seenCities.add(cityKey);
                     uniqueData.push(item);

@@ -48,7 +48,7 @@ const HouseTable: React.FC<HouseTableProps> = ({ houses, planets }) => {
                         {houses.map((house) => (
                             <tr key={house.house_number}>
                                 <td style={{ fontWeight: 600 }}>{house.house_number}</td>
-                                <td>{house.degree_dms || house.cusp_degree_dms}</td>
+                                <td>{house.cusp_degree_dms}</td>
                                 <td>{renderLord(house.sign_lord, '#6366f1')}</td>
                                 <td>{renderLord(house.star_lord, '#3b82f6')}</td>
                                 <td>{renderLord(house.sub_lord, '#10b981')}</td>
