@@ -598,7 +598,19 @@ class NadiEngine:
         Steps 9-13: hierarchical duration formula: Parent_Duration × Planet_years / 120
         Validation: all sub-periods sum to parent period.
         """
-        moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
+        # Step 7: Calculate Dasha using LAHIRI Ayanamsa (Standard Practice)
+        swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+        ayan_lahiri = swe.get_ayanamsa_ut(swe.julday(birth_dt_loc.year, birth_dt_loc.month, birth_dt_loc.day, birth_dt_loc.hour + birth_dt_loc.minute/60.0))
+        
+        # Get tropical moon first
+        jd_dasha = swe.julday(birth_dt_loc.year, birth_dt_loc.month, birth_dt_loc.day, birth_dt_loc.hour + birth_dt_loc.minute/60.0)
+        res_trop, _ = swe.calc_ut(jd_dasha, swe.MOON, swe.FLG_SWIEPH)
+        moon_lon_lahiri = (res_trop[0] - ayan_lahiri) % 360.0
+        
+        # Switch back to whatever mode we were in (KP) for other calculations if needed
+        # but here we just need the Lahiri Moon for the sequence.
+        
+        moon_lon = moon_lon_lahiri
         nak_size = 360.0 / 27.0  # Step 5: 360/27 = 13.333...
         naksh_idx = int(moon_lon / nak_size) % 27
         
