@@ -9,8 +9,6 @@ import PlanetTable from './components/tables/PlanetTable';
 import DashaTable from './components/tables/DashaTable';
 import NakshatraNadiTable from './components/tables/NakshatraNadiTable';
 import JobPredictionTable from './components/tables/JobPredictionTable';
-import PlanetaryStatusTable from './components/tables/PlanetaryStatusTable';
-import MahadashaPrediction from './components/MahadashaPrediction';
 import { getApiUrl, fetchMixedPrashna } from './services/api';
 import { useAuth } from './contexts/AuthContext';
 import LoginPage from './components/auth/LoginPage';
@@ -21,11 +19,8 @@ interface KundliResponse {
   ascendant: any;
   houses: any[];
   planets: any[];
-  significations: any[];
   aspects: any[];
   nakshatra_nadi: any[];
-  planetary_status: any[];
-  mahadasha_prediction: string;
   dasha: {
     balance_at_birth: string;
     current_dasha: string;
@@ -225,8 +220,6 @@ const App = () => {
             </button>
 
             {showPlanetTable && <PlanetTable planets={kundliData.planets} />}
-
-            <PlanetaryStatusTable status={kundliData.planetary_status} />
           </div>
         );
       case 'houses':
@@ -244,8 +237,6 @@ const App = () => {
       case 'predictions':
         return (
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
-            <MahadashaPrediction prediction={kundliData.mahadasha_prediction} />
-
             <div style={{ padding: '8px', margin: '1rem 0', background: '#eff6ff', borderRadius: '12px', border: '1px solid #3b82f6' }}>
               <select
                 value={selectedArea}
@@ -300,12 +291,12 @@ const App = () => {
   }
 
   const pulseStyle = `
-    @keyframes pulse {
-      0% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.02); opacity: 0.8; }
-      100% { transform: scale(1); opacity: 1; }
+            @keyframes pulse {
+              0 % { transform: scale(1); opacity: 1; }
+      50% {transform: scale(1.02); opacity: 0.8; }
+            100% {transform: scale(1); opacity: 1; }
     }
-  `;
+            `;
 
   return (
     <Layout
