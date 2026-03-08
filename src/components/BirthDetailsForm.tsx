@@ -20,8 +20,8 @@ interface LocationSuggestion {
 }
 
 const STANDARD_CITIES: Record<string, { lat: number, lon: number, name: string }> = {
-    'bangalore': { lat: 12.9716, lon: 77.5946, name: 'Bangalore (Urban), Karnataka, India' },
-    'bengaluru': { lat: 12.9716, lon: 77.5946, name: 'Bengaluru, Karnataka, India' },
+    'bangalore': { lat: 12.9666, lon: 77.5833, name: 'Bangalore, Karnataka, India' },
+    'bengaluru': { lat: 12.9666, lon: 77.5833, name: 'Bengaluru, Karnataka, India' },
     'delhi': { lat: 28.6139, lon: 77.2090, name: 'Delhi, India' },
     'new delhi': { lat: 28.6139, lon: 77.2090, name: 'New Delhi, India' },
     'mumbai': { lat: 19.0760, lon: 72.8777, name: 'Mumbai, Maharashtra, India' },
@@ -51,8 +51,8 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
         date_of_birth: '',
         time_of_birth: '',
         timezone: 'Asia/Kolkata',
-        latitude: 12.9716,
-        longitude: 77.5946,
+        latitude: 12.9666,
+        longitude: 77.5833,
         place: '',
         ayanamsa: 'KP'
     });
@@ -133,8 +133,8 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                 date_of_birth: '',
                 time_of_birth: '',
                 place: '',
-                latitude: 12.9716,
-                longitude: 77.5946
+                latitude: 12.9666,
+                longitude: 77.5833
             }));
             setBirthDay(''); setBirthMonth(''); setBirthYear('');
             setBirthHour(''); setBirthMin(''); setBirthSec('');
@@ -178,12 +178,23 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
             }
 
             for (const item of data) {
+                // Get the first part of the location name (the city itself)
                 const cityName = item.display_name.split(',')[0].trim();
-                const cityKey = cityName.toLowerCase();
-                // If we haven't seen this specific city name yet, add it
-                if (!seenCities.has(cityKey)) {
-                    seenCities.add(cityKey);
-                    uniqueData.push(item);
+                const primaryWord = cityName.split(' ')[0].toLowerCase().trim();
+
+                // If we haven't seen this primary city word yet, and it's not a noise variant, add it
+                if (!seenCities.has(primaryWord)) {
+                    seenCities.add(primaryWord);
+                    // Simplify the display name for the suggestion list if it's too long
+                    const parts = item.display_name.split(',');
+                    const simplifiedName = parts.length > 2
+                        ? `${parts[0].trim()}, ${parts[parts.length - 3].trim()}, ${parts[parts.length - 2].trim()}`
+                        : item.display_name;
+
+                    uniqueData.push({
+                        ...item,
+                        display_name: simplifiedName
+                    });
                 }
             }
 

@@ -404,7 +404,7 @@ class NadiEngine:
             if self.ayanamsa == "Lahiri":
                 swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
             else:
-                swe.set_sid_mode(swe.SIDM_KRISHNAMURTI_VP291, 0, 0)
+                swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
             
             ayan_val = swe.get_ayanamsa_ut(jd)
             
@@ -483,7 +483,7 @@ class NadiEngine:
                 
             planets_res.append({
                 "planet": p["planet"], 
-                "degree_dms": self.decimal_to_sign_dms(lon_val),  # e.g. '03°27'38" Aquarius'
+                "degree_dms": self.decimal_to_dms(lon_val, is_absolute=True), # Absolute 0-360 to match user images
                 "house_placed": int(hp),
                 "sign": sn, 
                 "sign_lord": self.SHORT_CODES.get(sl, sl), 
