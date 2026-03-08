@@ -201,11 +201,20 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                     const signPlanets = sign ? getPlanetsInBox(sign) : [];
 
                     let boxLabel = sign?.slice(0, 3).toUpperCase() || '';
-                    if (sign && chartMode === 'Bhava') {
-                        const ascSignIdx = signList.indexOf(ascendant.sign);
+                    if (sign) {
+                        // Calculate house relative to Lagna for BOTH modes
+                        const lagnaSign = chartMode === 'Bhava' ? ascendant.sign : currentVargaData.ascendant.sign;
+                        const ascSignIdx = signList.indexOf(lagnaSign);
                         const currentSignIdx = signList.indexOf(sign);
                         let houseNum = (currentSignIdx - ascSignIdx + 12) % 12 + 1;
-                        boxLabel = `H${houseNum}`;
+
+                        // In Bhava mode, we ONLY show H1, H2, etc. (per previous fix)
+                        // In Rashi mode, we want BOTH: "ARI (H1)"
+                        if (chartMode === 'Bhava') {
+                            boxLabel = `H${houseNum}`;
+                        } else {
+                            boxLabel = `${sign.slice(0, 3).toUpperCase()} (H${houseNum})`;
+                        }
                     }
 
                     return (

@@ -117,9 +117,88 @@ class NadiEngine:
             
         return f"{d:02d}\u00b0{m:02d}'{sec:02d}\""
 
-    def get_varga_sign(self, longitude, d):
-        """Calculates the sign index (0-11) for a given divisional chart D."""
-        return int(math.floor((longitude * d) / 30)) % 12
+    def get_varga_sign(self, lon, d_val):
+        """
+        Calculates the divisional sign using precise classical Parashari rules.
+        """
+        lon = float(lon % 360)
+        sign_idx = int(lon / 30.0) % 12
+        deg_in_sign = lon % 30.0
+        
+        if d_val == 1:
+            return sign_idx
+        elif d_val == 2: # Hora
+            if sign_idx % 2 == 0: # Odd sign (Aries=0, Gemini=2, etc.)
+                return 4 if deg_in_sign < 15 else 3 # Sun(Leo), Moon(Cancer)
+            else: # Even sign
+                return 3 if deg_in_sign < 15 else 4
+        elif d_val == 3: # Drekkana
+            part = int(deg_in_sign / 10.0)
+            return (sign_idx + (part * 4)) % 12
+        elif d_val == 4: # Chaturthamsha
+            part = int(deg_in_sign / 7.5)
+            return (sign_idx + (part * 3)) % 12
+        elif d_val == 7: # Saptamsha
+            part = int(deg_in_sign / (30.0 / 7.0))
+            if sign_idx % 2 == 0: return (sign_idx + part) % 12 # Odd start from sign
+            else: return (sign_idx + 6 + part) % 12 # Even start from 7th
+        elif d_val == 9: # Navamsha
+            part = int(deg_in_sign / (30.0 / 9.0))
+            if sign_idx in [0, 4, 8]: start_idx = 0 # Fiery start Aries
+            elif sign_idx in [1, 5, 9]: start_idx = 9 # Earthy start Capricorn
+            elif sign_idx in [2, 6, 10]: start_idx = 6 # Airy start Libra
+            else: start_idx = 3 # Watery start Cancer
+            return (start_idx + part) % 12
+        elif d_val == 10: # Dashamsha
+            part = int(deg_in_sign / 3.0)
+            if sign_idx % 2 == 0: return (sign_idx + part) % 12
+            else: return (sign_idx + 8 + part) % 12
+        elif d_val == 12: # Dwadashamsha
+            part = int(deg_in_sign / 2.5)
+            return (sign_idx + part) % 12
+        elif d_val == 16: # Shodashamsha
+            part = int(deg_in_sign / (30.0 / 16.0))
+            start_table = [0, 4, 8] # Aries, Leo, Sag
+            return (start_table[sign_idx % 3] + part) % 12
+        elif d_val == 20: # Vimshamsha
+            part = int(deg_in_sign / 1.5)
+            start_table = [0, 8, 4] # Aries, Sag, Leo
+            return (start_table[sign_idx % 3] + part) % 12
+        elif d_val == 24: # Chaturvimshamsha
+            part = int(deg_in_sign / 1.25)
+            if sign_idx % 2 == 0: return (4 + part) % 12 # Odd start Leo
+            else: return (3 + part) % 12 # Even start Cancer
+        elif d_val == 27: # Saptavimshamsha / Bhamsha
+            part = int(deg_in_sign / (30.0 / 27.0))
+            start_table = [0, 3, 6, 9] # Aries, Cancer, Libra, Capricorn
+            return (start_table[sign_idx % 4] + part) % 12
+        elif d_val == 30: # Trimshamsha
+            d = deg_in_sign
+            if sign_idx % 2 == 0: # Odd
+                if d < 5: return 0 # Mars
+                elif d < 10: return 10 # Saturn
+                elif d < 18: return 11 # Jupiter (Pisces used per logic)
+                elif d < 25: return 2 # Mercury
+                else: return 1 # Venus
+            else: # Even
+                if d < 5: return 1 # Venus
+                elif d < 12: return 2 # Mercury
+                elif d < 20: return 11 # Jupiter
+                elif d < 25: return 10 # Saturn
+                else: return 0 # Mars
+        elif d_val == 40: # Khavedamsha
+            part = int(deg_in_sign / 0.75)
+            if sign_idx % 2 == 0: return (0 + part) % 12
+            else: return (6 + part) % 12
+        elif d_val == 45: # Akshavedamsha
+            part = int(deg_in_sign / (30.0 / 45.0))
+            start_table = [0, 4, 8]
+            return (start_table[sign_idx % 3] + part) % 12
+        elif d_val == 60: # Shashtiamsha
+            part = int(deg_in_sign / 0.5)
+            return (sign_idx + part) % 12
+            
+        return int((lon * d_val) / 30.0) % 12
 
     def decimal_to_sign_dms(self, degree):
         """
@@ -355,8 +434,8 @@ class NadiEngine:
         
         agents.append({'type': 'Sign Lord', 'planet': node_data.get('sign_lord')})
         
-        signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
-        node_sign_idx = signs.index(node_sign)
+        self.SIGNS = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
+        node_sign_idx = self.SIGNS.index(node_sign)
         
         for p in all_planets:
             p_name = p['planet']
@@ -369,7 +448,7 @@ class NadiEngine:
             if p['sign'] == node_sign and dist <= 12.0:
                 agents.append({'type': 'Conjunction', 'planet': p_name})
                     
-            p_sign_idx = signs.index(p['sign'])
+            p_sign_idx = self.SIGNS.index(p['sign'])
             diff = (node_sign_idx - p_sign_idx + 12) % 12 + 1
             
             is_aspecting = False
