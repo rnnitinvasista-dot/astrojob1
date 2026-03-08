@@ -60,6 +60,11 @@ class NadiEngine:
             "Sagittarius": "Jupiter", "Capricorn": "Saturn", "Aquarius": "Saturn", "Pisces": "Jupiter"
         }
         
+        self.SIGNS = [
+            "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
+            "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
+        ]
+        
         self.DASHA_ORDER = ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"]
         self.DASHA_YEARS = {
             "Ketu": 7, "Venus": 20, "Sun": 6, "Moon": 10,
@@ -532,12 +537,14 @@ class NadiEngine:
         
         for v_name, d_val in varga_configs.items():
             chart_planets = []
-            for p_name, lon in planets_raw.items():
+            for p_dict in planets_raw:
+                p_name = p_dict["planet"]
+                lon = p_dict["lon"]
                 v_sign_idx = self.get_varga_sign(lon, d_val)
                 chart_planets.append({
                     "planet": p_name,
                     "sign": self.SIGNS[v_sign_idx],
-                    "is_retrograde": p_name in ["Rahu", "Ketu"] or planets_raw[p_name] < 0 # Placeholder for retro check
+                    "is_retrograde": p_name in ["Rahu", "Ketu"] or p_dict["speed"] < 0
                     # Note: planets_raw stores absolute sidereal longitude.
                 })
             # Add Ascendant to Varga
