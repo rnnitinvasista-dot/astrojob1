@@ -27,6 +27,8 @@ interface KundliResponse {
     current_dasha: string;
     current_bukthi: string;
     current_antara: string;
+    current_pratyantar?: string;
+    current_sookshma?: string;
     mahadasha_sequence: any[];
   };
   metadata: {
@@ -48,7 +50,7 @@ const App = () => {
   const [showPlanetTable, setShowPlanetTable] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [birthDetails, setBirthDetails] = useState<any>(null);
-  const [chartMode] = useState<'Rashi' | 'Bhava'>('Bhava');
+  const [chartMode, setChartMode] = useState<'Rashi' | 'Bhava'>('Bhava');
   const [selectedArea, setSelectedArea] = useState('Job');
 
   const { currentUser, userData, isExpired, logout } = useAuth();
@@ -138,6 +140,50 @@ const App = () => {
       case 'planets':
         return (
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {/* Chart Mode Toggle */}
+            <div style={{
+              display: 'flex',
+              background: '#f1f5f9',
+              padding: '4px',
+              borderRadius: '12px',
+              gap: '4px',
+              width: 'fit-content',
+              margin: '0 auto'
+            }}>
+              <button
+                onClick={() => setChartMode('Rashi')}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: chartMode === 'Rashi' ? '#3b82f6' : 'transparent',
+                  color: chartMode === 'Rashi' ? 'white' : '#64748b',
+                  fontWeight: 'bold',
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Rashi Chart
+              </button>
+              <button
+                onClick={() => setChartMode('Bhava')}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: chartMode === 'Bhava' ? '#3b82f6' : 'transparent',
+                  color: chartMode === 'Bhava' ? 'white' : '#64748b',
+                  fontWeight: 'bold',
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                KP Bhava Chart
+              </button>
+            </div>
+
             <SouthIndianChart
               planets={kundliData.planets}
               ascendant={kundliData.ascendant}

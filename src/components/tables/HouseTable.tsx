@@ -36,12 +36,12 @@ const HouseTable: React.FC<HouseTableProps> = ({ houses, planets }) => {
                 <table style={{ fontSize: '0.8125rem' }}>
                     <thead>
                         <tr>
-                            <th>H#</th>
+                            <th>Hos</th>
                             <th>Degree</th>
-                            <th>PL</th>
+                            <th>SL</th>
                             <th>NL</th>
-                            <th>Sub-Lord</th>
-                            <th>Sub-Sub-Lord</th>
+                            <th>SB</th>
+                            <th>SS</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -60,7 +60,7 @@ const HouseTable: React.FC<HouseTableProps> = ({ houses, planets }) => {
             </div>
             <div style={{ marginTop: '1rem', fontSize: '0.7rem', color: '#64748b', display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
                 <span><b>SL:</b> Sign Lord</span>
-                <span><b>NL:</b> Star Lord</span>
+                <span><b>NL:</b> Nakshatra Lord</span>
                 <span><b>SB:</b> Sub Lord</span>
                 <span><b>SS:</b> Sub-Sub Lord</span>
                 <span style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '1rem', marginLeft: '0.5rem' }}>

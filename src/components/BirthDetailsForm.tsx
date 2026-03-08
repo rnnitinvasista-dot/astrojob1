@@ -19,6 +19,19 @@ interface LocationSuggestion {
     lon: string;
 }
 
+const STANDARD_CITIES: Record<string, { lat: number, lon: number, name: string }> = {
+    'bangalore': { lat: 12.9716, lon: 77.5946, name: 'Bangalore (Urban), Karnataka, India' },
+    'bengaluru': { lat: 12.9716, lon: 77.5946, name: 'Bengaluru, Karnataka, India' },
+    'delhi': { lat: 28.6139, lon: 77.2090, name: 'Delhi, India' },
+    'new delhi': { lat: 28.6139, lon: 77.2090, name: 'New Delhi, India' },
+    'mumbai': { lat: 19.0760, lon: 72.8777, name: 'Mumbai, Maharashtra, India' },
+    'chennai': { lat: 13.0827, lon: 80.2707, name: 'Chennai, Tamil Nadu, India' },
+    'hyderabad': { lat: 17.3850, lon: 78.4867, name: 'Hyderabad, Telangana, India' },
+    'kolkata': { lat: 22.5726, lon: 88.3639, name: 'Kolkata, West Bengal, India' },
+    'pune': { lat: 18.5204, lon: 73.8567, name: 'Pune, Maharashtra, India' },
+    'ahmedabad': { lat: 23.0225, lon: 72.5714, name: 'Ahmedabad, Gujarat, India' }
+};
+
 const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading, mode, isExpired }) => {
     const [activeTab, setActiveTab] = useState<'NEW' | 'RECENTS'>('NEW');
     const [showLocationModal, setShowLocationModal] = useState(false);
@@ -135,9 +148,37 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
         if (query.length < 3) return;
         setIsSearching(true);
         try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=8&countrycodes=${selectedCountry}`);
-            const data = await response.json();
-            setSuggestions(data);
+            const lowerQuery = query.toLowerCase().trim();
+            const standardMatch = STANDARD_CITIES[lowerQuery];
+
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=15&countrycodes=${selectedCountry}`);
+            let data: LocationSuggestion[] = await response.json();
+
+            // Filter redundant options like "Rural" or "Bridges" or "Bus Stands" if a city is searched
+            // and prioritize "Urban" or the primary city entry
+            data = data.filter(item => {
+                const name = item.display_name.toLowerCase();
+                if (name.includes('rural') || name.includes('railway station') || name.includes('bus stand') || name.includes('terminal')) {
+                    return false;
+                }
+                return true;
+            });
+
+            // If we have a standard match, prepend it or replace vague results
+            if (standardMatch) {
+                const standardItem = {
+                    display_name: standardMatch.name,
+                    lat: standardMatch.lat.toString(),
+                    lon: standardMatch.lon.toString()
+                };
+                // Check if already in data
+                const exists = data.some(d => d.lat === standardItem.lat && d.lon === standardItem.lon);
+                if (!exists) {
+                    data.unshift(standardItem);
+                }
+            }
+
+            setSuggestions(data.slice(0, 8));
         } catch (error) {
             console.error('Location search failed');
         } finally {
@@ -288,11 +329,53 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                         </div>
 
                         <div className="parchment-card" onClick={() => setShowLocationModal(true)} style={{ cursor: 'pointer' }}>
-                            <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Place: *</label>
+                            <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Search Place: (Auto-fills Lat/Lon)</label>
                             <div style={{ padding: '0.5rem 0', borderBottom: '1.5px solid black', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <span style={{ fontSize: '1rem', fontWeight: 600, color: '#1e293b' }}>{formData.place}</span>
                                 <MapPin size={18} color="black" />
                             </div>
+                        </div>
+
+                        <div className="parchment-card">
+                            <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Exact Coordinates: * (Decimal)</label>
+                            <div style={{ display: 'flex', gap: '1rem' }}>
+                                <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Latitude</label>
+                                    <input
+                                        type="number" step="0.0001"
+                                        value={formData.latitude}
+                                        onChange={(e) => setFormData({ ...formData, latitude: parseFloat(e.target.value) })}
+                                        style={{ border: '1.5px solid black', borderRadius: '8px', padding: '0.5rem', width: '100%', background: 'white' }}
+                                    />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Longitude</label>
+                                    <input
+                                        type="number" step="0.0001"
+                                        value={formData.longitude}
+                                        onChange={(e) => setFormData({ ...formData, longitude: parseFloat(e.target.value) })}
+                                        style={{ border: '1.5px solid black', borderRadius: '8px', padding: '0.5rem', width: '100%', background: 'white' }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="parchment-card">
+                            <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Time Zone: *</label>
+                            <select
+                                value={formData.timezone}
+                                onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
+                                style={{ border: '1.5px solid black', borderRadius: '8px', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
+                            >
+                                <option value="Asia/Kolkata">India (UTC +5:30)</option>
+                                <option value="UTC">UTC / GMT</option>
+                                <option value="US/Eastern">US Eastern</option>
+                                <option value="US/Pacific">US Pacific</option>
+                                <option value="Europe/London">UK / London</option>
+                                <option value="Australia/Sydney">Australia (Sydney)</option>
+                                <option value="Asia/Dubai">UAE / Dubai</option>
+                                <option value="Asia/Singapore">Singapore</option>
+                            </select>
                         </div>
 
                         <div className="parchment-card">

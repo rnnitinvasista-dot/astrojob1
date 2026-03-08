@@ -80,19 +80,32 @@ class NadiEngine:
         self.ASPECTS = {
             "Conjunction": 0, "Sextile": 60, "Square": 90, "Trine": 120, "Opposition": 180
         }
+        
+        self.SHORT_CODES = {
+            "Sun": "Su", "Moon": "Mo", "Mars": "Ma", "Mercury": "Me",
+            "Jupiter": "Ju", "Venus": "Ve", "Saturn": "Sa",
+            "Rahu": "Ra", "Ketu": "Ke"
+        }
 
     def decimal_to_dms(self, degree, is_absolute=False):
-        val = degree if is_absolute else (degree % 30)
+        # Always use absolute degree normalization for high precision (0-360)
+        # However, for Rashi display we might still need % 30 if not is_absolute
+        val = degree % 360.0 if is_absolute else (degree % 30.0)
+        
         d = int(val)
         m = int((val - d) * 60)
-        s = round((val - d - m/60)*3600)
-        if s >= 60:
-            s -= 60
+        s = (val - d - m/60.0) * 3600.0
+        
+        # Maintain high precision for seconds, integer part for display
+        sec = int(s)
+        if sec >= 60:
+            sec -= 60
             m += 1
         if m >= 60:
             m -= 60
             d += 1
-        return f"{d:02}°{m:02}'{int(s):02}\""
+            
+        return f"{d:02d}°{m:02d}'{sec:02d}\""
 
     def generate_horary_table(self):
         table = {}
@@ -356,9 +369,19 @@ class NadiEngine:
                 swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
             else:
                 swe.set_sid_mode(swe.SIDM_KRISHNAMURTI_VP291, 0, 0)
+            
             ayan_val = swe.get_ayanamsa_ut(jd)
-            # Re-implement tropical-to-sidereal manual subtraction to avoid SwissEph sidereal flag issues
-            cusps_trop, ascmc_trop = swe.houses_ex(jd, lat, lon, h_sys, 0) # Tropical
+            
+            # Explicit Time Conversion for KP rules
+            # GMST -> LST -> RAMC
+            gmst_hrs = swe.sidtime(jd)
+            lst_hrs = (gmst_hrs + lon / 15.0) % 24.0
+            ramc_deg = (lst_hrs * 15.0) % 360.0
+            
+            res_nut, _ = swe.calc_ut(jd, swe.ECL_NUT, 0)
+            eps = res_nut[0]
+            
+            cusps_trop, ascmc_trop = swe.houses_armc(ramc_deg, lat, eps, h_sys)
             cusps = [(c - ayan_val) % 360 for c in cusps_trop]
             ascmc = [(a - ayan_val) % 360 for a in ascmc_trop]
 
@@ -391,8 +414,13 @@ class NadiEngine:
                 sn, sl, nlk, sub, ssl, nak, nadi, sub_idx = self.get_kp_lords(lon_val)
                 
             houses_res.append({
-                "house_number": i+1, "cusp_degree_dms": self.decimal_to_dms(lon_val, is_absolute=horary_number is not None),
-                "sign": sn, "sign_lord": sl, "star_lord": nlk, "sub_lord": sub, "sub_sub_lord": ssl,
+                "house_number": i+1, 
+                "cusp_degree_dms": self.decimal_to_dms(lon_val, is_absolute=True),
+                "sign": sn, 
+                "sign_lord": self.SHORT_CODES.get(sl, sl), 
+                "star_lord": self.SHORT_CODES.get(nlk, nlk), 
+                "sub_lord": self.SHORT_CODES.get(sub, sub), 
+                "sub_sub_lord": self.SHORT_CODES.get(ssl, ssl),
                 "nakshatra": nak, "nadi": nadi, "nadi_index": sub_idx, "planet_lord": sl, "cusp_degree_decimal": lon_val
             })
             
@@ -415,8 +443,13 @@ class NadiEngine:
                 if dist < orbs.get(p["planet"], 12): is_combust = True
                 
             planets_res.append({
-                "planet": p["planet"], "degree_dms": f"{self.decimal_to_dms(lon_val)} {sn}", "house_placed": int(hp),
-                "sign": sn, "sign_lord": sl, "star_lord": nlk, "sub_lord": sub, "sub_sub_lord": ssl,
+                "planet": p["planet"], 
+                "degree_dms": self.decimal_to_dms(lon_val, is_absolute=True), "house_placed": int(hp),
+                "sign": sn, 
+                "sign_lord": self.SHORT_CODES.get(sl, sl), 
+                "star_lord": self.SHORT_CODES.get(nlk, nlk), 
+                "sub_lord": self.SHORT_CODES.get(sub, sub), 
+                "sub_sub_lord": self.SHORT_CODES.get(ssl, ssl),
                 "nakshatra": nak, "nadi": nadi, "nadi_index": sub_idx, 
                 "is_retrograde": True if p["planet"] in ["Rahu", "Ketu"] else p["speed"] < 0, "is_combust": is_combust,
                 "planet_lord": sl, "degree_decimal": lon_val

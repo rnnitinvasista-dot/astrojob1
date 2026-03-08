@@ -161,7 +161,9 @@ const SouthIndianChart: React.FC<SouthIndianChartProps> = ({ planets, ascendant,
 
     return (
         <div className="card" style={{ padding: '1rem', background: '#fff' }}>
-            <h2 style={{ marginBottom: '1rem', color: '#6EB5FF', fontSize: '1rem' }}>South Indian Rasi Chart</h2>
+            <h2 style={{ marginBottom: '1rem', color: '#3b82f6', fontSize: '1.1rem', fontWeight: 800, textAlign: 'center' }}>
+                {chartType === 'Rashi' ? 'South Indian Rashi Chart' : 'KP Bhava Chalit Chart'}
+            </h2>
             <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(4, 1fr)',
@@ -195,15 +197,15 @@ const SouthIndianChart: React.FC<SouthIndianChartProps> = ({ planets, ascendant,
                                     padding: '4px',
                                     lineHeight: '1.4'
                                 }}>
-                                    <div style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '2px' }}>{birthDetails?.name || 'Native'}</div>
+                                    <div style={{ fontWeight: 800, fontSize: '0.9rem', marginBottom: '2px' }}>{birthDetails?.name || 'Native'}</div>
                                     <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>
                                         ({calculateAge(birthDetails?.date_of_birth)})
                                     </div>
                                     <div style={{ color: '#64748b', fontSize: '0.65rem' }}>Bal: {meta?.balance || '--'}</div>
                                     <div style={{ marginTop: '2px' }}>{formatDate(birthDetails?.date_of_birth)} {birthDetails?.time_of_birth}</div>
-                                    <div>{birthDetails?.place || 'Chittoor, AP'}</div>
-                                    <div style={{ marginTop: '4px', fontWeight: 600 }}>Rashi: {meta?.moonSign}</div>
-                                    <div>Nakshatra: {meta?.nakshatra} ({meta?.pada})</div>
+                                    <div>{birthDetails?.place || 'Unknown'}</div>
+                                    <div style={{ marginTop: '4px', fontWeight: 600 }}>{chartType === 'Rashi' ? 'Rashi' : 'KP Lagna'}: {meta?.moonSign}</div>
+                                    <div>{meta?.nakshatra} ({meta?.pada})</div>
                                 </div>
                             );
                         }

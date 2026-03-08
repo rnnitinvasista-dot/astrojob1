@@ -48,7 +48,7 @@ const PlanetTable: React.FC<PlanetTableProps> = ({ planets }) => {
             </div>
             <div style={{ marginTop: '1rem', fontSize: '0.7rem', color: '#64748b', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                 <span><b>SL:</b> Sign Lord</span>
-                <span><b>NL:</b> Star Lord</span>
+                <span><b>NL:</b> Nakshatra Lord</span>
                 <span><b>SB:</b> Sub Lord</span>
                 <span><b>SS:</b> Sub-Sub Lord</span>
             </div>
