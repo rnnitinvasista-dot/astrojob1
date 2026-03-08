@@ -52,26 +52,26 @@ const HouseTable: React.FC<HouseTableProps> = ({ houses, planets }) => {
                     <thead>
                         <tr>
                             <th>Hos</th>
+                            <th style={{ width: '35%' }}>Significations</th>
                             <th>Degree</th>
                             <th>SL</th>
                             <th>NL</th>
                             <th>SB</th>
                             <th>SS</th>
-                            <th style={{ width: '35%' }}>Significations</th>
                         </tr>
                     </thead>
                     <tbody>
                         {houses.map((house) => (
                             <tr key={house.house_number}>
                                 <td style={{ fontWeight: 600 }}>{house.house_number}</td>
+                                <td style={{ fontSize: '0.75rem', color: '#475569', lineHeight: 1.3 }}>
+                                    {houseDescriptions[house.house_number]}
+                                </td>
                                 <td>{house.cusp_degree_dms}</td>
                                 <td>{renderLord(house.sign_lord, '#6366f1')}</td>
                                 <td>{renderLord(house.star_lord, '#3b82f6')}</td>
                                 <td>{renderLord(house.sub_lord, '#10b981')}</td>
                                 <td>{renderLord(house.sub_sub_lord, '#ec4899')}</td>
-                                <td style={{ fontSize: '0.75rem', color: '#475569', lineHeight: 1.3 }}>
-                                    {houseDescriptions[house.house_number]}
-                                </td>
                             </tr>
                         ))}
                     </tbody>
