@@ -80,19 +80,51 @@ class NadiEngine:
         self.ASPECTS = {
             "Conjunction": 0, "Sextile": 60, "Square": 90, "Trine": 120, "Opposition": 180
         }
+        
+        self.SHORT_CODES = {
+            "Sun": "Su", "Moon": "Mo", "Mars": "Ma", "Mercury": "Me",
+            "Jupiter": "Ju", "Venus": "Ve", "Saturn": "Sa",
+            "Rahu": "Ra", "Ketu": "Ke"
+        }
 
     def decimal_to_dms(self, degree, is_absolute=False):
-        val = degree if is_absolute else (degree % 30)
+        """
+        Strict precision DMS conversion (Steps 3, 4, 17 of spec).
+        is_absolute=True: input is 0-360, output in absolute degrees
+        is_absolute=False: input is 0-30 (within sign), output in sign degrees
+        Full floating-point precision maintained - no intermediate rounding.
+        """
+        val = degree % 360.0 if is_absolute else (degree % 30.0)
+        # Step 4: Absolute Degree = (Sign-1)*30 + degree_in_sign -> already in val
         d = int(val)
-        m = int((val - d) * 60)
-        s = round((val - d - m/60)*3600)
-        if s >= 60:
-            s -= 60
+        m_f = (val - d) * 60.0
+        m = int(m_f)
+        s_f = (m_f - m) * 60.0
+        sec = int(s_f)  # truncate, not round, for precision
+        
+        # Carry overflow without rounding
+        if sec >= 60:
+            sec -= 60
             m += 1
         if m >= 60:
             m -= 60
             d += 1
-        return f"{d:02}°{m:02}'{int(s):02}\""
+            
+        return f"{d:02d}\u00b0{m:02d}'{sec:02d}\""
+
+    def decimal_to_sign_dms(self, degree):
+        """
+        Express planet degree within its sign (0-30°) with sign name.
+        e.g., Sun at 323.46° → '03°27'38" Aquarius'
+        Per spec Step 3: planet position = Sign Degree + Sign Name
+        """
+        degree = degree % 360.0
+        sign_names = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo",
+                      "Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"]
+        sign_idx = int(degree / 30.0) % 12
+        deg_in_sign = degree - (sign_idx * 30.0)  # 0-30
+        dms = self.decimal_to_dms(deg_in_sign, is_absolute=False)
+        return f"{dms} {sign_names[sign_idx]}"
 
     def generate_horary_table(self):
         table = {}
@@ -190,37 +222,54 @@ class NadiEngine:
         return cusps_sid, ascmc_sid
 
     def get_kp_lords(self, degree: float):
+        """
+        Compute Sign Lord, Nakshatra Lord, Sub Lord, Sub-Sub Lord per spec Steps 3, 5, 18.
+        Steps:
+          Step 3: sign_idx = floor(degree / 30)
+          Step 5: nak_idx = floor(degree / (360/27))
+          Step 18: Sub segments proportional to Vimshottari years
+        Full floating-point precision maintained throughout.
+        """
         degree = float(degree % 360.0)
-        if degree < 1e-10 or degree > 359.999999999: degree = 0.0
-        
+
+        # Step 3: Sign
+        sign_names = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo",
+                      "Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"]
         sign_idx = int(degree / 30.0) % 12
-        sign_names = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"]
         sign_lord = self.SIGN_RULERS[sign_names[sign_idx]]
         
-        nak_size = 360.0 / 27.0
+        # Step 5: Nakshatra
+        nak_size = 360.0 / 27.0  # = 13.333333...°
         nak_idx = int(degree / nak_size) % 27
         star_lord = self.DASHA_ORDER[nak_idx % 9]
         
-        rem_in_nak = degree - (nak_idx * nak_size)
+        # Elapsed and remaining in Nakshatra
+        nak_start = nak_idx * nak_size
+        elapsed_in_nak = degree - nak_start  # = Elapsed per spec Step 5
+        
+        # Step 18: Sub divisions - proportional to Vimshottari years
+        # Each Nak has 9 subs, starting from the Nak's star lord
+        sl_idx = self.DASHA_ORDER.index(star_lord)
+        sub_seq = self.DASHA_ORDER[sl_idx:] + self.DASHA_ORDER[:sl_idx]
+        
         sub_lord = star_lord
+        sub_arc = (self.DASHA_YEARS[star_lord] / 120.0) * nak_size
+        rem_in_sub = elapsed_in_nak
         sub_idx_in_nak = 1
         current_off = 0.0
-        sub_seq = self.DASHA_ORDER[nak_idx % 9:] + self.DASHA_ORDER[:nak_idx % 9]
-        
-        ssl_lord = sub_lord 
-        rem_in_sub = 0.0
-        sub_arc = 0.0
         
         for i, lord in enumerate(sub_seq):
             arc = (self.DASHA_YEARS[lord] / 120.0) * nak_size
-            if current_off <= rem_in_nak < (current_off + arc + 1e-10):
+            if current_off <= elapsed_in_nak < (current_off + arc + 1e-10) or i == len(sub_seq) - 1:
                 sub_lord = lord
                 sub_arc = arc
                 sub_idx_in_nak = i + 1
-                rem_in_sub = rem_in_nak - current_off
+                rem_in_sub = elapsed_in_nak - current_off
                 break
             current_off += arc
-            
+        
+        # Sub-Sub Lord: proportional divisions within the Sub
+        ssl_lord = sub_lord
         ssl_start_idx = self.DASHA_ORDER.index(sub_lord)
         ssl_seq = self.DASHA_ORDER[ssl_start_idx:] + self.DASHA_ORDER[:ssl_start_idx]
         off_ssl = 0.0
@@ -356,9 +405,19 @@ class NadiEngine:
                 swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
             else:
                 swe.set_sid_mode(swe.SIDM_KRISHNAMURTI_VP291, 0, 0)
+            
             ayan_val = swe.get_ayanamsa_ut(jd)
-            # Re-implement tropical-to-sidereal manual subtraction to avoid SwissEph sidereal flag issues
-            cusps_trop, ascmc_trop = swe.houses_ex(jd, lat, lon, h_sys, 0) # Tropical
+            
+            # Explicit Time Conversion for KP rules
+            # GMST -> LST -> RAMC
+            gmst_hrs = swe.sidtime(jd)
+            lst_hrs = (gmst_hrs + lon / 15.0) % 24.0
+            ramc_deg = (lst_hrs * 15.0) % 360.0
+            
+            res_nut, _ = swe.calc_ut(jd, swe.ECL_NUT, 0)
+            eps = res_nut[0]
+            
+            cusps_trop, ascmc_trop = swe.houses_armc(ramc_deg, lat, eps, h_sys)
             cusps = [(c - ayan_val) % 360 for c in cusps_trop]
             ascmc = [(a - ayan_val) % 360 for a in ascmc_trop]
 
@@ -370,15 +429,18 @@ class NadiEngine:
             curr_sign = signs[(asc_idx + i) % 12]
             house_owners[i+1] = self.SIGN_RULERS[curr_sign]
         
+        # --- STEP 1 & 2: Tropical planetary longitudes, then subtract Ayanamsa ---
+        # Sidereal Longitude = Tropical Longitude - KP Ayanamsa (normalized 0-360)
         planets_raw = []
         for name, code in self.PLANETS.items():
-            # Use Tropical then subtract ayanamsa for consistency
             res, _ = swe.calc_ut(jd, code, swe.FLG_SWIEPH | swe.FLG_SPEED)
-            lon_tropical = res[0]
-            lon_val = (lon_tropical - ayan_val) % 360
+            lon_tropical = res[0]  # Step 1: tropical from ephemeris
+            # Step 2: sidereal = tropical - ayanamsa, normalized
+            lon_sidereal = (lon_tropical - ayan_val) % 360.0
             speed_val = res[3]
-            if name == "Ketu": lon_val = (lon_val + 180) % 360
-            planets_raw.append({"planet": name, "lon": lon_val, "speed": speed_val})
+            if name == "Ketu":
+                lon_sidereal = (lon_sidereal + 180.0) % 360.0  # Ketu = Rahu + 180
+            planets_raw.append({"planet": name, "lon": lon_sidereal, "speed": speed_val})
             
         houses_res = []
         for i in range(12):
@@ -391,8 +453,13 @@ class NadiEngine:
                 sn, sl, nlk, sub, ssl, nak, nadi, sub_idx = self.get_kp_lords(lon_val)
                 
             houses_res.append({
-                "house_number": i+1, "cusp_degree_dms": self.decimal_to_dms(lon_val, is_absolute=horary_number is not None),
-                "sign": sn, "sign_lord": sl, "star_lord": nlk, "sub_lord": sub, "sub_sub_lord": ssl,
+                "house_number": i+1, 
+                "cusp_degree_dms": self.decimal_to_dms(lon_val, is_absolute=True),
+                "sign": sn, 
+                "sign_lord": self.SHORT_CODES.get(sl, sl), 
+                "star_lord": self.SHORT_CODES.get(nlk, nlk), 
+                "sub_lord": self.SHORT_CODES.get(sub, sub), 
+                "sub_sub_lord": self.SHORT_CODES.get(ssl, ssl),
                 "nakshatra": nak, "nadi": nadi, "nadi_index": sub_idx, "planet_lord": sl, "cusp_degree_decimal": lon_val
             })
             
@@ -415,8 +482,14 @@ class NadiEngine:
                 if dist < orbs.get(p["planet"], 12): is_combust = True
                 
             planets_res.append({
-                "planet": p["planet"], "degree_dms": f"{self.decimal_to_dms(lon_val)} {sn}", "house_placed": int(hp),
-                "sign": sn, "sign_lord": sl, "star_lord": nlk, "sub_lord": sub, "sub_sub_lord": ssl,
+                "planet": p["planet"], 
+                "degree_dms": self.decimal_to_sign_dms(lon_val),  # e.g. '03°27'38" Aquarius'
+                "house_placed": int(hp),
+                "sign": sn, 
+                "sign_lord": self.SHORT_CODES.get(sl, sl), 
+                "star_lord": self.SHORT_CODES.get(nlk, nlk), 
+                "sub_lord": self.SHORT_CODES.get(sub, sub), 
+                "sub_sub_lord": self.SHORT_CODES.get(ssl, ssl),
                 "nakshatra": nak, "nadi": nadi, "nadi_index": sub_idx, 
                 "is_retrograde": True if p["planet"] in ["Rahu", "Ketu"] else p["speed"] < 0, "is_combust": is_combust,
                 "planet_lord": sl, "degree_decimal": lon_val
@@ -513,82 +586,109 @@ class NadiEngine:
         return base
 
     def calculate_dasha(self, planets_raw, birth_dt_loc):
+        """
+        Full 6-level Vimshottari Dasha per spec Steps 7-13.
+        Step 7: Balance = Dasha_years × remaining_fraction
+        Step 8: 1 year = 365.2425 days
+        Steps 9-13: hierarchical duration formula: Parent_Duration × Planet_years / 120
+        Validation: all sub-periods sum to parent period.
+        """
         moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
-        nak_size = 360.0 / 27.0
+        nak_size = 360.0 / 27.0  # Step 5: 360/27 = 13.333...
         naksh_idx = int(moon_lon / nak_size) % 27
-        deg_in_nak = moon_lon % nak_size
-        remaining_fraction = 1.0 - (deg_in_nak / nak_size)
+        
+        # Step 5: elapsed and remaining in Nakshatra
+        nak_start = naksh_idx * nak_size
+        elapsed_in_nak = moon_lon - nak_start
+        remaining_in_nak = nak_size - elapsed_in_nak
+        remaining_fraction = remaining_in_nak / nak_size  # Step 5
+        
         lord_name = self.DASHA_ORDER[naksh_idx % 9]
+        # Step 7: Balance Mahadasha years
         bal_yrs_f = self.DASHA_YEARS[lord_name] * remaining_fraction
         
-        def add_period(dt, float_yrs):
-            """Add a fractional year period using y/m/d decomposition."""
-            y = int(float_yrs)
-            m_f = (float_yrs - y) * 12
-            m = int(m_f)
-            d = round((m_f - m) * 30.436875)
-            return dt + relativedelta(years=y, months=m, days=d)
+        # Step 8: Precise time conversion: 1 year = 365.2425 days
+        DAYS_PER_YEAR = 365.2425
+        
+        def add_period_exact(dt, float_yrs):
+            """Add fractional years with y/m/d decomposition using 365.2425 day year."""
+            total_days = float_yrs * DAYS_PER_YEAR
+            total_seconds = total_days * 86400.0
+            delta = datetime.timedelta(seconds=total_seconds)
+            return dt + delta
 
         fmt_date = lambda dt: dt.isoformat()[:10]
         today = datetime.datetime.now(pytz.UTC)
-        # Balance: exact days from birth to end of first dasha
-        md_end_first = add_period(birth_dt_loc, bal_yrs_f)
-        md_curs = md_end_first - relativedelta(years=self.DASHA_YEARS[lord_name])
         
-        # Helper to get sequence from a start planet
+        # Compute the start of the current mahadasha from birth
+        md_end_first = add_period_exact(birth_dt_loc, bal_yrs_f)
+        md_curs = md_end_first - datetime.timedelta(days=self.DASHA_YEARS[lord_name] * DAYS_PER_YEAR)
+        
+        # Helper to get dasha sequence starting from a planet
         def get_seq(p):
             idx = self.DASHA_ORDER.index(p)
             return self.DASHA_ORDER[idx:] + self.DASHA_ORDER[:idx]
 
         tree, act_md, act_ad, act_pd, act_sd, act_pr = [], "None", "None", "None", "None", "None"
         
+        # Step 9: Bhukti Duration = (MD_years * B_years) / 120
+        # Step 10: Antar = (Bhukti * A_years) / 120
+        # Step 11: Pratyantar = (Antar * P_years) / 120
+        # Step 12: Sookshma = (Pratyantar * S_years) / 120
+        # Step 13: Prana = (Sookshma * Pr_years) / 120
+        
         # Dasha (D) - compute bukthis for ALL mahadasha periods
         for d_p in get_seq(lord_name):
             md_start = md_curs
-            md_end = md_start + relativedelta(years=self.DASHA_YEARS[d_p])
+            # Step 8: MD duration in exact days
+            md_end = md_start + datetime.timedelta(days=self.DASHA_YEARS[d_p] * DAYS_PER_YEAR)
             md_item = {"planet": d_p, "label": "D", "start_date": fmt_date(md_start), "end_date": fmt_date(md_end), "bukthis": []}
             
             is_current_md = md_start <= today <= md_end
             if is_current_md:
                 act_md = d_p
             
-            # Bukthi (B) - compute for ALL mahadasha rows
+            # Bukthi (B): Step 9
             ad_curs = md_start
             for b_p in get_seq(d_p):
+                # Step 9: Bhukti = MD_years * B_years / 120 (then convert to days)
                 ad_yrs_f = (self.DASHA_YEARS[b_p] / 120.0) * self.DASHA_YEARS[d_p]
-                ad_end = add_period(ad_curs, ad_yrs_f)
+                ad_end = add_period_exact(ad_curs, ad_yrs_f)
                 ad_item = {"planet": b_p, "label": "B", "start_date": fmt_date(ad_curs), "end_date": fmt_date(ad_end), "antaras": []}
                 
                 is_current_ad = is_current_md and (ad_curs <= today <= ad_end)
                 if is_current_ad:
                     act_ad = b_p
                 
-                # Antara (A) - compute for ALL bukthi rows
+                # Antara (A): Step 10
                 pd_curs = ad_curs
                 for a_p in get_seq(b_p):
+                    # Step 10: Antar = Bhukti_yrs * A_years / 120
                     pd_yrs_f = (self.DASHA_YEARS[a_p] / 120.0) * ad_yrs_f
-                    pd_end = add_period(pd_curs, pd_yrs_f)
+                    pd_end = add_period_exact(pd_curs, pd_yrs_f)
                     pd_item = {"planet": a_p, "label": "A", "start_date": fmt_date(pd_curs), "end_date": fmt_date(pd_end), "pratyantars": []}
                     
                     is_current_pd = is_current_ad and (pd_curs <= today <= pd_end)
                     if is_current_pd:
                         act_pd = a_p
                     
-                    # Pratyantar (P) - compute for ALL antara rows
+                    # Pratyantar (P): Step 11
                     sd_curs = pd_curs
                     for p_p in get_seq(a_p):
+                        # Step 11: Pratyantar = Antar_yrs * P_years / 120
                         sd_yrs_f = (self.DASHA_YEARS[p_p] / 120.0) * pd_yrs_f
-                        sd_end = add_period(sd_curs, sd_yrs_f)
+                        sd_end = add_period_exact(sd_curs, sd_yrs_f)
                         sd_item = {"planet": p_p, "label": "P", "start_date": fmt_date(sd_curs), "end_date": fmt_date(sd_end), "sookshmas": []}
                         
                         is_current_sd = is_current_pd and (sd_curs <= today <= sd_end)
                         if is_current_sd:
                             act_sd = p_p
-                            # Sookshma (S) - Prana - only compute for current pratyantar
+                            # Sookshma (S): Step 12 - only for current pratyantar
                             pr_curs = sd_curs
                             for s_p in get_seq(p_p):
+                                # Step 12: Sookshma = Pratyantar_yrs * S_years / 120
                                 pr_yrs_f = (self.DASHA_YEARS[s_p] / 120.0) * sd_yrs_f
-                                pr_end = add_period(pr_curs, pr_yrs_f)
+                                pr_end = add_period_exact(pr_curs, pr_yrs_f)
                                 if pr_curs <= today <= pr_end: act_pr = s_p
                                 sd_item["sookshmas"].append({"planet": s_p, "label": "S", "start_date": fmt_date(pr_curs), "end_date": fmt_date(pr_end)})
                                 pr_curs = pr_end
@@ -605,14 +705,16 @@ class NadiEngine:
             tree.append(md_item)
             md_curs = md_end
             
-        y_bal = int(bal_yrs_f)
-        rem_y = bal_yrs_f - y_bal
-        m_bal = int(rem_y * 12)
-        d_bal = int(((rem_y * 12) - m_bal) * 30)
+        # Step 7: Balance breakdown for display
+        bal_total_days = bal_yrs_f * DAYS_PER_YEAR
+        y_bal = int(bal_total_days / 365.2425)
+        rem_days = bal_total_days - y_bal * 365.2425
+        m_bal = int(rem_days / 30.436875)
+        d_bal = int(rem_days - m_bal * 30.436875)
         
         return {
             "balance_at_birth": f"{y_bal}y {m_bal}m {d_bal}d", 
             "current_dasha": act_md, "current_bukthi": act_ad, "current_antara": act_pd,
             "current_pratyantar": act_sd, "current_sookshma": act_pr,
-            "mahadasha_sequence": tree, "moon_lon": moon_lon, "nakshatra": self.NAKSHATRAS[naksh_idx], "pada": int((deg_in_nak / (nak_size / 4)) + 1)
+            "mahadasha_sequence": tree, "moon_lon": moon_lon, "nakshatra": self.NAKSHATRAS[naksh_idx], "pada": int((elapsed_in_nak / (nak_size / 4)) + 1)
         }
