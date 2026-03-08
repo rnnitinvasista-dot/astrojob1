@@ -407,9 +407,9 @@ class NadiEngine:
                 ramc_offset = 0.0
             else:
                 swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
-                # Final Calibration (Matched to User Images: Mode 5 + precise offsets)
-                ayan_offset = -2.0 / 3600.0
-                ramc_offset = 10.0 / 3600.0
+                # Final Calibration (Matched to User Software: -7.18s Ayan shift from Mode 5)
+                ayan_offset = -7.18 / 3600.0
+                ramc_offset = 13.5 / 3600.0
             
             ayan_val = swe.get_ayanamsa_ut(jd) + ayan_offset
             
