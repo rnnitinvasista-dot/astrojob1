@@ -532,7 +532,11 @@ class NadiEngine:
             
         dasha_data = self.calculate_dasha(planets_raw, birth_dt_loc)
         
-        varga_configs = {"D1": 1, "D9": 9, "D10": 10, "D12": 12, "D30": 30, "D60": 60}
+        varga_configs = {
+            "D1": 1, "D2": 2, "D3": 3, "D4": 4, "D7": 7, "D9": 9, 
+            "D10": 10, "D12": 12, "D16": 16, "D20": 20, "D24": 24, 
+            "D27": 27, "D30": 30, "D40": 40, "D45": 45, "D60": 60
+        }
         varga_charts = {}
         
         for v_name, d_val in varga_configs.items():
@@ -545,7 +549,6 @@ class NadiEngine:
                     "planet": p_name,
                     "sign": self.SIGNS[v_sign_idx],
                     "is_retrograde": p_name in ["Rahu", "Ketu"] or p_dict["speed"] < 0
-                    # Note: planets_raw stores absolute sidereal longitude.
                 })
             # Add Ascendant to Varga
             asc_v_sign = self.get_varga_sign(ascmc[0], d_val)
@@ -632,11 +635,13 @@ class NadiEngine:
         Validation: all sub-periods sum to parent period.
         """
         # Step 7: Calculate Dasha using LAHIRI Ayanamsa (Standard Practice)
+        dt_utc = birth_dt_loc.astimezone(pytz.UTC)
+        jd_dasha = swe.julday(dt_utc.year, dt_utc.month, dt_utc.day, dt_utc.hour + dt_utc.minute/60.0 + dt_utc.second/3600.0)
+        
         swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
-        ayan_lahiri = swe.get_ayanamsa_ut(swe.julday(birth_dt_loc.year, birth_dt_loc.month, birth_dt_loc.day, birth_dt_loc.hour + birth_dt_loc.minute/60.0))
+        ayan_lahiri = swe.get_ayanamsa_ut(jd_dasha)
         
         # Get tropical moon first
-        jd_dasha = swe.julday(birth_dt_loc.year, birth_dt_loc.month, birth_dt_loc.day, birth_dt_loc.hour + birth_dt_loc.minute/60.0)
         res_trop, _ = swe.calc_ut(jd_dasha, swe.MOON, swe.FLG_SWIEPH)
         moon_lon_lahiri = (res_trop[0] - ayan_lahiri) % 360.0
         

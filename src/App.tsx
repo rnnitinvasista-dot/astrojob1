@@ -189,6 +189,7 @@ const App = () => {
               ascendant={kundliData.ascendant}
               birthDetails={birthDetails}
               vargaCharts={kundliData.varga_charts}
+              chartMode={chartMode === 'Rashi' ? 'Rashi' : 'Bhava'}
             />
 
             <button

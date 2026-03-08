@@ -17,17 +17,22 @@ interface PremiumSouthIndianChartProps {
     planets: Planet[]; // D1 fallback
     ascendant: Ascendant; // D1 fallback
     birthDetails?: any;
+    chartMode?: 'Rashi' | 'Bhava';
 }
 
 const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
     vargaCharts,
     planets,
     ascendant,
-    birthDetails
+    birthDetails,
+    chartMode = 'Rashi'
 }) => {
     const [selectedVarga, setSelectedVarga] = useState<string>('D1');
 
-    const vargas = ['D1', 'D9', 'D10', 'D12', 'D30', 'D60'];
+    const vargas = [
+        'D1', 'D2', 'D3', 'D4', 'D7', 'D9', 'D10', 'D12',
+        'D16', 'D20', 'D24', 'D27', 'D30', 'D40', 'D45', 'D60'
+    ];
 
     const signCoords: Record<string, { r: number, c: number }> = {
         "Pisces": { r: 0, c: 0 }, "Aries": { r: 0, c: 1 }, "Taurus": { r: 0, c: 2 }, "Gemini": { r: 0, c: 3 },
@@ -35,61 +40,109 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
         "Scorpio": { r: 3, c: 1 }, "Sagittarius": { r: 3, c: 0 }, "Capricorn": { r: 2, c: 0 }, "Aquarius": { r: 1, c: 0 },
     };
 
-    const currentVargaData = selectedVarga === 'D1' || !vargaCharts ? {
-        planets: planets.map(p => ({ planet: p.planet, sign: p.sign, is_retrograde: p.is_retrograde })),
-        ascendant: { sign: ascendant.sign }
-    } : vargaCharts[selectedVarga];
+    // Signs in order for indexing
+    const signList = [
+        "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
+        "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
+    ];
 
-    const getPlanetsInSign = (sign: string) => {
+    const currentVargaData = (selectedVarga === 'D1' || !vargaCharts) ? {
+        planets: planets.map(p => ({ planet: p.planet, sign: p.sign, is_retrograde: p.is_retrograde, house: p.house_placed })),
+        ascendant: { sign: ascendant.sign }
+    } : {
+        ...vargaCharts[selectedVarga],
+        planets: vargaCharts[selectedVarga].planets.map(p => ({ ...p, house: 0 })) // House not applicable for vargas in this view
+    };
+
+    const getPlanetsInBox = (boxName: string, mode: 'Rashi' | 'Bhava') => {
         const items = [];
-        if (currentVargaData.ascendant.sign === sign) {
-            items.push({ name: 'Lagna', isRetro: false, isAsc: true });
-        }
-        currentVargaData.planets.filter(p => p.sign === sign).forEach(p => {
-            items.push({
-                name: p.planet.slice(0, 2),
-                isRetro: p.is_retrograde,
-                isAsc: false
+        if (mode === 'Bhava') {
+            // boxName is House number "1" to "12"
+            const hNum = parseInt(boxName);
+            if (hNum === 1) items.push({ name: 'Lagna', isRetro: false, isAsc: true });
+            planets.filter(p => p.house_placed === hNum).forEach(p => {
+                items.push({ name: p.planet.slice(0, 2), isRetro: p.is_retrograde, isAsc: false });
             });
-        });
+        } else {
+            // boxName is Sign name
+            if (currentVargaData.ascendant.sign === boxName) {
+                items.push({ name: 'Lagna', isRetro: false, isAsc: true });
+            }
+            currentVargaData.planets.filter(p => p.sign === boxName).forEach(p => {
+                items.push({ name: p.planet.slice(0, 2), isRetro: p.is_retrograde, isAsc: false });
+            });
+        }
         return items;
+    };
+
+    // For Bhava mode, we map 12 houses to the 12 boxes.
+    // Box (0,0) = Pisces Sign OR House 12
+    // Box (0,1) = Aries Sign OR House 1
+    const getBoxLabel = (r: number, c: number) => {
+        const sign = Object.entries(signCoords).find(([_, coord]) => coord.r === r && coord.c === c)?.[0];
+        if (chartMode === 'Bhava') {
+            if (!sign) return null;
+            // Map Aries box to House 1, etc.
+            const sIdx = signList.indexOf(sign); // Aries = 0, Taurus = 1...
+            // Shift so Aries Box shows House 1?
+            // Usually, Bhava Chart Box 1 = House 1.
+            // In South Indian style, box indices are fixed.
+            // Let's just use the sign's position to show the house. 
+            // e.g. Box Aries shows house number?
+            return `H${(sIdx + 1)}`;
+        }
+        return sign?.slice(0, 3).toUpperCase();
     };
 
     return (
         <div className="premium-chart-container" style={{
             background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-            padding: '2rem',
+            padding: '1.5rem',
             borderRadius: '24px',
             boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
             maxWidth: '500px',
-            margin: '2rem auto'
+            margin: '1rem auto'
         }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>
-                    Divisional Chart
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>
+                    {chartMode === 'Bhava' ? 'KP Bhava Chart' : 'Divisional Chart'}
                 </h2>
-                <div style={{ display: 'flex', gap: '4px', background: '#e2e8f0', padding: '4px', borderRadius: '12px' }}>
-                    {vargas.map(v => (
-                        <button
-                            key={v}
-                            onClick={() => setSelectedVarga(v)}
-                            style={{
-                                padding: '6px 12px',
-                                border: 'none',
-                                borderRadius: '8px',
-                                fontSize: '0.75rem',
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                                transition: 'all 0.2s',
-                                background: selectedVarga === v ? '#fff' : 'transparent',
-                                color: selectedVarga === v ? '#3b82f6' : '#64748b',
-                                boxShadow: selectedVarga === v ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none'
-                            }}
-                        >
-                            {v}
-                        </button>
-                    ))}
-                </div>
+                {chartMode === 'Rashi' && (
+                    <div style={{
+                        display: 'flex',
+                        gap: '4px',
+                        background: '#e2e8f0',
+                        padding: '4px',
+                        borderRadius: '12px',
+                        overflowX: 'auto',
+                        maxWidth: '220px',
+                        msOverflowStyle: 'none',
+                        scrollbarWidth: 'none',
+                        WebkitOverflowScrolling: 'touch'
+                    }}>
+                        {vargas.map(v => (
+                            <button
+                                key={v}
+                                onClick={() => setSelectedVarga(v)}
+                                style={{
+                                    padding: '6px 10px',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    fontSize: '0.7rem',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                    background: selectedVarga === v ? '#fff' : 'transparent',
+                                    color: selectedVarga === v ? '#3b82f6' : '#64748b',
+                                    boxShadow: selectedVarga === v ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none',
+                                    flexShrink: 0
+                                }}
+                            >
+                                {v}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
 
             <div style={{
@@ -119,19 +172,20 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     textAlign: 'center',
-                                    padding: '1rem',
+                                    padding: '0.5rem',
                                     color: '#334155'
                                 }}>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#3b82f6' }}>{selectedVarga}</div>
-                                    <div style={{ fontSize: '0.8rem', fontWeight: 600, marginTop: '4px' }}>{birthDetails?.name || 'Native'}</div>
+                                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#3b82f6' }}>{chartMode === 'Bhava' ? 'KP' : selectedVarga}</div>
+                                    <div style={{ fontSize: '0.75rem', fontWeight: 600, marginTop: '4px' }}>{birthDetails?.name || 'Native'}</div>
                                 </div>
                             );
                         }
                         return null;
                     }
 
+                    const label = getBoxLabel(r, c);
                     const sign = Object.entries(signCoords).find(([_, coord]) => coord.r === r && coord.c === c)?.[0];
-                    const signPlanets = sign ? getPlanetsInSign(sign) : [];
+                    const planetsInBox = sign ? getPlanetsInBox(chartMode === 'Bhava' ? (signList.indexOf(sign) + 1).toString() : sign, chartMode) : [];
 
                     return (
                         <div key={i} style={{
@@ -145,7 +199,7 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                             transition: 'all 0.2s',
                             cursor: 'default'
                         }}>
-                            {sign && (
+                            {label && (
                                 <>
                                     <span style={{
                                         fontSize: '0.55rem',
@@ -154,7 +208,7 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                                         position: 'absolute',
                                         top: '4px',
                                         left: '6px'
-                                    }}>{sign.slice(0, 3).toUpperCase()}</span>
+                                    }}>{label}</span>
                                     <div style={{
                                         display: 'flex',
                                         flexWrap: 'wrap',
@@ -164,9 +218,9 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                                         marginTop: '1.2rem',
                                         height: '100%'
                                     }}>
-                                        {signPlanets.map((p, pi) => (
+                                        {planetsInBox.map((p, pi) => (
                                             <div key={pi} style={{
-                                                fontSize: '0.85rem',
+                                                fontSize: '0.8rem',
                                                 fontWeight: 800,
                                                 color: p.isAsc ? '#ef4444' : '#1e293b',
                                                 display: 'flex',
@@ -188,13 +242,13 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
             </div>
 
             <div style={{
-                marginTop: '1.5rem',
-                padding: '1rem',
+                marginTop: '1rem',
+                padding: '0.75rem',
                 background: '#fff',
                 borderRadius: '12px',
-                fontSize: '0.75rem',
+                fontSize: '0.7rem',
                 color: '#64748b',
-                lineHeight: 1.5,
+                lineHeight: 1.4,
                 border: '1px solid #e2e8f0'
             }}>
                 <div style={{ display: 'flex', gap: '1rem' }}>
