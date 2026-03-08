@@ -47,31 +47,31 @@ const HouseTable: React.FC<HouseTableProps> = ({ houses, planets }) => {
     return (
         <div className="card">
             <h2 style={{ marginBottom: '1rem', color: '#6EB5FF' }}>KP Houses (Cusps)</h2>
-            <div className="table-container">
-                <table style={{ fontSize: '0.8125rem' }}>
+            <div className="table-container" style={{ border: '1px solid #e2e8f0' }}>
+                <table style={{ fontSize: '0.8125rem', borderCollapse: 'collapse', width: '100%' }}>
                     <thead>
                         <tr>
-                            <th>Hos</th>
-                            <th style={{ width: '35%' }}>Significations</th>
-                            <th>Degree</th>
-                            <th>SL</th>
-                            <th>NL</th>
-                            <th>SB</th>
-                            <th>SS</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>Hos</th>
+                            <th style={{ width: '35%', border: '1px solid #e2e8f0', padding: '8px' }}>Significations</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>Degree</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>SL</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>NL</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '8px', backgroundColor: '#fff7ed' }}>SB</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>SS</th>
                         </tr>
                     </thead>
                     <tbody>
                         {houses.map((house) => (
                             <tr key={house.house_number}>
-                                <td style={{ fontWeight: 600 }}>{house.house_number}</td>
-                                <td style={{ fontSize: '0.75rem', color: '#475569', lineHeight: 1.3 }}>
+                                <td style={{ fontWeight: 600, border: '1px solid #e2e8f0', padding: '8px' }}>{house.house_number}</td>
+                                <td style={{ fontSize: '0.75rem', color: '#475569', lineHeight: 1.3, border: '1px solid #e2e8f0', padding: '8px' }}>
                                     {houseDescriptions[house.house_number]}
                                 </td>
-                                <td>{house.cusp_degree_dms}</td>
-                                <td>{renderLord(house.sign_lord, '#6366f1')}</td>
-                                <td>{renderLord(house.star_lord, '#3b82f6')}</td>
-                                <td>{renderLord(house.sub_lord, '#10b981')}</td>
-                                <td>{renderLord(house.sub_sub_lord, '#ec4899')}</td>
+                                <td style={{ border: '1px solid #e2e8f0', padding: '8px' }}>{house.cusp_degree_dms}</td>
+                                <td style={{ border: '1px solid #e2e8f0', padding: '8px' }}>{renderLord(house.sign_lord, '#6366f1')}</td>
+                                <td style={{ border: '1px solid #e2e8f0', padding: '8px' }}>{renderLord(house.star_lord, '#3b82f6')}</td>
+                                <td style={{ border: '1px solid #e2e8f0', padding: '8px', backgroundColor: '#fff7ed' }}>{renderLord(house.sub_lord, '#10b981')}</td>
+                                <td style={{ border: '1px solid #e2e8f0', padding: '8px' }}>{renderLord(house.sub_sub_lord, '#ec4899')}</td>
                             </tr>
                         ))}
                     </tbody>
