@@ -322,7 +322,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     required
-                                    style={{ border: '1.5px solid black', borderRadius: '8px', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
+                                    style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
                                 />
                             </div>
                         )}
@@ -330,28 +330,28 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                         <div className="parchment-card">
                             <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Date: * (DD/MM/YYYY)</label>
                             <div className="input-segmented">
-                                <input className="segmented-field" style={{ border: '1.5px solid black', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="DD" maxLength={2} value={birthDay} onChange={(e) => setBirthDay(e.target.value)} />
+                                <input className="segmented-field" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="DD" maxLength={2} value={birthDay} onChange={(e) => setBirthDay(e.target.value)} />
                                 <span style={{ color: 'black', fontWeight: 800 }}>/</span>
-                                <input className="segmented-field" style={{ border: '1.5px solid black', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="MM" maxLength={2} value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} />
+                                <input className="segmented-field" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="MM" maxLength={2} value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} />
                                 <span style={{ color: 'black', fontWeight: 800 }}>/</span>
-                                <input className="segmented-field" style={{ border: '1.5px solid black', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="YYYY" maxLength={4} value={birthYear} onChange={(e) => setBirthYear(e.target.value)} />
+                                <input className="segmented-field" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="YYYY" maxLength={4} value={birthYear} onChange={(e) => setBirthYear(e.target.value)} />
                             </div>
                         </div>
 
                         <div className="parchment-card">
                             <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Time: * (00:00:00 - 24 hrs)</label>
                             <div className="input-segmented">
-                                <input className="segmented-field" style={{ border: '1.5px solid black', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="HH" maxLength={2} value={birthHour} onChange={(e) => setBirthHour(e.target.value)} />
+                                <input className="segmented-field" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="HH" maxLength={2} value={birthHour} onChange={(e) => setBirthHour(e.target.value)} />
                                 <span style={{ color: 'black', fontWeight: 800 }}>:</span>
-                                <input className="segmented-field" style={{ border: '1.5px solid black', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="MM" maxLength={2} value={birthMin} onChange={(e) => setBirthMin(e.target.value)} />
+                                <input className="segmented-field" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="MM" maxLength={2} value={birthMin} onChange={(e) => setBirthMin(e.target.value)} />
                                 <span style={{ color: 'black', fontWeight: 800 }}>:</span>
-                                <input className="segmented-field" style={{ border: '1.5px solid black', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="SS" maxLength={2} value={birthSec} onChange={(e) => setBirthSec(e.target.value)} />
+                                <input className="segmented-field" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="SS" maxLength={2} value={birthSec} onChange={(e) => setBirthSec(e.target.value)} />
                             </div>
                         </div>
 
                         <div className="parchment-card" onClick={() => setShowLocationModal(true)} style={{ cursor: 'pointer' }}>
                             <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Place: *</label>
-                            <div style={{ padding: '0.5rem 0', borderBottom: '1.5px solid black', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ padding: '0.5rem 0', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <span style={{ fontSize: '1rem', fontWeight: 600, color: '#1e293b' }}>{formData.place}</span>
                                 <MapPin size={18} color="black" />
                             </div>
@@ -385,7 +385,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                                     placeholder="1 - 249"
                                     value={formData.horary_number || ''}
                                     onChange={(e) => setFormData({ ...formData, horary_number: parseInt(e.target.value) })}
-                                    style={{ border: '1.5px solid black', borderRadius: '8px', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
+                                    style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
                                     required
                                 />
                             </div>
@@ -395,7 +395,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                                 <select
                                     value={formData.ayanamsa || 'KP'}
                                     onChange={(e) => setFormData({ ...formData, ayanamsa: e.target.value })}
-                                    style={{ border: '1.5px solid black', borderRadius: '8px', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
+                                    style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
                                 >
                                     <option value="KP">KP-NEW (Krishnamurti)</option>
                                     <option value="KP_OLD">KP-OLD</option>
@@ -436,7 +436,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                                 <select
                                     value={selectedCountry}
                                     onChange={(e) => setSelectedCountry(e.target.value)}
-                                    style={{ borderRadius: '12px', border: '1.5px solid black', marginBottom: '1rem', background: '#f8fafc' }}
+                                    style={{ borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '1rem', background: '#f8fafc' }}
                                 >
                                     <option value="in">India 🇮🇳</option>
                                     <option value="us">USA 🇺🇸</option>
@@ -458,7 +458,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                                     setLocationInput(e.target.value);
                                     if (e.target.value.length >= 3) searchLocations(e.target.value);
                                 }}
-                                style={{ borderRadius: '12px', border: '1.5px solid black' }}
+                                style={{ borderRadius: '12px', border: '1px solid #e2e8f0' }}
                             />
                             <ul className="results-list" style={{ marginTop: '1rem' }}>
                                 {isSearching && <li style={{ padding: '1rem', color: '#64748b' }}>Searching...</li>}
