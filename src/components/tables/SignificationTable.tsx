@@ -11,15 +11,15 @@ const SignificationTable: React.FC<SignificationTableProps> = ({ significations 
             <h2 style={{ marginBottom: '1.5rem', color: 'var(--primary)', fontSize: '1.25rem', fontWeight: 800, textAlign: 'center' }}>
                 Planet Significators (Grades A-D)
             </h2>
-            <div className="table-container" style={{ border: 'none' }}>
-                <table style={{ fontSize: '0.85rem' }}>
+            <div className="table-container" style={{ border: '1px solid #e2e8f0' }}>
+                <table style={{ fontSize: '0.85rem', borderCollapse: 'collapse', width: '100%' }}>
                     <thead>
                         <tr style={{ background: 'var(--secondary-light)', color: 'var(--secondary)' }}>
-                            <th style={{ textAlign: 'left', padding: '12px' }}>Planet</th>
-                            <th style={{ textAlign: 'center', padding: '8px' }}>Grade A</th>
-                            <th style={{ textAlign: 'center', padding: '8px' }}>Grade B</th>
-                            <th style={{ textAlign: 'center', padding: '8px' }}>Grade C</th>
-                            <th style={{ textAlign: 'center', padding: '8px' }}>Grade D</th>
+                            <th style={{ textAlign: 'left', padding: '12px', border: '1px solid #e2e8f0' }}>Planet</th>
+                            <th style={{ textAlign: 'center', padding: '8px', border: '1px solid #e2e8f0' }}>Grade A</th>
+                            <th style={{ textAlign: 'center', padding: '8px', border: '1px solid #e2e8f0' }}>Grade B</th>
+                            <th style={{ textAlign: 'center', padding: '8px', border: '1px solid #e2e8f0' }}>Grade C</th>
+                            <th style={{ textAlign: 'center', padding: '8px', border: '1px solid #e2e8f0' }}>Grade D</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -48,8 +48,8 @@ const SignificationTable: React.FC<SignificationTableProps> = ({ significations 
                             const finalL2 = l2.length > 0 ? l2 : (sig.total || []);
 
                             return (
-                                <tr key={sig.planet} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                    <td style={{ fontWeight: '800', color: 'var(--primary)', padding: '12px' }}>
+                                <tr key={sig.planet}>
+                                    <td style={{ fontWeight: '800', color: 'var(--primary)', padding: '12px', border: '1px solid #e2e8f0' }}>
                                         {sig.planet}
                                         {sig.levels?.is_self_strength && (
                                             <span title="Self-Strength Reordering Applied" style={{ color: '#ef4444', marginLeft: '4px' }}>*</span>
@@ -60,16 +60,16 @@ const SignificationTable: React.FC<SignificationTableProps> = ({ significations 
                                             </div>
                                         )}
                                     </td>
-                                    <td style={{ textAlign: 'center', padding: '8px', fontWeight: 700, color: 'var(--secondary)' }}>
+                                    <td style={{ textAlign: 'center', padding: '8px', fontWeight: 700, color: 'var(--secondary)', border: '1px solid #e2e8f0' }}>
                                         {finalL1.length > 0 ? finalL1.join(', ') : '-'}
                                     </td>
-                                    <td style={{ textAlign: 'center', padding: '8px', fontWeight: 600 }}>
+                                    <td style={{ textAlign: 'center', padding: '8px', fontWeight: 600, border: '1px solid #e2e8f0' }}>
                                         {finalL2.length > 0 ? finalL2.join(', ') : '-'}
                                     </td>
-                                    <td style={{ textAlign: 'center', padding: '8px', color: '#64748b' }}>
+                                    <td style={{ textAlign: 'center', padding: '8px', color: '#64748b', border: '1px solid #e2e8f0' }}>
                                         {l3.length > 0 ? l3.join(', ') : '-'}
                                     </td>
-                                    <td style={{ textAlign: 'center', padding: '8px', color: '#94a3b8' }}>
+                                    <td style={{ textAlign: 'center', padding: '8px', color: '#94a3b8', border: '1px solid #e2e8f0' }}>
                                         {l4.length > 0 ? l4.join(', ') : '-'}
                                     </td>
                                 </tr>

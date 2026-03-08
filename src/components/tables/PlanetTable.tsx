@@ -14,33 +14,33 @@ const PlanetTable: React.FC<PlanetTableProps> = ({ planets }) => {
             borderTop: '5px solid #35a4f4'
         }}>
             <h2 style={{ marginBottom: '1rem', color: '#1e3a8a' }}>KP Planets</h2>
-            <div className="table-container">
-                <table style={{ fontSize: '0.8125rem' }}>
+            <div className="table-container" style={{ border: '1px solid #e2e8f0' }}>
+                <table style={{ fontSize: '0.8125rem', borderCollapse: 'collapse', width: '100%' }}>
                     <thead>
                         <tr>
-                            <th>Pla</th>
-                            <th>Degree</th>
-                            <th>SL</th>
-                            <th>NL</th>
-                            <th>SB</th>
-                            <th>SS</th>
-                            <th>H</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>Pla</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>Degree</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>SL</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>NL</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>SB</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>SS</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>H</th>
                         </tr>
                     </thead>
                     <tbody>
                         {planets.map((planet) => (
                             <tr key={planet.planet}>
-                                <td style={{ fontWeight: '600' }}>
+                                <td style={{ fontWeight: '600', border: '1px solid #e2e8f0', padding: '8px' }}>
                                     {planet.planet}
                                     {planet.is_retrograde && <span style={{ color: '#ef4444', fontSize: '0.7rem', marginLeft: '2px' }}>(R)</span>}
                                     {planet.is_combust && <span style={{ color: '#8b5cf6', fontSize: '0.7rem', marginLeft: '2px' }}>(C)</span>}
                                 </td>
-                                <td>{planet.degree_dms}</td>
-                                <td style={{ color: '#6366f1' }}>{planet.sign_lord?.substring(0, 2) || '--'}</td>
-                                <td style={{ color: '#3b82f6' }}>{planet.star_lord?.substring(0, 2) || '--'}</td>
-                                <td style={{ color: '#10b981' }}>{planet.sub_lord?.substring(0, 2) || '--'}</td>
-                                <td style={{ color: '#ec4899' }}>{planet.sub_sub_lord?.substring(0, 2) || '--'}</td>
-                                <td style={{ fontWeight: 600 }}>{planet.house_placed}</td>
+                                <td style={{ border: '1px solid #e2e8f0', padding: '8px' }}>{planet.degree_dms}</td>
+                                <td style={{ color: '#6366f1', border: '1px solid #e2e8f0', padding: '8px' }}>{planet.sign_lord?.substring(0, 2) || '--'}</td>
+                                <td style={{ color: '#3b82f6', border: '1px solid #e2e8f0', padding: '8px' }}>{planet.star_lord?.substring(0, 2) || '--'}</td>
+                                <td style={{ color: '#10b981', border: '1px solid #e2e8f0', padding: '8px' }}>{planet.sub_lord?.substring(0, 2) || '--'}</td>
+                                <td style={{ color: '#ec4899', border: '1px solid #e2e8f0', padding: '8px' }}>{planet.sub_sub_lord?.substring(0, 2) || '--'}</td>
+                                <td style={{ fontWeight: 600, border: '1px solid #e2e8f0', padding: '8px' }}>{planet.house_placed}</td>
                             </tr>
                         ))}
                     </tbody>

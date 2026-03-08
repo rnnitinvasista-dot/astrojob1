@@ -46,31 +46,31 @@ const NakshatraNadiTable: React.FC<NakshatraNadiTableProps> = ({ data }) => {
             <h2 style={{ textAlign: 'center', color: '#1e3a8a', marginBottom: '1.5rem', fontWeight: 800 }}>
                 Gold Nadi Combination
             </h2>
-            <div className="table-container">
-                <table>
+            <div className="table-container" style={{ border: '1px solid #e2e8f0' }}>
+                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
                     <thead>
                         <tr style={{ background: 'var(--secondary-light)', color: 'var(--secondary)' }}>
-                            <th style={{ width: '100px' }}>Planet</th>
-                            <th>PL.</th>
-                            <th>NL.</th>
-                            <th>SL.</th>
+                            <th style={{ width: '100px', border: '1px solid #e2e8f0', padding: '8px' }}>Planet</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>PL.</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>NL.</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>SL.</th>
                         </tr>
                     </thead>
                     <tbody>
                         {data.map((item, i) => (
                             <tr key={i}>
-                                <td style={{ fontWeight: 800, color: 'var(--primary)' }}>
+                                <td style={{ fontWeight: 800, color: 'var(--primary)', border: '1px solid #e2e8f0', padding: '8px' }}>
                                     {item.planet} {item.is_retrograde && '(R)'} {item.is_combust && <span style={{ color: '#8b5cf6' }}>(C)</span>}
                                 </td>
-                                <td>
+                                <td style={{ border: '1px solid #e2e8f0', padding: '8px' }}>
                                     <span style={{ fontWeight: 800, marginRight: '8px', fontSize: '0.7rem' }}>{item.planet?.substring(0, 2).toUpperCase()}:</span>
                                     <HouseList houses={item.pl_signified} color="#1e293b" />
                                 </td>
-                                <td>
+                                <td style={{ border: '1px solid #e2e8f0', padding: '8px' }}>
                                     <span style={{ fontWeight: 800, marginRight: '8px', fontSize: '0.7rem' }}>{item.star_lord?.substring(0, 2).toUpperCase()}:</span>
                                     <HouseList houses={item.nl_signified} color="#1e293b" />
                                 </td>
-                                <td>
+                                <td style={{ border: '1px solid #e2e8f0', padding: '8px' }}>
                                     <span style={{ fontWeight: 800, marginRight: '8px', fontSize: '0.7rem' }}>{item.sub_lord?.substring(0, 2).toUpperCase()}:</span>
                                     <HouseList houses={item.sl_signified} color="#1e293b" />
                                 </td>
