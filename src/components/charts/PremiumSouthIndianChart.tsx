@@ -40,30 +40,25 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
         "Scorpio": { r: 3, c: 1 }, "Sagittarius": { r: 3, c: 0 }, "Capricorn": { r: 2, c: 0 }, "Aquarius": { r: 1, c: 0 },
     };
 
-    // Signs in order for indexing
     const signList = [
         "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
         "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
     ];
 
     const currentVargaData = (selectedVarga === 'D1' || !vargaCharts) ? {
-        planets: planets.map(p => ({ planet: p.planet, sign: p.sign, is_retrograde: p.is_retrograde, house: p.house_placed })),
+        planets: planets.map(p => ({ planet: p.planet, sign: p.sign, is_retrograde: p.is_retrograde, is_combust: p.is_combust, house_placed: p.house_placed })),
         ascendant: { sign: ascendant.sign }
     } : {
         ...vargaCharts[selectedVarga],
-        planets: vargaCharts[selectedVarga].planets.map(p => ({ ...p, house: 0 })) // House not applicable for vargas in this view
+        planets: vargaCharts[selectedVarga].planets.map(p => ({ ...p, is_combust: false, house_placed: 0 }))
     };
 
     const getPlanetsInBox = (sign: string) => {
-        const items = [];
+        const items: any[] = [];
 
         if (chartMode === 'Bhava') {
-            // In Bhava mode, planets are placed in their KP House. 
-            // We map House 1 to the Ascendant's Sign.
             const ascSignIdx = signList.indexOf(ascendant.sign);
             const currentSignIdx = signList.indexOf(sign);
-
-            // Calculate which house this sign represents based on Lagna = H1
             let houseNum = (currentSignIdx - ascSignIdx + 12) % 12 + 1;
 
             if (houseNum === 1) {
@@ -71,46 +66,50 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
             }
 
             planets.filter(p => p.house_placed === houseNum).forEach(p => {
-                items.push({ name: p.planet.slice(0, 2), isRetro: p.is_retrograde, isAsc: false });
+                items.push({ name: p.planet.slice(0, 2).toUpperCase(), isRetro: p.is_retrograde, isCombust: p.is_combust, isAsc: false });
             });
 
         } else {
-            // Rashi / Varga mode: Planets are placed by their sign position
             if (currentVargaData.ascendant.sign === sign) {
                 items.push({ name: 'Lagna', isRetro: false, isAsc: true });
             }
-            currentVargaData.planets.filter(p => p.sign === sign).forEach(p => {
-                items.push({ name: p.planet.slice(0, 2), isRetro: p.is_retrograde, isAsc: false });
+            currentVargaData.planets.filter(p => p.sign === sign).forEach((p: any) => {
+                items.push({ name: p.planet.slice(0, 2).toUpperCase(), isRetro: p.is_retrograde, isCombust: p.is_combust, isAsc: false });
             });
         }
         return items;
     };
 
-    const getBoxLabel = (r: number, c: number) => {
-        const sign = Object.entries(signCoords).find(([_, coord]) => coord.r === r && coord.c === c)?.[0];
-        if (!sign) return null;
+    const calculateAge = (dob: string): string => {
+        if (!dob) return '';
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let years = today.getFullYear() - birthDate.getFullYear();
+        let months = today.getMonth() - birthDate.getMonth();
+        let days = today.getDate() - birthDate.getDate();
 
-        if (chartMode === 'Bhava') {
-            const ascSignIdx = signList.indexOf(ascendant.sign);
-            const currentSignIdx = signList.indexOf(sign);
-            let houseNum = (currentSignIdx - ascSignIdx + 12) % 12 + 1;
-            return `H${houseNum}`;
+        if (days < 0) {
+            months--;
+            days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
         }
-        return sign.slice(0, 3).toUpperCase();
+        if (months < 0) {
+            years--;
+            months += 12;
+        }
+        return `${years}Y ${months}M`;
+    };
+
+    const formatDate = (dateStr: string) => {
+        if (!dateStr) return '';
+        const [y, m, d] = dateStr.split('-');
+        return `${d}/${m}/${y}`;
     };
 
     return (
-        <div className="premium-chart-container" style={{
-            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-            padding: '1.5rem',
-            borderRadius: '24px',
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-            maxWidth: '500px',
-            margin: '1rem auto'
-        }}>
+        <div className="card" style={{ padding: '1rem', background: '#fff' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>
-                    {chartMode === 'Bhava' ? 'KP Bhava Chart' : 'Divisional Chart'}
+                <h2 style={{ color: '#3b82f6', fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
+                    {chartMode === 'Bhava' ? 'KP Bhava Chalit Chart' : 'Divisional Chart'}
                 </h2>
                 {chartMode === 'Rashi' && (
                     <div style={{
@@ -118,7 +117,7 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                         gap: '4px',
                         background: '#e2e8f0',
                         padding: '4px',
-                        borderRadius: '12px',
+                        borderRadius: '8px',
                         overflowX: 'auto',
                         maxWidth: '220px',
                         msOverflowStyle: 'none',
@@ -130,16 +129,16 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                                 key={v}
                                 onClick={() => setSelectedVarga(v)}
                                 style={{
-                                    padding: '6px 10px',
+                                    padding: '4px 8px',
                                     border: 'none',
-                                    borderRadius: '8px',
+                                    borderRadius: '4px',
                                     fontSize: '0.7rem',
                                     fontWeight: 700,
                                     cursor: 'pointer',
                                     transition: 'all 0.2s',
                                     background: selectedVarga === v ? '#fff' : 'transparent',
                                     color: selectedVarga === v ? '#3b82f6' : '#64748b',
-                                    boxShadow: selectedVarga === v ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none',
+                                    boxShadow: selectedVarga === v ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                                     flexShrink: 0
                                 }}
                             >
@@ -154,89 +153,87 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                 display: 'grid',
                 gridTemplateColumns: 'repeat(4, 1fr)',
                 gridTemplateRows: 'repeat(4, 1fr)',
-                gap: '8px',
+                gap: '2px',
+                background: '#e2e8f0',
+                border: '1px solid #e2e8f0',
                 aspectRatio: '1/1',
-                background: '#cbd5e1',
-                padding: '8px',
-                borderRadius: '16px',
-                overflow: 'hidden'
+                maxWidth: '400px',
+                margin: '0 auto'
             }}>
                 {Array.from({ length: 16 }).map((_, i) => {
                     const r = Math.floor(i / 4);
                     const c = i % 4;
 
+                    // Middle 4 squares
                     if (r > 0 && r < 3 && c > 0 && c < 3) {
                         if (r === 1 && c === 1) {
                             return (
                                 <div key={i} style={{
                                     gridRow: '2 / 4',
                                     gridColumn: '2 / 4',
-                                    background: 'rgba(255, 255, 255, 0.5)',
+                                    background: '#f8fafc',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     textAlign: 'center',
-                                    padding: '0.5rem',
-                                    color: '#334155'
+                                    fontSize: '0.75rem',
+                                    color: '#334155',
+                                    padding: '4px',
+                                    lineHeight: '1.4'
                                 }}>
-                                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#3b82f6' }}>{chartMode === 'Bhava' ? 'KP' : selectedVarga}</div>
-                                    <div style={{ fontSize: '0.75rem', fontWeight: 600, marginTop: '4px' }}>{birthDetails?.name || 'Native'}</div>
+                                    <div style={{ fontWeight: 800, fontSize: '1rem', color: '#1e293b', marginBottom: '4px' }}>
+                                        {chartMode === 'Bhava' ? 'KP Bhava' : selectedVarga}
+                                    </div>
+                                    <div style={{ fontWeight: 700 }}>{birthDetails?.name || 'Native'}</div>
+                                    <div style={{ fontSize: '0.7rem' }}>
+                                        {birthDetails?.date_of_birth && `(${calculateAge(birthDetails.date_of_birth)})`}
+                                    </div>
+                                    <div style={{ marginTop: '4px' }}>{formatDate(birthDetails?.date_of_birth)} {birthDetails?.time_of_birth}</div>
+                                    <div>{birthDetails?.place || 'Unknown'}</div>
                                 </div>
                             );
                         }
                         return null;
                     }
 
-                    const label = getBoxLabel(r, c);
                     const sign = Object.entries(signCoords).find(([_, coord]) => coord.r === r && coord.c === c)?.[0];
-                    const planetsInBox = sign ? getPlanetsInBox(sign) : [];
+                    const signPlanets = sign ? getPlanetsInBox(sign) : [];
+
+                    let boxLabel = sign?.slice(0, 3).toUpperCase() || '';
+                    if (sign && chartMode === 'Bhava') {
+                        const ascSignIdx = signList.indexOf(ascendant.sign);
+                        const currentSignIdx = signList.indexOf(sign);
+                        let houseNum = (currentSignIdx - ascSignIdx + 12) % 12 + 1;
+                        boxLabel = `H${houseNum}`;
+                    }
 
                     return (
                         <div key={i} style={{
                             background: '#fff',
-                            borderRadius: '8px',
-                            padding: '6px',
+                            padding: '4px',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
                             position: 'relative',
-                            transition: 'all 0.2s',
-                            cursor: 'default'
+                            minHeight: '60px'
                         }}>
-                            {label && (
+                            {sign && (
                                 <>
-                                    <span style={{
-                                        fontSize: '0.55rem',
-                                        color: '#94a3b8',
-                                        fontWeight: 800,
-                                        position: 'absolute',
-                                        top: '4px',
-                                        left: '6px'
-                                    }}>{label}</span>
-                                    <div style={{
-                                        display: 'flex',
-                                        flexWrap: 'wrap',
-                                        gap: '4px',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        marginTop: '1.2rem',
-                                        height: '100%'
-                                    }}>
-                                        {planetsInBox.map((p, pi) => (
-                                            <div key={pi} style={{
+                                    <span style={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 600 }}>{boxLabel}</span>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2px', justifyContent: 'center', marginTop: '4px' }}>
+                                        {signPlanets.map((p, pi) => (
+                                            <span key={pi} style={{
                                                 fontSize: '0.8rem',
                                                 fontWeight: 800,
-                                                color: p.isAsc ? '#ef4444' : '#1e293b',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                background: p.isAsc ? '#fef2f2' : 'transparent',
-                                                padding: '2px 4px',
-                                                borderRadius: '4px'
+                                                color: p.isAsc ? '#0284c7' : '#1e293b',
+                                                padding: '1px 2px',
+                                                borderRadius: '2px'
                                             }}>
                                                 {p.name}
-                                                {p.isRetro && <span style={{ color: '#f59e0b', marginLeft: '1px' }}>*</span>}
-                                            </div>
+                                                {p.isRetro && <span style={{ color: 'red', marginLeft: '1px' }}>*</span>}
+                                                {p.isCombust && <span style={{ color: '#8b5cf6', marginLeft: '1px', fontSize: '0.6rem' }}>(c)</span>}
+                                            </span>
                                         ))}
                                     </div>
                                 </>
@@ -246,20 +243,10 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                 })}
             </div>
 
-            <div style={{
-                marginTop: '1rem',
-                padding: '0.75rem',
-                background: '#fff',
-                borderRadius: '12px',
-                fontSize: '0.7rem',
-                color: '#64748b',
-                lineHeight: 1.4,
-                border: '1px solid #e2e8f0'
-            }}>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                    <span><span style={{ color: '#ef4444', fontWeight: 800 }}>Lagna</span> = Ascendant</span>
-                    <span><span style={{ color: '#f59e0b', fontWeight: 800 }}>*</span> = Retrograde</span>
-                </div>
+            <div style={{ marginTop: '10px', fontSize: '0.75rem', color: '#64748b', fontWeight: 500, display: 'flex', gap: '15px', justifyContent: 'center' }}>
+                <span><span style={{ color: '#0284c7', fontWeight: 800 }}>Lagna</span> = Ascendant</span>
+                <span><span style={{ color: 'red' }}>*</span> = Retrograde</span>
+                <span><span style={{ color: '#8b5cf6' }}>(c)</span> = Combust</span>
             </div>
         </div>
     );
