@@ -522,6 +522,12 @@ class NadiEngine:
             })
             
         dasha_data = self.calculate_dasha(planets_raw, birth_dt_loc)
+        
+        # --- NEW: Planetary Status & Predictions ---
+        status_table = self.calculate_planetary_status_list(planets_res, significations_res)
+        md_lord = dasha_data["current_dasha"]
+        md_prediction = self.generate_mahadasha_prediction(md_lord, significations_res)
+        
         sn, sl, nlk, sub, ssl, nak, nadi, sub_idx = self.get_kp_lords(ascmc[0])
         asc_res = {"degree_dms": f"{self.decimal_to_dms(ascmc[0])} {sn}", "sign": sn, "sign_lord": sl, "star_lord": nlk, "sub_lord": sub, "sub_sub_lord": ssl, "nakshatra": nak, "nadi": nadi, "planet_lord": sl}
         moon_lon = dasha_data["moon_lon"]
@@ -529,9 +535,73 @@ class NadiEngine:
         return {
             "status": "success", "ascendant": asc_res, "houses": houses_res, "planets": planets_res,
             "significations": significations_res, "nakshatra_nadi": nak_nadi_res, "dasha": dasha_data,
+            "planetary_status": status_table,
+            "mahadasha_prediction": md_prediction,
             "metadata": {"ayanamsa": self.ayanamsa, "ayanamsa_value": f"{ayan_val:.4f}°", "janma_nakshatra": self.NAKSHATRAS[int(moon_lon/nak_size)%27], "pada": int((moon_lon % nak_size) / (nak_size / 4)) + 1, "horary_number": horary_number},
             "aspects": self.calculate_aspects(planets_raw)
         }
+
+    def calculate_planetary_status_list(self, planets, sigs):
+        """Categorize planets based on significators."""
+        status_list = []
+        sig_map = {s["planet"]: s for s in sigs}
+        
+        for p in planets:
+            p_name = p["planet"]
+            p_sigs = sig_map.get(p_name, {}).get("total", [])
+            
+            # Logic: 1, 10, 11 are Positive. 6, 8, 12 are Negative.
+            pos = set([1, 10, 11])
+            neg = set([6, 8, 12])
+            
+            has_pos = any(h in pos for h in p_sigs)
+            has_neg = any(h in neg for h in p_sigs)
+            
+            status = "Neutral"
+            if has_pos and not has_neg:
+                # If it has 11 and (1 or 10), it's Strong Positive
+                if 11 in p_sigs and (1 in p_sigs or 10 in p_sigs): status = "Strong Positive"
+                else: status = "Positive"
+            elif has_neg and not has_pos:
+                status = "Negative"
+            elif has_pos and has_neg:
+                status = "Mixed"
+            elif not has_pos and not has_neg:
+                status = "Weak"
+                
+            status_list.append({
+                "planet": p_name,
+                "movement": "Retrograde" if p["is_retrograde"] else "Direct",
+                "combustion": "Yes" if p["is_combust"] else "No",
+                "star_lord": p["star_lord"],
+                "status": status
+            })
+        return status_list
+
+    def generate_mahadasha_prediction(self, md_lord, sigs):
+        """Generate text prediction for the MD Lord."""
+        sig_data = next((s for s in sigs if s["planet"] == md_lord), None)
+        if not sig_data: return "No data available."
+        
+        h_sigs = sig_data["total"]
+        
+        lines = [f"Mahadasha of {md_lord} is currently active."]
+        
+        # Professional life (Job/Business)
+        if any(h in [10, 11] for h in h_sigs):
+            lines.append(f"This period shows strong promise for professional growth and career advancement (Houses {', '.join(map(str, [h for h in h_sigs if h in [10, 11]]))}).")
+        elif 6 in h_sigs:
+            lines.append("You may face increased competition or obstacles in career matters, requiring hard work and perseverance.")
+            
+        # Social/Financial
+        if 11 in h_sigs:
+            lines.append("Fulfillment of desires, financial gains, and social recognition are likely.")
+            
+        # Challenges
+        if any(h in [8, 12] for h in h_sigs):
+            lines.append(f"Some sudden challenges or unexpected expenses are possible (Houses {', '.join(map(str, [h for h in h_sigs if h in [8, 12]]))}).")
+            
+        return " ".join(lines)
 
     def calculate_aspects(self, planets_raw):
         res = []
