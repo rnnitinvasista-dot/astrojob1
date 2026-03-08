@@ -432,7 +432,9 @@ class NadiEngine:
         node_sign = node_data['sign']
         node_lon = node_data['degree_decimal']
         
-        agents.append({'type': 'Sign Lord', 'planet': node_data.get('sign_lord')})
+        sl_short = node_data.get('sign_lord')
+        sl_full = next((k for k, v in self.SHORT_CODES.items() if v == sl_short), sl_short)
+        agents.append({'type': 'Sign Lord', 'planet': sl_full})
         
         self.SIGNS = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
         node_sign_idx = self.SIGNS.index(node_sign)
@@ -671,18 +673,33 @@ class NadiEngine:
         p_data = planet_map[p_name]
         sigs = [{"house": int(p_data["house_placed"]), "is_placed": True}]
         houses_seen = {int(p_data["house_placed"])}
+        
         for h, owner in house_owners.items():
             if owner == p_name and h not in houses_seen:
-                sigs.append({"house": h, "is_placed": False}); houses_seen.add(h)
+                sigs.append({"house": h, "is_placed": False})
+                houses_seen.add(h)
+                
         if p_name in ["Rahu", "Ketu"]:
+            # Identify all occupied houses (excluding Nodes themselves)
+            occupied = set(int(p["house_placed"]) for p in planet_map.values() if p["planet"] not in ["Rahu", "Ketu"])
+            
             for agent in self.get_node_agents(p_name, p_data, list(planet_map.values())):
                 a_name = agent['planet']
                 if a_name and a_name in planet_map:
                     a_data = planet_map[a_name]
-                    if int(a_data["house_placed"]) not in houses_seen:
-                        sigs.append({"house": int(a_data["house_placed"]), "is_placed": False}); houses_seen.add(int(a_data["house_placed"]))
+                    a_occ = int(a_data["house_placed"])
+                    
+                    # 1. Agent's Occupied House (always included)
+                    if a_occ not in houses_seen:
+                        sigs.append({"house": a_occ, "is_placed": False})
+                        houses_seen.add(a_occ)
+                        
+                    # 2. Agent's Owned Houses (ONLY if Vacant / un-occupied by actual planets)
                     for h, o in house_owners.items():
-                        if o == a_name and h not in houses_seen: sigs.append({"house": h, "is_placed": False}); houses_seen.add(h)
+                        if o == a_name and h not in houses_seen and h not in occupied:
+                            sigs.append({"house": h, "is_placed": False})
+                            houses_seen.add(h)
+                            
         return sorted(sigs, key=lambda x: x["house"])
 
     def calculate_kp_significators_4level(self, p_name, planet_map, house_owners):
@@ -698,11 +715,28 @@ class NadiEngine:
 
     def get_node_significators(self, node_name, planet_map, house_owners):
         base = self.calculate_kp_significators_4level(node_name, planet_map, house_owners)
+        
+        occupied = set()
+        for p in planet_map.values():
+            if p["planet"] not in ["Rahu", "Ketu"]:
+                occupied.add(int(p["house_placed"]))
+                
         for agent in self.get_node_agents(node_name, planet_map[node_name], list(planet_map.values())):
             a_name = agent['planet']
             if a_name and a_name in planet_map:
                 a_sigs = self.calculate_kp_significators_4level(a_name, planet_map, house_owners)
-                for level in ["L1", "L2", "L3", "L4"]: base[level] = sorted(list(set(base[level] + a_sigs[level])))
+                
+                # Agents contribute their L1 (Occupied by Star Lord) and L2 (Occupied by Agent) always
+                base["L1"] = sorted(list(set(base["L1"] + a_sigs["L1"])))
+                base["L2"] = sorted(list(set(base["L2"] + a_sigs["L2"])))
+                
+                # Agents contribute their L3 (Owned by Star Lord) and L4 (Owned by Agent) ONLY IF VACANT
+                vacant_l3 = [h for h in a_sigs["L3"] if h not in occupied]
+                vacant_l4 = [h for h in a_sigs["L4"] if h not in occupied]
+                
+                base["L3"] = sorted(list(set(base["L3"] + vacant_l3)))
+                base["L4"] = sorted(list(set(base["L4"] + vacant_l4)))
+                
         return base
 
     def calculate_dasha(self, planets_raw, birth_dt_loc):
