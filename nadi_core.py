@@ -403,10 +403,15 @@ class NadiEngine:
         else:
             if self.ayanamsa == "Lahiri":
                 swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+                ayan_offset = 0.0
+                ramc_offset = 0.0
             else:
-                swe.set_sid_mode(swe.SIDM_KRISHNAMURTI_VP291, 0, 0)
+                swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
+                # Final Calibration (Matched to User Software: -7.18s Ayan shift from Mode 5)
+                ayan_offset = -7.18 / 3600.0
+                ramc_offset = 13.5 / 3600.0
             
-            ayan_val = swe.get_ayanamsa_ut(jd)
+            ayan_val = swe.get_ayanamsa_ut(jd) + ayan_offset
             
             # Explicit Time Conversion for KP rules
             # GMST -> LST -> RAMC
@@ -417,7 +422,7 @@ class NadiEngine:
             res_nut, _ = swe.calc_ut(jd, swe.ECL_NUT, 0)
             eps = res_nut[0]
             
-            cusps_trop, ascmc_trop = swe.houses_armc(ramc_deg, lat, eps, h_sys)
+            cusps_trop, ascmc_trop = swe.houses_armc(ramc_deg + ramc_offset, lat, eps, h_sys)
             cusps = [(c - ayan_val) % 360 for c in cusps_trop]
             ascmc = [(a - ayan_val) % 360 for a in ascmc_trop]
 
@@ -483,7 +488,7 @@ class NadiEngine:
                 
             planets_res.append({
                 "planet": p["planet"], 
-                "degree_dms": self.decimal_to_sign_dms(lon_val),  # e.g. '03°27'38" Aquarius'
+                "degree_dms": self.decimal_to_dms(lon_val, is_absolute=True), # Absolute 0-360 to match user images
                 "house_placed": int(hp),
                 "sign": sn, 
                 "sign_lord": self.SHORT_CODES.get(sl, sl), 
@@ -593,7 +598,19 @@ class NadiEngine:
         Steps 9-13: hierarchical duration formula: Parent_Duration × Planet_years / 120
         Validation: all sub-periods sum to parent period.
         """
-        moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
+        # Step 7: Calculate Dasha using LAHIRI Ayanamsa (Standard Practice)
+        swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+        ayan_lahiri = swe.get_ayanamsa_ut(swe.julday(birth_dt_loc.year, birth_dt_loc.month, birth_dt_loc.day, birth_dt_loc.hour + birth_dt_loc.minute/60.0))
+        
+        # Get tropical moon first
+        jd_dasha = swe.julday(birth_dt_loc.year, birth_dt_loc.month, birth_dt_loc.day, birth_dt_loc.hour + birth_dt_loc.minute/60.0)
+        res_trop, _ = swe.calc_ut(jd_dasha, swe.MOON, swe.FLG_SWIEPH)
+        moon_lon_lahiri = (res_trop[0] - ayan_lahiri) % 360.0
+        
+        # Switch back to whatever mode we were in (KP) for other calculations if needed
+        # but here we just need the Lahiri Moon for the sequence.
+        
+        moon_lon = moon_lon_lahiri
         nak_size = 360.0 / 27.0  # Step 5: 360/27 = 13.333...
         naksh_idx = int(moon_lon / nak_size) % 27
         

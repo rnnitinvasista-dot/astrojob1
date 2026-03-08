@@ -15,7 +15,8 @@ from nadi_core import NadiEngine, HIT_MATRIX, SUCCESS_LABELS, HOUSE_JOB_AREAS
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("nadi-engine")
 
-app = FastAPI(title="Nadi Precision Engine Gold")
+# Version: 1.2.1 - Calibrated Precision ebf
+app = FastAPI(title="Nadi Precision Engine Gold v1.2.1")
 
 @app.on_event("startup")
 async def startup_event():
