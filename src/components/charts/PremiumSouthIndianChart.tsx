@@ -80,6 +80,21 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
         return items;
     };
 
+    const getPlanetColor = (planetName: string) => {
+        const colorsUpper: Record<string, string> = {
+            "SU": "#dc2626", // Red
+            "MO": "#2563eb", // Blue
+            "MA": "#b91c1c", // Dark Red
+            "ME": "#15803d", // Green
+            "JU": "#d97706", // Orange/Yellow
+            "VE": "#db2777", // Pink
+            "SA": "#000000", // Black
+            "RA": "#4a044e", // Dark Purple
+            "KE": "#5b21b6", // Violet
+        };
+        return colorsUpper[planetName] || "#1e293b";
+    };
+
     const calculateAge = (dob: string): string => {
         if (!dob) return '';
         const birthDate = new Date(dob);
@@ -153,9 +168,9 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                 display: 'grid',
                 gridTemplateColumns: 'repeat(4, 1fr)',
                 gridTemplateRows: 'repeat(4, 1fr)',
-                gap: '2px',
-                background: '#e2e8f0',
-                border: '1px solid #e2e8f0',
+                gap: '1px',
+                background: '#000',
+                border: '2px solid #000',
                 aspectRatio: '1/1',
                 maxWidth: '400px',
                 margin: '0 auto'
@@ -171,7 +186,7 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                                 <div key={i} style={{
                                     gridRow: '2 / 4',
                                     gridColumn: '2 / 4',
-                                    background: '#f8fafc',
+                                    background: '#fff',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
@@ -235,7 +250,7 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                                             <span key={pi} style={{
                                                 fontSize: '0.8rem',
                                                 fontWeight: 800,
-                                                color: p.isAsc ? '#0284c7' : '#1e293b',
+                                                color: p.isAsc ? '#ea580c' : getPlanetColor(p.name),
                                                 padding: '1px 2px',
                                                 borderRadius: '2px'
                                             }}>
