@@ -151,34 +151,39 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
             const lowerQuery = query.toLowerCase().trim();
             const standardMatch = STANDARD_CITIES[lowerQuery];
 
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=15&countrycodes=${selectedCountry}`);
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=20&countrycodes=${selectedCountry}`);
             let data: LocationSuggestion[] = await response.json();
 
-            // Filter redundant options like "Rural" or "Bridges" or "Bus Stands" if a city is searched
-            // and prioritize "Urban" or the primary city entry
+            // Filter: keep only city/town/village types, remove district/county/state
+            // Also remove variants like 'Urban', 'Rural', 'South', 'East', 'West' etc
+            const noiseWords = ['urban', 'rural', 'north', 'south', 'east', 'west', 'railway station', 'bus stand', 'terminal', 'airport', 'cantonment'];
             data = data.filter(item => {
                 const name = item.display_name.toLowerCase();
-                if (name.includes('rural') || name.includes('railway station') || name.includes('bus stand') || name.includes('terminal')) {
-                    return false;
-                }
-                return true;
+                return !noiseWords.some(word => name.startsWith(word) || name.includes(`, ${word}`));
             });
 
-            // If we have a standard match, prepend it or replace vague results
+            // Deduplicate: if standard match exists, it goes first and we remove duplicates
+            const seenCities = new Set<string>();
+            const uniqueData: LocationSuggestion[] = [];
+
             if (standardMatch) {
-                const standardItem = {
+                uniqueData.push({
                     display_name: standardMatch.name,
                     lat: standardMatch.lat.toString(),
                     lon: standardMatch.lon.toString()
-                };
-                // Check if already in data
-                const exists = data.some(d => d.lat === standardItem.lat && d.lon === standardItem.lon);
-                if (!exists) {
-                    data.unshift(standardItem);
+                });
+                seenCities.add(standardMatch.name.split(',')[0].toLowerCase());
+            }
+
+            for (const item of data) {
+                const cityKey = item.display_name.split(',')[0].toLowerCase().trim();
+                if (!seenCities.has(cityKey)) {
+                    seenCities.add(cityKey);
+                    uniqueData.push(item);
                 }
             }
 
-            setSuggestions(data.slice(0, 8));
+            setSuggestions(uniqueData.slice(0, 6));
         } catch (error) {
             console.error('Location search failed');
         } finally {
@@ -329,54 +334,13 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                         </div>
 
                         <div className="parchment-card" onClick={() => setShowLocationModal(true)} style={{ cursor: 'pointer' }}>
-                            <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Search Place: (Auto-fills Lat/Lon)</label>
+                            <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Place: *</label>
                             <div style={{ padding: '0.5rem 0', borderBottom: '1.5px solid black', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <span style={{ fontSize: '1rem', fontWeight: 600, color: '#1e293b' }}>{formData.place}</span>
                                 <MapPin size={18} color="black" />
                             </div>
                         </div>
 
-                        <div className="parchment-card">
-                            <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Exact Coordinates: * (Decimal)</label>
-                            <div style={{ display: 'flex', gap: '1rem' }}>
-                                <div style={{ flex: 1 }}>
-                                    <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Latitude</label>
-                                    <input
-                                        type="number" step="0.0001"
-                                        value={formData.latitude}
-                                        onChange={(e) => setFormData({ ...formData, latitude: parseFloat(e.target.value) })}
-                                        style={{ border: '1.5px solid black', borderRadius: '8px', padding: '0.5rem', width: '100%', background: 'white' }}
-                                    />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Longitude</label>
-                                    <input
-                                        type="number" step="0.0001"
-                                        value={formData.longitude}
-                                        onChange={(e) => setFormData({ ...formData, longitude: parseFloat(e.target.value) })}
-                                        style={{ border: '1.5px solid black', borderRadius: '8px', padding: '0.5rem', width: '100%', background: 'white' }}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="parchment-card">
-                            <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Time Zone: *</label>
-                            <select
-                                value={formData.timezone}
-                                onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
-                                style={{ border: '1.5px solid black', borderRadius: '8px', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
-                            >
-                                <option value="Asia/Kolkata">India (UTC +5:30)</option>
-                                <option value="UTC">UTC / GMT</option>
-                                <option value="US/Eastern">US Eastern</option>
-                                <option value="US/Pacific">US Pacific</option>
-                                <option value="Europe/London">UK / London</option>
-                                <option value="Australia/Sydney">Australia (Sydney)</option>
-                                <option value="Asia/Dubai">UAE / Dubai</option>
-                                <option value="Asia/Singapore">Singapore</option>
-                            </select>
-                        </div>
 
                         <div className="parchment-card">
                             <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Gender</label>

@@ -112,6 +112,20 @@ class NadiEngine:
             
         return f"{d:02d}\u00b0{m:02d}'{sec:02d}\""
 
+    def decimal_to_sign_dms(self, degree):
+        """
+        Express planet degree within its sign (0-30°) with sign name.
+        e.g., Sun at 323.46° → '03°27'38" Aquarius'
+        Per spec Step 3: planet position = Sign Degree + Sign Name
+        """
+        degree = degree % 360.0
+        sign_names = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo",
+                      "Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"]
+        sign_idx = int(degree / 30.0) % 12
+        deg_in_sign = degree - (sign_idx * 30.0)  # 0-30
+        dms = self.decimal_to_dms(deg_in_sign, is_absolute=False)
+        return f"{dms} {sign_names[sign_idx]}"
+
     def generate_horary_table(self):
         table = {}
         nak_size = 360.0 / 27.0
@@ -469,7 +483,8 @@ class NadiEngine:
                 
             planets_res.append({
                 "planet": p["planet"], 
-                "degree_dms": self.decimal_to_dms(lon_val, is_absolute=True), "house_placed": int(hp),
+                "degree_dms": self.decimal_to_sign_dms(lon_val),  # e.g. '03°27'38" Aquarius'
+                "house_placed": int(hp),
                 "sign": sn, 
                 "sign_lord": self.SHORT_CODES.get(sl, sl), 
                 "star_lord": self.SHORT_CODES.get(nlk, nlk), 
