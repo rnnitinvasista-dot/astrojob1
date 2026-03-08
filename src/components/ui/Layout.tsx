@@ -211,7 +211,8 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                             padding: 1rem 1.25rem;
                             color: #64748b;
                             font-weight: 600;
-                            border-bottom: 3px solid transparent;
+                            border: 1px solid #e2e8f0;
+                            border-bottom: 3px solid #e2e8f0;
                             cursor: pointer;
                             transition: all 0.2s;
                             display: flex;
