@@ -29,12 +29,6 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
 
     const vargas = ['D1', 'D9', 'D10', 'D12', 'D30', 'D60'];
 
-    const signs = [
-        "Pisces", "Aries", "Taurus", "Gemini",
-        "Cancer", "Leo", "Virgo", "Libra",
-        "Scorpio", "Sagittarius", "Capricorn", "Aquarius"
-    ];
-
     const signCoords: Record<string, { r: number, c: number }> = {
         "Pisces": { r: 0, c: 0 }, "Aries": { r: 0, c: 1 }, "Taurus": { r: 0, c: 2 }, "Gemini": { r: 0, c: 3 },
         "Cancer": { r: 1, c: 3 }, "Leo": { r: 2, c: 3 }, "Virgo": { r: 3, c: 3 }, "Libra": { r: 3, c: 2 },
