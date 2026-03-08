@@ -54,44 +54,49 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
         planets: vargaCharts[selectedVarga].planets.map(p => ({ ...p, house: 0 })) // House not applicable for vargas in this view
     };
 
-    const getPlanetsInBox = (boxName: string, mode: 'Rashi' | 'Bhava') => {
+    const getPlanetsInBox = (sign: string) => {
         const items = [];
-        if (mode === 'Bhava') {
-            // boxName is House number "1" to "12"
-            const hNum = parseInt(boxName);
-            if (hNum === 1) items.push({ name: 'Lagna', isRetro: false, isAsc: true });
-            planets.filter(p => p.house_placed === hNum).forEach(p => {
-                items.push({ name: p.planet.slice(0, 2), isRetro: p.is_retrograde, isAsc: false });
-            });
-        } else {
-            // boxName is Sign name
-            if (currentVargaData.ascendant.sign === boxName) {
+
+        if (chartMode === 'Bhava') {
+            // In Bhava mode, planets are placed in their KP House. 
+            // We map House 1 to the Ascendant's Sign.
+            const ascSignIdx = signList.indexOf(ascendant.sign);
+            const currentSignIdx = signList.indexOf(sign);
+
+            // Calculate which house this sign represents based on Lagna = H1
+            let houseNum = (currentSignIdx - ascSignIdx + 12) % 12 + 1;
+
+            if (houseNum === 1) {
                 items.push({ name: 'Lagna', isRetro: false, isAsc: true });
             }
-            currentVargaData.planets.filter(p => p.sign === boxName).forEach(p => {
+
+            planets.filter(p => p.house_placed === houseNum).forEach(p => {
+                items.push({ name: p.planet.slice(0, 2), isRetro: p.is_retrograde, isAsc: false });
+            });
+
+        } else {
+            // Rashi / Varga mode: Planets are placed by their sign position
+            if (currentVargaData.ascendant.sign === sign) {
+                items.push({ name: 'Lagna', isRetro: false, isAsc: true });
+            }
+            currentVargaData.planets.filter(p => p.sign === sign).forEach(p => {
                 items.push({ name: p.planet.slice(0, 2), isRetro: p.is_retrograde, isAsc: false });
             });
         }
         return items;
     };
 
-    // For Bhava mode, we map 12 houses to the 12 boxes.
-    // Box (0,0) = Pisces Sign OR House 12
-    // Box (0,1) = Aries Sign OR House 1
     const getBoxLabel = (r: number, c: number) => {
         const sign = Object.entries(signCoords).find(([_, coord]) => coord.r === r && coord.c === c)?.[0];
+        if (!sign) return null;
+
         if (chartMode === 'Bhava') {
-            if (!sign) return null;
-            // Map Aries box to House 1, etc.
-            const sIdx = signList.indexOf(sign); // Aries = 0, Taurus = 1...
-            // Shift so Aries Box shows House 1?
-            // Usually, Bhava Chart Box 1 = House 1.
-            // In South Indian style, box indices are fixed.
-            // Let's just use the sign's position to show the house. 
-            // e.g. Box Aries shows house number?
-            return `H${(sIdx + 1)}`;
+            const ascSignIdx = signList.indexOf(ascendant.sign);
+            const currentSignIdx = signList.indexOf(sign);
+            let houseNum = (currentSignIdx - ascSignIdx + 12) % 12 + 1;
+            return `H${houseNum}`;
         }
-        return sign?.slice(0, 3).toUpperCase();
+        return sign.slice(0, 3).toUpperCase();
     };
 
     return (
@@ -185,7 +190,7 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
 
                     const label = getBoxLabel(r, c);
                     const sign = Object.entries(signCoords).find(([_, coord]) => coord.r === r && coord.c === c)?.[0];
-                    const planetsInBox = sign ? getPlanetsInBox(chartMode === 'Bhava' ? (signList.indexOf(sign) + 1).toString() : sign, chartMode) : [];
+                    const planetsInBox = sign ? getPlanetsInBox(sign) : [];
 
                     return (
                         <div key={i} style={{
