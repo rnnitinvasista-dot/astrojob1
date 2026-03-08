@@ -160,4 +160,14 @@ export interface KundliResponse {
     nakshatra_nadi: NakshatraNadiItem[];
     dasha: Dasha;
     aspects: Aspect[];
+    varga_charts?: Record<string, {
+        planets: Array<{
+            planet: string;
+            sign: string;
+            is_retrograde: boolean;
+        }>;
+        ascendant: {
+            sign: string;
+        };
+    }>;
 }

@@ -112,6 +112,10 @@ class NadiEngine:
             
         return f"{d:02d}\u00b0{m:02d}'{sec:02d}\""
 
+    def get_varga_sign(self, longitude, d):
+        """Calculates the sign index (0-11) for a given divisional chart D."""
+        return int(math.floor((longitude * d) / 30)) % 12
+
     def decimal_to_sign_dms(self, degree):
         """
         Express planet degree within its sign (0-30°) with sign name.
@@ -523,6 +527,26 @@ class NadiEngine:
             
         dasha_data = self.calculate_dasha(planets_raw, birth_dt_loc)
         
+        varga_configs = {"D1": 1, "D9": 9, "D10": 10, "D12": 12, "D30": 30, "D60": 60}
+        varga_charts = {}
+        
+        for v_name, d_val in varga_configs.items():
+            chart_planets = []
+            for p_name, lon in planets_raw.items():
+                v_sign_idx = self.get_varga_sign(lon, d_val)
+                chart_planets.append({
+                    "planet": p_name,
+                    "sign": self.SIGNS[v_sign_idx],
+                    "is_retrograde": p_name in ["Rahu", "Ketu"] or planets_raw[p_name] < 0 # Placeholder for retro check
+                    # Note: planets_raw stores absolute sidereal longitude.
+                })
+            # Add Ascendant to Varga
+            asc_v_sign = self.get_varga_sign(ascmc[0], d_val)
+            varga_charts[v_name] = {
+                "planets": chart_planets,
+                "ascendant": {"sign": self.SIGNS[asc_v_sign]}
+            }
+
         sn, sl, nlk, sub, ssl, nak, nadi, sub_idx = self.get_kp_lords(ascmc[0])
         asc_res = {"degree_dms": f"{self.decimal_to_dms(ascmc[0])} {sn}", "sign": sn, "sign_lord": sl, "star_lord": nlk, "sub_lord": sub, "sub_sub_lord": ssl, "nakshatra": nak, "nadi": nadi, "planet_lord": sl}
         moon_lon = dasha_data["moon_lon"]
@@ -530,6 +554,7 @@ class NadiEngine:
         return {
             "status": "success", "ascendant": asc_res, "houses": houses_res, "planets": planets_res,
             "significations": significations_res, "nakshatra_nadi": nak_nadi_res, "dasha": dasha_data,
+            "varga_charts": varga_charts,
             "metadata": {"ayanamsa": self.ayanamsa, "ayanamsa_value": f"{ayan_val:.4f}°", "janma_nakshatra": self.NAKSHATRAS[int(moon_lon/nak_size)%27], "pada": int((moon_lon % nak_size) / (nak_size / 4)) + 1, "horary_number": horary_number},
             "aspects": self.calculate_aspects(planets_raw)
         }

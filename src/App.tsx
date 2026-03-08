@@ -4,7 +4,7 @@ import BirthDetailsForm from './components/BirthDetailsForm';
 import Dashboard from './components/Dashboard';
 import HouseTable from './components/tables/HouseTable';
 import axios from 'axios';
-import SouthIndianChart from './components/SouthIndianChart';
+import PremiumSouthIndianChart from './components/charts/PremiumSouthIndianChart';
 import PlanetTable from './components/tables/PlanetTable';
 import DashaTable from './components/tables/DashaTable';
 import NakshatraNadiTable from './components/tables/NakshatraNadiTable';
@@ -21,6 +21,7 @@ interface KundliResponse {
   planets: any[];
   aspects: any[];
   nakshatra_nadi: any[];
+  varga_charts?: any;
   dasha: {
     balance_at_birth: string;
     current_dasha: string;
@@ -183,18 +184,11 @@ const App = () => {
               </button>
             </div>
 
-            <SouthIndianChart
+            <PremiumSouthIndianChart
               planets={kundliData.planets}
               ascendant={kundliData.ascendant}
-              houses={kundliData.houses}
               birthDetails={birthDetails}
-              chartType={chartMode}
-              meta={{
-                balance: kundliData.dasha.balance_at_birth,
-                nakshatra: kundliData.metadata?.janma_nakshatra,
-                pada: kundliData.metadata?.pada,
-                moonSign: kundliData.planets.find(p => p.planet === 'Moon')?.sign
-              }}
+              vargaCharts={kundliData.varga_charts}
             />
 
             <button
