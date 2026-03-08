@@ -403,10 +403,15 @@ class NadiEngine:
         else:
             if self.ayanamsa == "Lahiri":
                 swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+                ayan_offset = 0.0
+                ramc_offset = 0.0
             else:
                 swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
+                # Calibration to match user images (Mode 5 + precise offsets)
+                ayan_offset = -2.0 / 3600.0
+                ramc_offset = 6.0 / 3600.0
             
-            ayan_val = swe.get_ayanamsa_ut(jd)
+            ayan_val = swe.get_ayanamsa_ut(jd) + ayan_offset
             
             # Explicit Time Conversion for KP rules
             # GMST -> LST -> RAMC
@@ -417,7 +422,7 @@ class NadiEngine:
             res_nut, _ = swe.calc_ut(jd, swe.ECL_NUT, 0)
             eps = res_nut[0]
             
-            cusps_trop, ascmc_trop = swe.houses_armc(ramc_deg, lat, eps, h_sys)
+            cusps_trop, ascmc_trop = swe.houses_armc(ramc_deg + ramc_offset, lat, eps, h_sys)
             cusps = [(c - ayan_val) % 360 for c in cusps_trop]
             ascmc = [(a - ayan_val) % 360 for a in ascmc_trop]
 

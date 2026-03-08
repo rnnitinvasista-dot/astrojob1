@@ -151,6 +151,17 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
             const lowerQuery = query.toLowerCase().trim();
             const standardMatch = STANDARD_CITIES[lowerQuery];
 
+            // If we have a standard match, use ONLY that and stop
+            if (standardMatch) {
+                setSuggestions([{
+                    display_name: standardMatch.name,
+                    lat: standardMatch.lat.toString(),
+                    lon: standardMatch.lon.toString()
+                }]);
+                setIsSearching(false);
+                return;
+            }
+
             const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=20&countrycodes=${selectedCountry}`);
             let data: LocationSuggestion[] = await response.json();
 
@@ -163,19 +174,9 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                 return !noiseWords.some(word => name.includes(word));
             });
 
-            // Deduplicate: if standard match exists, it goes first and we remove duplicates
+            // Deduplicate: we already handled standardMatch, now handle generic results
             const seenCities = new Set<string>();
             const uniqueData: LocationSuggestion[] = [];
-
-            if (standardMatch) {
-                const cleanName = standardMatch.name.split(',')[0].trim();
-                uniqueData.push({
-                    display_name: standardMatch.name,
-                    lat: standardMatch.lat.toString(),
-                    lon: standardMatch.lon.toString()
-                });
-                seenCities.add(cleanName.toLowerCase());
-            }
 
             for (const item of data) {
                 // Get the first part of the location name (the city itself)
