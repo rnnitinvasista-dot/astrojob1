@@ -29,6 +29,21 @@ const HouseTable: React.FC<HouseTableProps> = ({ houses, planets }) => {
         );
     };
 
+    const houseDescriptions: Record<number, string> = {
+        1: "Self, physical appearance, health, personality, and longevity.",
+        2: "Wealth (Dhana), family, speech, food, and education.",
+        3: "Younger siblings, courage, short journeys, communication, and intellect.",
+        4: "Home, mother, vehicles, happiness, education, and properties.",
+        5: "Children, romance, education, speculative gains, and past karma.",
+        6: "Disease, debts, enemies, litigation, daily work, and service.",
+        7: "Marriage, spouse, business partnership, and public image.",
+        8: "Longevity, chronic illness, sudden events, inheritance, and unearned wealth.",
+        9: "Fortune, father, long journeys, higher education, and religion.",
+        10: "Career, reputation, honor, business, and daily occupation.",
+        11: "Fulfillment of desires, gains, income, and friendships.",
+        12: "Expenses, losses, hospitalization, foreign travel, and bed pleasures."
+    };
+
     return (
         <div className="card">
             <h2 style={{ marginBottom: '1rem', color: '#6EB5FF' }}>KP Houses (Cusps)</h2>
@@ -42,6 +57,7 @@ const HouseTable: React.FC<HouseTableProps> = ({ houses, planets }) => {
                             <th>NL</th>
                             <th>SB</th>
                             <th>SS</th>
+                            <th style={{ width: '35%' }}>Significations</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -53,6 +69,9 @@ const HouseTable: React.FC<HouseTableProps> = ({ houses, planets }) => {
                                 <td>{renderLord(house.star_lord, '#3b82f6')}</td>
                                 <td>{renderLord(house.sub_lord, '#10b981')}</td>
                                 <td>{renderLord(house.sub_sub_lord, '#ec4899')}</td>
+                                <td style={{ fontSize: '0.75rem', color: '#475569', lineHeight: 1.3 }}>
+                                    {houseDescriptions[house.house_number]}
+                                </td>
                             </tr>
                         ))}
                     </tbody>
