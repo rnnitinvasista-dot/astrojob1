@@ -462,7 +462,14 @@ class NadiEngine:
             if is_aspecting:
                 agents.append({'type': 'Aspect', 'planet': p_name})
                 
-        return agents
+        # Deduplicate by planet name (planet may qualify as both Sign Lord and Aspect agent)
+        seen = set()
+        unique_agents = []
+        for a in agents:
+            if a['planet'] and a['planet'] not in seen:
+                seen.add(a['planet'])
+                unique_agents.append(a)
+        return unique_agents
 
     def calculate_kundli(self, dt_str, timezone, lat, lon, horary_number=None):
         tz = pytz.timezone(timezone)
