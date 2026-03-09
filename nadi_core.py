@@ -733,7 +733,7 @@ class NadiEngine:
         # User requested no restrictive logic, nodes act as their agents fully.
         p_data = planet_map[node_name]
         agents = self.get_node_agents(node_name, p_data, list(planet_map.values()))
-         for agent in agents:
+        for agent in agents:
             a_name = agent['planet']
             if a_name and a_name in planet_map:
                 a_sigs = self.calculate_kp_significators_4level(a_name, planet_map, house_owners)

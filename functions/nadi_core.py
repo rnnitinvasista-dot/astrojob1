@@ -753,40 +753,34 @@ class NadiEngine:
         }
 
     def get_node_significators(self, node_name, planet_map, house_owners):
-        # 1. Own 4 levels
+        # 1. Own significations
         base = self.calculate_kp_significators_4level(node_name, planet_map, house_owners)
         
-    def get_node_significators(self, node_name, planet_map, house_owners):
-        # 1. Own 4 levels
-        base = self.calculate_kp_significators_4level(node_name, planet_map, house_owners)
-        
-        # 2. All Agents (Sign Lord + Conjunct/Aspect innerhalb 12 Grad)
+        # 2. Add ALL significations of ALL agents (Sign Lord, Conjunct, Aspect)
         p_data = planet_map[node_name]
         agents = self.get_node_agents(node_name, p_data, list(planet_map.values()))
         
-        agent_names = list(set([a['planet'] for a in agents if a['planet']]))
-        for a_name in agent_names:
-            if a_name == node_name: continue
-            agent_sigs = self.calculate_kp_significators_4level(a_name, planet_map, house_owners)
-            # Merge significations
-            for level in ["L1", "L2", "L3", "L4"]:
-                base[level] = sorted(list(set(base[level] + agent_sigs[level])))
-                
-        # Recalculate total after merge
-        all_h = set()
-        for lvl in ["L1", "L2", "L3", "L4"]:
-            for h in base[lvl]: all_h.add(h)
-        base["total"] = sorted(list(all_h))
+        for agent in agents:
+            a_name = agent['planet']
+            if a_name and a_name in planet_map:
+                a_sigs = self.calculate_kp_significators_4level(a_name, planet_map, house_owners)
+                for lvl in ["L1", "L2", "L3", "L4"]:
+                    base[lvl] = sorted(list(set(base[lvl] + a_sigs[lvl])))
         
+        # Re-calc agents string
+        agent_names = [a['planet'] for a in agents]
         base["agent"] = ", ".join(agent_names) if agent_names else None
-        
         return base
+
     def calculate_dasha(self, planets_raw, birth_dt_loc):
         """
         Final High-Precision Vimshottari Dasha (v1.2.8)
         Sidereal Year = 365.25636 days.
         Nakshatra Length = 48000 arcseconds.
         """
+        import datetime
+        import pytz
+        
         moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
         abs_arcsec = moon_lon * 3600.0
         nak_len_arcsec = 48000.0 
@@ -798,11 +792,9 @@ class NadiEngine:
         DAYS_PER_YEAR = 365.25636
 
         def add_precise(dt, float_yrs):
-            import datetime
             return dt + datetime.timedelta(days=float_yrs * DAYS_PER_YEAR)
 
         fmt_dt = lambda dt: dt.strftime("%d/%m/%Y %H:%M:%S")
-        import pytz
         today = datetime.datetime.now(pytz.UTC)
         md_end_first = add_precise(birth_dt_loc, bal_yrs_f)
         md_curs = md_end_first - datetime.timedelta(days=self.DASHA_YEARS[lord_name] * DAYS_PER_YEAR)
@@ -847,8 +839,15 @@ class NadiEngine:
                 ad_curs = ad_end
             tree.append(md_item)
             md_curs = md_end
+
+        bal_total_days = bal_yrs_f * DAYS_PER_YEAR
+        y_bal = int(bal_yrs_f)
+        rem_days = bal_total_days - y_bal * DAYS_PER_YEAR
+        m_bal = int(rem_days / 30.436875)
+        d_bal = int(rem_days - m_bal * 30.436875)
+        
         return {
-            "balance_at_birth": f"{bal_yrs_f:.4f} years", 
+            "balance_at_birth": f"{y_bal}y {m_bal}m {d_bal}d", 
             "current_dasha": act_md, "current_bukthi": act_ad, "current_antara": act_pd, "current_pratyantar": act_sd,
             "mahadasha_sequence": tree, "moon_lon": moon_lon
         }
