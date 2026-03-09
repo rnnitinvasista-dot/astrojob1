@@ -419,14 +419,14 @@ class NadiEngine:
         jd = swe.julday(utc_dt.year, utc_dt.month, utc_dt.day, utc_dt.hour + utc_dt.minute/60 + utc_dt.second/3600)
         
         
-        # Standardize to KP Krishnamurti (Type 5) for Universal Accuracy
+        # Standardize to KP Krishnamurti (Type 5) with -6.2s Calibration
         swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
         if horary_number:
-            ayan_val = swe.get_ayanamsa_ut(jd)
+            ayan_val = swe.get_ayanamsa_ut(jd) - (6.2 / 3600.0)
             cusps, ascmc = self.calculate_prashna_cusps(jd, lat, lon, horary_number, calibrated_ayan=ayan_val)
             ramc_offset = 0.0
         else:
-            ayan_val = swe.get_ayanamsa_ut(jd)
+            ayan_val = swe.get_ayanamsa_ut(jd) - (6.2 / 3600.0)
             ramc_offset = 0.0
             
             # GMST -> LST -> RAMC for House Calculation
@@ -782,53 +782,41 @@ class NadiEngine:
         
         return base
     def calculate_dasha(self, planets_raw, birth_dt_loc):
-        # Step 1: Moon longitude in decimal degrees
+        """
+        Final High-Precision Vimshottari Dasha (v1.2.8)
+        Sidereal Year = 365.25636 days.
+        Nakshatra Length = 48000 arcseconds.
+        Level Formula: (MD * AD * PD * ...) / 120^(level-1)
+        """
         moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
-        nak_size = 360.0 / 27.0
+        abs_arcsec = moon_lon * 3600.0
+        nak_len_arcsec = 48000.0 
+        nak_idx = int(abs_arcsec // nak_len_arcsec) % 27
+        remaining_arcsec = nak_len_arcsec - (abs_arcsec % nak_len_arcsec)
+        balance_fraction = remaining_arcsec / nak_len_arcsec
         
-        # Exact Nakshatra (0-26 index)
-        naksh_idx = int(moon_lon / nak_size) % 27
+        lord_name = self.DASHA_ORDER[nak_idx % 9]
+        bal_yrs_f = self.DASHA_YEARS[lord_name] * balance_fraction
+        # Sidereal Year = 365.25636 days
+        DAYS_PER_YEAR = 365.25636
         
-        # Step 1 continued: Pada
-        deg_in_nak = moon_lon % nak_size
-        pada = int(deg_in_nak / (nak_size / 4)) + 1
-        
-        # Step 2: Remaining Nakshatra fraction
-        traversed_fraction = deg_in_nak / nak_size
-        remaining_fraction = 1.0 - traversed_fraction
-        
-        lord_name = self.DASHA_ORDER[naksh_idx % 9]
-        bal_yrs_f = self.DASHA_YEARS[lord_name] * remaining_fraction
-        
-        def add_years(dt, y, days_per_year=365.2425):
-            return dt + datetime.timedelta(days=int(y * days_per_year))
-            
-        today = datetime.datetime.now(pytz.UTC)
-        act_md, act_ad, act_pd = "None", "None", "None"
-        
-        start_idx = self.DASHA_ORDER.index(lord_name)
-        mahadasha_tree = []
-        
-        # Pre-format logic helper
-        def fmt_date(dt):
-            return dt.isoformat()[:10]
+        def add_precise(dt, float_yrs):
+            import datetime
+            return dt + datetime.timedelta(days=float_yrs * DAYS_PER_YEAR)
 
-        # Absolute start of the first Mahadasha in the cycle
-        total_yrs = self.DASHA_YEARS[lord_name]
-        elapsed_yrs = total_yrs * traversed_fraction
-        md_curs = add_years(birth_dt_loc, -elapsed_yrs)
+        fmt_dt = lambda dt: dt.strftime("%d/%m/%Y %H:%M:%S")
+        import pytz
+        today = datetime.datetime.now(pytz.UTC)
+        md_end_first = add_precise(birth_dt_loc, bal_yrs_f)
+        md_curs = md_end_first - datetime.timedelta(days=self.DASHA_YEARS[lord_name] * DAYS_PER_YEAR)
         
-        for i in range(9):
-            p = self.DASHA_ORDER[(start_idx + i) % 9]
-            md_yrs = self.DASHA_YEARS[p]
+        def get_seq(p):
+            idx = self.DASHA_ORDER.index(p)
+            return self.DASHA_ORDER[idx:] + self.DASHA_ORDER[:idx]
+
+        tree, act_md, act_ad, act_pd = [], "None", "None", "None"
+        for md_p in get_seq(lord_name):
             md_start = md_curs
-            md_end = add_years(md_start, md_yrs)
-            
-            md_item = {
-                "planet": p, "start_date": fmt_date(md_start), "end_date": fmt_date(md_end),
-                "bukthis": []
-            }
-            if md_start <= today <= md_end: act_md = p
             
             ad_seq_start = self.DASHA_ORDER.index(p)
             ad_seq = self.DASHA_ORDER[ad_seq_start:] + self.DASHA_ORDER[:ad_seq_start]

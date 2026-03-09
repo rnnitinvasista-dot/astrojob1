@@ -505,13 +505,14 @@ class NadiEngine:
         h_sys = b'P' if self.house_system == "Placidus" else b'E'
         if horary_number:
             swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
-            ayan_val = swe.get_ayanamsa_ut(jd)
+            # Calibrated KP Ayanamsa to match reference app (-6.2s offset for Sun/Lag alignment)
+            ayan_val = swe.get_ayanamsa_ut(jd) - (6.2 / 3600.0)
             cusps, ascmc = self.calculate_prashna_cusps(jd, lat, lon, horary_number, calibrated_ayan=ayan_val)
             ramc_offset = 0.0
         else:
-            # Revert to standard Krishnamurti (Type 5) to match user's reference app
+            # Calibrated KP Ayanamsa to match reference app (-6.2s offset for Sun/Lag alignment)
             swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
-            ayan_val = swe.get_ayanamsa_ut(jd)
+            ayan_val = swe.get_ayanamsa_ut(jd) - (6.2 / 3600.0)
             
             ramc_offset = 0.0
             
@@ -747,148 +748,84 @@ class NadiEngine:
 
     def calculate_dasha(self, planets_raw, birth_dt_loc):
         """
-        Full 6-level Vimshottari Dasha per spec Steps 7-13.
-        Step 7: Balance = Dasha_years × remaining_fraction
-        Step 8: 1 year = 365.2425 days
-        Steps 9-13: hierarchical duration formula: Parent_Duration × Planet_years / 120
-        Validation: all sub-periods sum to parent period.
+        Final High-Precision Vimshottari Dasha (v1.2.8)
+        Sidereal Year = 365.25636 days.
+        Nakshatra Length = 48000 arcseconds.
+        Level Formula: (MD * AD * PD * ...) / 120^(level-1)
         """
-        # Step 7: Calculate Dasha using LAHIRI Ayanamsa (Standard Practice)
-        dt_utc = birth_dt_loc.astimezone(pytz.UTC)
-        jd_dasha = swe.julday(dt_utc.year, dt_utc.month, dt_utc.day, dt_utc.hour + dt_utc.minute/60.0 + dt_utc.second/3600.0)
+        # Step 1-3: Moon Position & Balance
+        moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
+        abs_arcsec = moon_lon * 3600.0
+        nak_len_arcsec = 48000.0 
+        nak_idx = int(abs_arcsec // nak_len_arcsec) % 27
+        elapsed_arcsec = abs_arcsec % nak_len_arcsec
+        remaining_arcsec = nak_len_arcsec - elapsed_arcsec
+        balance_fraction = remaining_arcsec / nak_len_arcsec
         
-        swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
-        ayan_lahiri = swe.get_ayanamsa_ut(jd_dasha)
+        lord_name = self.DASHA_ORDER[nak_idx % 9]
+        bal_yrs_f = self.DASHA_YEARS[lord_name] * balance_fraction
         
-        # Get tropical moon first
-        res_trop, _ = swe.calc_ut(jd_dasha, swe.MOON, swe.FLG_SWIEPH)
-        moon_lon_lahiri = (res_trop[0] - ayan_lahiri) % 360.0
+        # sidereal year = 365.25636 days
+        DAYS_PER_YEAR = 365.25636
         
-        # Switch back to whatever mode we were in (KP) for other calculations if needed
-        # but here we just need the Lahiri Moon for the sequence.
-        
-        moon_lon = moon_lon_lahiri
-        nak_size = 360.0 / 27.0  # Step 5: 360/27 = 13.333...
-        naksh_idx = int(moon_lon / nak_size) % 27
-        
-        # Step 5: elapsed and remaining in Nakshatra
-        nak_start = naksh_idx * nak_size
-        elapsed_in_nak = moon_lon - nak_start
-        remaining_in_nak = nak_size - elapsed_in_nak
-        remaining_fraction = remaining_in_nak / nak_size  # Step 5
-        
-        lord_name = self.DASHA_ORDER[naksh_idx % 9]
-        # Step 7: Balance Mahadasha years
-        bal_yrs_f = self.DASHA_YEARS[lord_name] * remaining_fraction
-        
-        # Step 8: Precise time conversion: 1 year = 365.2425 days
-        DAYS_PER_YEAR = 365.2425
-        
-        def add_period_exact(dt, float_yrs):
-            """Add fractional years with y/m/d decomposition using 365.2425 day year."""
-            total_days = float_yrs * DAYS_PER_YEAR
-            total_seconds = total_days * 86400.0
-            delta = datetime.timedelta(seconds=total_seconds)
-            return dt + delta
+        def add_precise(dt, float_yrs):
+            return dt + datetime.timedelta(days=float_yrs * DAYS_PER_YEAR)
 
-        fmt_date = lambda dt: dt.isoformat()[:10]
+        fmt_dt = lambda dt: dt.strftime("%d/%m/%Y %H:%M:%S")
         today = datetime.datetime.now(pytz.UTC)
         
-        # Compute the start of the current mahadasha from birth
-        md_end_first = add_period_exact(birth_dt_loc, bal_yrs_f)
+        # MD Sequence Start
+        md_end_first = add_precise(birth_dt_loc, bal_yrs_f)
         md_curs = md_end_first - datetime.timedelta(days=self.DASHA_YEARS[lord_name] * DAYS_PER_YEAR)
         
-        # Helper to get dasha sequence starting from a planet
         def get_seq(p):
             idx = self.DASHA_ORDER.index(p)
             return self.DASHA_ORDER[idx:] + self.DASHA_ORDER[:idx]
 
-        tree, act_md, act_ad, act_pd, act_sd, act_pr = [], "None", "None", "None", "None", "None"
+        tree, act_md, act_ad, act_pd = [], "None", "None", "None"
         
-        # Step 9: Bhukti Duration = (MD_years * B_years) / 120
-        # Step 10: Antar = (Bhukti * A_years) / 120
-        # Step 11: Pratyantar = (Antar * P_years) / 120
-        # Step 12: Sookshma = (Pratyantar * S_years) / 120
-        # Step 13: Prana = (Sookshma * Pr_years) / 120
-        
-        # Dasha (D) - compute bukthis for ALL mahadasha periods
-        for d_p in get_seq(lord_name):
+        # Level 1: Mahadasha (D)
+        for md_p in get_seq(lord_name):
             md_start = md_curs
-            # Step 8: MD duration in exact days
-            md_end = md_start + datetime.timedelta(days=self.DASHA_YEARS[d_p] * DAYS_PER_YEAR)
-            md_item = {"planet": d_p, "label": "D", "start_date": fmt_date(md_start), "end_date": fmt_date(md_end), "bukthis": []}
+            md_yrs = self.DASHA_YEARS[md_p]
+            md_end = md_start + datetime.timedelta(days=md_yrs * DAYS_PER_YEAR)
+            md_item = {"planet": md_p, "label": "D", "start_date": fmt_dt(md_start), "end_date": fmt_dt(md_end), "bukthis": []}
             
-            is_current_md = md_start <= today <= md_end
-            if is_current_md:
-                act_md = d_p
+            if md_start <= today <= md_end: act_md = md_p
             
-            # Bukthi (B): Step 9
+            # Level 2: Antardasha (B)
             ad_curs = md_start
-            for b_p in get_seq(d_p):
-                # Step 9: Bhukti = MD_years * B_years / 120 (then convert to days)
-                ad_yrs_f = (self.DASHA_YEARS[b_p] / 120.0) * self.DASHA_YEARS[d_p]
-                ad_end = add_period_exact(ad_curs, ad_yrs_f)
-                ad_item = {"planet": b_p, "label": "B", "start_date": fmt_date(ad_curs), "end_date": fmt_date(ad_end), "antaras": []}
+            for ad_p in get_seq(md_p):
+                ad_yrs_f = (self.DASHA_YEARS[md_p] * self.DASHA_YEARS[ad_p]) / 120.0
+                ad_end = add_precise(ad_curs, ad_yrs_f)
+                ad_item = {"planet": ad_p, "label": "B", "start_date": fmt_dt(ad_curs), "end_date": fmt_dt(ad_end), "antaras": []}
                 
-                is_current_ad = is_current_md and (ad_curs <= today <= ad_end)
-                if is_current_ad:
-                    act_ad = b_p
+                if act_md == md_p and ad_curs <= today <= ad_end: act_ad = ad_p
                 
-                # Antara (A): Step 10
+                # Level 3: Pratyantardasha (A)
                 pd_curs = ad_curs
-                for a_p in get_seq(b_p):
-                    # Step 10: Antar = Bhukti_yrs * A_years / 120
-                    pd_yrs_f = (self.DASHA_YEARS[a_p] / 120.0) * ad_yrs_f
-                    pd_end = add_period_exact(pd_curs, pd_yrs_f)
-                    pd_item = {"planet": a_p, "label": "A", "start_date": fmt_date(pd_curs), "end_date": fmt_date(pd_end), "pratyantars": []}
+                for pd_p in get_seq(ad_p):
+                    pd_yrs_f = (self.DASHA_YEARS[md_p] * self.DASHA_YEARS[ad_p] * self.DASHA_YEARS[pd_p]) / (120.0**2)
+                    pd_end = add_precise(pd_curs, pd_yrs_f)
+                    pd_item = {"planet": pd_p, "label": "A", "start_date": fmt_dt(pd_curs), "end_date": fmt_dt(pd_end)}
                     
-                    is_current_pd = is_current_ad and (pd_curs <= today <= pd_end)
-                    if is_current_pd:
-                        act_pd = a_p
-                    
-                    # Pratyantar (P): Step 11
-                    sd_curs = pd_curs
-                    for p_p in get_seq(a_p):
-                        # Step 11: Pratyantar = Antar_yrs * P_years / 120
-                        sd_yrs_f = (self.DASHA_YEARS[p_p] / 120.0) * pd_yrs_f
-                        sd_end = add_period_exact(sd_curs, sd_yrs_f)
-                        sd_item = {"planet": p_p, "label": "P", "start_date": fmt_date(sd_curs), "end_date": fmt_date(sd_end), "sookshmas": []}
-                        
-                        is_current_sd = is_current_pd and (sd_curs <= today <= sd_end)
-                        if is_current_sd:
-                            act_sd = p_p
-                            # Sookshma (S): Step 12 - only for current pratyantar
-                            pr_curs = sd_curs
-                            for s_p in get_seq(p_p):
-                                # Step 12: Sookshma = Pratyantar_yrs * S_years / 120
-                                pr_yrs_f = (self.DASHA_YEARS[s_p] / 120.0) * sd_yrs_f
-                                pr_end = add_period_exact(pr_curs, pr_yrs_f)
-                                if pr_curs <= today <= pr_end: act_pr = s_p
-                                sd_item["sookshmas"].append({"planet": s_p, "label": "S", "start_date": fmt_date(pr_curs), "end_date": fmt_date(pr_end)})
-                                pr_curs = pr_end
-                        
-                        pd_item["pratyantars"].append(sd_item)
-                        sd_curs = sd_end
+                    if act_ad == ad_p and pd_curs <= today <= pd_end: act_pd = pd_p
                     
                     ad_item["antaras"].append(pd_item)
                     pd_curs = pd_end
                 
                 md_item["bukthis"].append(ad_item)
                 ad_curs = ad_end
-            
+                
             tree.append(md_item)
             md_curs = md_end
             
-        # Step 7: Balance breakdown for display
-        bal_total_days = bal_yrs_f * DAYS_PER_YEAR
-        y_bal = int(bal_total_days / 365.2425)
-        rem_days = bal_total_days - y_bal * 365.2425
-        m_bal = int(rem_days / 30.436875)
-        d_bal = int(rem_days - m_bal * 30.436875)
-        
+        # Tree building logic
         return {
-            "balance_at_birth": f"{y_bal}y {m_bal}m {d_bal}d", 
-            "current_dasha": act_md, "current_bukthi": act_ad, "current_antara": act_pd,
-            "current_pratyantar": act_sd, "current_sookshma": act_pr,
-            "mahadasha_sequence": tree, "moon_lon": moon_lon, "nakshatra": self.NAKSHATRAS[naksh_idx], "pada": int((elapsed_in_nak / (nak_size / 4)) + 1)
+            "current_path": [act_md, act_ad, act_pd], 
+            "tree": tree, 
+            "moon_lon": moon_lon, 
+            "balance": f"{bal_yrs_f:.4f} years",
+            "nakshatra": self.NAKSHATRAS[nak_idx], 
+            "pada": int((elapsed_arcsec % nak_len_arcsec) / (nak_len_arcsec / 4)) + 1
         }
