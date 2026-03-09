@@ -80,12 +80,26 @@ class NadiEngine:
             "Conjunction": 0, "Sextile": 60, "Square": 90, "Trine": 120, "Opposition": 180
         }
 
-    def decimal_to_dms(self, degree):
-        deg_in_sign = degree % 30
-        d = int(deg_in_sign)
-        m = int((deg_in_sign - d) * 60)
-        s = round((deg_in_sign - d - m/60)*3600, 2)
-        return f"{d:02}°{m:02}′{s:05.2f}″"
+    def decimal_to_dms(self, degree, is_absolute=False):
+        """
+        High-precision DMS conversion with 2 decimal place rounding for seconds.
+        """
+        val = degree % 360.0 if is_absolute else (degree % 30.0)
+        d = int(val)
+        m_f = (val - d) * 60.0
+        m = int(m_f)
+        s_f = (m_f - m) * 60.0
+        sec = round(s_f, 2)
+        
+        if sec >= 60.0:
+            sec -= 60.0
+            m += 1
+        if m >= 60:
+            m -= 60
+            if is_absolute: d = (d + 1) % 360
+            else: d += 1
+            
+        return f"{d:02d}\u00b0{m:02d}'{sec:05.2f}\""
 
     def generate_horary_table(self):
         """Generates the 249 KP Horary mapping table mathematically."""
@@ -404,20 +418,8 @@ class NadiEngine:
         jd = swe.julday(utc_dt.year, utc_dt.month, utc_dt.day, utc_dt.hour + utc_dt.minute/60 + utc_dt.second/3600)
         
         
-        # Set Ayanamsa dynamically
-        if self.ayanamsa == "KP":
-            swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
-        elif self.ayanamsa == "KP_OLD":
-            # For KP Old, we use the standard KRISHNAMURTI but can adjust if needed
-            swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
-        elif self.ayanamsa == "Lahiri":
-            swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
-        else:
-            swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
-        
-        # Re-enforce immediately before core calculations
-        swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
-        
+        # Standardize to KP New (VP291) Ayanamsa for Universal Accuracy
+        swe.set_sid_mode(39, 0, 0) # SIDM_VP291 = 39 (KP New)
         ayan_val = swe.get_ayanamsa_ut(jd)
         
         # Calculate Houses (Placidus Default for Cusps/Placement)

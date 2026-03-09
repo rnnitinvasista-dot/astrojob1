@@ -94,28 +94,26 @@ class NadiEngine:
 
     def decimal_to_dms(self, degree, is_absolute=False):
         """
-        Strict precision DMS conversion (Steps 3, 4, 17 of spec).
-        is_absolute=True: input is 0-360, output in absolute degrees
-        is_absolute=False: input is 0-30 (within sign), output in sign degrees
-        Full floating-point precision maintained - no intermediate rounding.
+        High-precision DMS conversion with 2 decimal place rounding for seconds.
         """
         val = degree % 360.0 if is_absolute else (degree % 30.0)
-        # Step 4: Absolute Degree = (Sign-1)*30 + degree_in_sign -> already in val
         d = int(val)
         m_f = (val - d) * 60.0
         m = int(m_f)
         s_f = (m_f - m) * 60.0
-        sec = int(s_f)  # truncate, not round, for precision
+        # High precision rounding for seconds
+        sec = round(s_f, 2)
         
-        # Carry overflow without rounding
-        if sec >= 60:
-            sec -= 60
+        if sec >= 60.0:
+            sec -= 60.0
             m += 1
         if m >= 60:
             m -= 60
-            d += 1
+            if is_absolute: d = (d + 1) % 360
+            else: d += 1
             
-        return f"{d:02d}\u00b0{m:02d}'{sec:02d}\""
+        return f"{d:02d}\u00b0{m:02d}'{sec:05.2f}\""
+    
 
     def get_varga_sign(self, lon, d_val):
         """
@@ -517,12 +515,12 @@ class NadiEngine:
                 ayan_offset = 0.0
                 ramc_offset = 0.0
             else:
-                swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
-                # Final Calibration (Fine-tuned to User Software: -11.18s Ayan shift)
-                ayan_offset = -11.18 / 3600.0
-                ramc_offset = 13.5 / 3600.0
+            # Standardize to KP New (VP291) Ayanamsa for Universal Accuracy
+            swe.set_sid_mode(39, 0, 0) # SIDM_VP291 = 39 (KP New)
+            ayan_offset = 0.0
+            ramc_offset = 0.0
             
-            ayan_val = swe.get_ayanamsa_ut(jd) + ayan_offset
+            ayan_val = swe.get_ayanamsa_ut(jd)
             
             # Explicit Time Conversion for KP rules
             # GMST -> LST -> RAMC
