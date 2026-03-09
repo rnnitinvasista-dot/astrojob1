@@ -515,12 +515,12 @@ class NadiEngine:
                 ayan_offset = 0.0
                 ramc_offset = 0.0
             else:
-            # Standardize to KP New (VP291) Ayanamsa for Universal Accuracy
-            swe.set_sid_mode(39, 0, 0) # SIDM_VP291 = 39 (KP New)
-            ayan_offset = 0.0
-            ramc_offset = 0.0
-            
-            ayan_val = swe.get_ayanamsa_ut(jd)
+                # Standardize to KP New (VP291) Ayanamsa for Universal Accuracy
+                swe.set_sid_mode(39, 0, 0) # SIDM_VP291 = 39 (KP New)
+                ayan_offset = 0.0
+                ramc_offset = 0.0
+                
+                ayan_val = swe.get_ayanamsa_ut(jd)
             
             # Explicit Time Conversion for KP rules
             # GMST -> LST -> RAMC
