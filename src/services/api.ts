@@ -26,7 +26,7 @@ export const fetchKundli = async (request: KundliRequest): Promise<KundliRespons
     const baseUrl = getApiUrl();
     try {
         const response = await axios.post<KundliResponse>(`${baseUrl}/kundli`, request, {
-            timeout: 30000 // 30 seconds
+            timeout: 120000 // 120 seconds (Render cold start)
         });
         return response.data;
     } catch (error) {
@@ -45,7 +45,7 @@ export const fetchJobAnalysis = async (request: KundliRequest): Promise<any> => 
     const baseUrl = getApiUrl();
     try {
         const response = await axios.post(`${baseUrl}/job-analysis`, request, {
-            timeout: 60000 // 60 seconds
+            timeout: 120000 // 120 seconds
         });
         return response.data;
     } catch (error) {
@@ -71,7 +71,7 @@ export const fetchMixedPrashna = async (request: any): Promise<KundliResponse> =
             longitude: parseFloat(request.birth_details.longitude),
             timezone: request.birth_details.timezone
         }, {
-            timeout: 30000 // 30 seconds
+            timeout: 120000 // 120 seconds
         });
         return response.data;
     } catch (error) {
@@ -83,5 +83,13 @@ export const fetchMixedPrashna = async (request: any): Promise<KundliResponse> =
             status: 'error',
             message: errorMsg,
         } as KundliResponse;
+    }
+};
+
+export const pingBackend = async () => {
+    try {
+        await axios.get(`${getApiUrl()}/health`, { timeout: 10000 });
+    } catch (e) {
+        // Ignore background ping errors
     }
 };

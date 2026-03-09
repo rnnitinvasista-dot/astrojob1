@@ -6,7 +6,7 @@ import type { BirthDetails } from '../types/astrology';
 interface BirthDetailsFormProps {
     onSubmit: (details: BirthDetails) => void;
     isLoading: boolean;
-    mode: 'Natal' | 'Prashna';
+    mode: 'Natal' | 'Prashna' | 'Parashara';
     onBack?: () => void;
     isExpired?: boolean;
     days?: number | null;
@@ -33,6 +33,9 @@ const STANDARD_CITIES: Record<string, { lat: number, lon: number, name: string }
 };
 
 const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading, mode, isExpired }) => {
+    const isPrashna = mode === 'Prashna';
+    const isNatalOrParashara = mode === 'Natal' || mode === 'Parashara';
+    
     const [activeTab, setActiveTab] = useState<'NEW' | 'RECENTS'>('NEW');
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [locationInput, setLocationInput] = useState('');
@@ -139,7 +142,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
             setBirthDay(''); setBirthMonth(''); setBirthYear('');
             setBirthHour(''); setBirthMin(''); setBirthSec('');
         }
-    }, [mode]);
+    }, [mode, isPrashna]);
 
     const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -238,13 +241,13 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
         <div className="safe-padding-top" style={{ background: '#ffffff', minHeight: '100vh', padding: '0 1rem 2rem' }}>
             <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
                 <h2 style={{ fontSize: '1.75rem', margin: '1rem 0 0', fontWeight: 800, color: '#1e3a8a' }}>
-                    {mode === 'Natal' ? 'KP Prediction' : 'KP Prashna Kundli'}
+                    {isPrashna ? 'KP Prashna Kundli' : (mode === 'Parashara' ? 'Parashara Kundli' : 'KP Prediction')}
                 </h2>
                 <div style={{ height: '3px', background: '#3b82f6', width: '60px', margin: '0.75rem auto', borderRadius: '2px' }}></div>
             </div>
 
             <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {mode === 'Natal' && (
+                {isNatalOrParashara && (
                     <div className="parchment-card" style={{ padding: '0', display: 'flex', marginBottom: '1.5rem', overflow: 'hidden' }}>
                         <button
                             onClick={() => setActiveTab('RECENTS')}
@@ -271,7 +274,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                     </div>
                 )}
 
-                {activeTab === 'RECENTS' && mode === 'Natal' ? (
+                {activeTab === 'RECENTS' && isNatalOrParashara ? (
                     <div style={{ minHeight: '300px' }}>
                         {JSON.parse(localStorage.getItem('astro_recents') || '[]').filter((r: any) => String(r.mode) !== 'Prashna').length === 0 ? (
                             <div className="parchment-card" style={{ textAlign: 'center', padding: '3rem 1rem', color: '#94a3b8' }}>
@@ -313,7 +316,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit}>
-                        {mode === 'Natal' && (
+                        {isNatalOrParashara && (
                             <div className="parchment-card">
                                 <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Name: *</label>
                                 <input
@@ -375,7 +378,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                             </div>
                         </div>
 
-                        {mode === 'Prashna' ? (
+                        {isPrashna ? (
                             <div className="parchment-card">
                                 <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Enter number from 1 to 249 *</label>
                                 <input
@@ -414,7 +417,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                                 cursor: isExpired ? 'not-allowed' : 'pointer'
                             }}
                         >
-                            {isLoading ? 'Wait...' : (isExpired ? 'Subscription Expired' : (mode === 'Prashna' ? 'Generate Prashna Kundli' : 'Generate KP Prediction'))}
+                            {isLoading ? 'Wait...' : (isExpired ? 'Subscription Expired' : (isPrashna ? 'Generate Prashna Kundli' : 'Generate Prediction'))}
                         </button>
                     </form>
                 )}

@@ -10,6 +10,7 @@ import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 interface UserMetadata {
     role: 'user' | 'admin';
     expiryDate: string; // ISO String
+    hasKPAccess?: boolean;
 }
 
 interface AuthContextType {
@@ -65,7 +66,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         const isMasterAdmin = user.email === 'astroadmin09@gmail.com';
                         const defaultData: UserMetadata = {
                             role: isMasterAdmin ? 'admin' : 'user',
-                            expiryDate: trialDate.toISOString()
+                            expiryDate: trialDate.toISOString(),
+                            hasKPAccess: isMasterAdmin ? true : false
                         };
                         setDoc(userDocRef, {
                             ...defaultData,

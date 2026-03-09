@@ -12,9 +12,10 @@ interface LayoutProps {
     expiryDate?: string;
     onLogout: () => void;
     currentView: string;
+    chartMode?: 'Rashi' | 'Bhava';
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showTabs, onBack, isAdmin, expiryDate, onLogout, currentView }) => {
+const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showTabs, onBack, isAdmin, expiryDate, onLogout, currentView, chartMode }) => {
     const { currentUser } = useAuth();
     const [showMenu, setShowMenu] = React.useState(false);
 
@@ -238,21 +239,32 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                             style={{ fontWeight: 'bold', color: '#000000' }}>
                             Dasha
                         </div>
-                        <div className={`tab-item ${activeTab === 'houses' ? 'active' : ''}`}
-                            onClick={() => onTabChange('houses')}
-                            style={{ fontWeight: 'bold', color: '#000000' }}>
-                            House Signification
-                        </div>
-                        <div className={`tab-item ${activeTab === 'predictions' ? 'active' : ''}`}
-                            onClick={() => onTabChange('predictions')}
-                            style={{ fontWeight: 'bold', color: '#000000' }}>
-                            Predictions
-                        </div>
-                        <div className={`tab-item ${activeTab === 'nadi' ? 'active' : ''}`}
-                            onClick={() => onTabChange('nadi')}
-                            style={{ fontWeight: 'bold', color: '#000000' }}>
-                            House Occupation
-                        </div>
+                        {chartMode === 'Rashi' && (
+                            <div className={`tab-item ${activeTab === 'phala' ? 'active' : ''}`}
+                                onClick={() => onTabChange('phala')}
+                                style={{ fontWeight: 'bold', color: '#000000' }}>
+                                PHALA/RESULT
+                            </div>
+                        )}
+                        {chartMode !== 'Rashi' && (
+                            <>
+                                <div className={`tab-item ${activeTab === 'houses' ? 'active' : ''}`}
+                                    onClick={() => onTabChange('houses')}
+                                    style={{ fontWeight: 'bold', color: '#000000' }}>
+                                    House Signification
+                                </div>
+                                <div className={`tab-item ${activeTab === 'predictions' ? 'active' : ''}`}
+                                    onClick={() => onTabChange('predictions')}
+                                    style={{ fontWeight: 'bold', color: '#000000' }}>
+                                    Predictions
+                                </div>
+                                <div className={`tab-item ${activeTab === 'nadi' ? 'active' : ''}`}
+                                    onClick={() => onTabChange('nadi')}
+                                    style={{ fontWeight: 'bold', color: '#000000' }}>
+                                    House Occupation
+                                </div>
+                            </>
+                        )}
                     </nav>
                 )
             }

@@ -17,6 +17,7 @@ interface UserData {
     role: 'user' | 'admin';
     expiryDate: string;
     createdAt?: string;
+    hasKPAccess?: boolean;
 }
 
 const AdminPortal: React.FC = () => {
@@ -114,6 +115,17 @@ const AdminPortal: React.FC = () => {
             });
         } catch (err) {
             console.error("Toggle admin failed", err);
+        }
+    };
+
+    const toggleKPAccess = async (uid: string, currentStatus: boolean) => {
+        const userRef = doc(db, 'users', uid);
+        try {
+            await updateDoc(userRef, {
+                hasKPAccess: !currentStatus
+            });
+        } catch (err) {
+            console.error("Toggle KP access failed", err);
         }
     };
 
@@ -357,6 +369,23 @@ const AdminPortal: React.FC = () => {
                                             }}
                                         />
                                     </div>
+                                    <button
+                                        onClick={() => toggleKPAccess(user.uid, !!user.hasKPAccess)}
+                                        style={{
+                                            padding: '8px 14px',
+                                            fontSize: '0.8rem',
+                                            background: user.hasKPAccess ? '#ecfdf5' : '#fef2f2',
+                                            color: user.hasKPAccess ? '#059669' : '#dc2626',
+                                            border: '1.5px solid transparent',
+                                            borderColor: user.hasKPAccess ? '#a7f3d0' : '#fecaca',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            fontWeight: 700,
+                                            marginLeft: '0.5rem'
+                                        }}
+                                    >
+                                        {user.hasKPAccess ? 'Revoke KP' : 'Give KP Access'}
+                                    </button>
                                     <button
                                         onClick={() => toggleAdmin(user.uid, user.role)}
                                         style={{

@@ -15,7 +15,7 @@ from nadi_core import NadiEngine, HIT_MATRIX, SUCCESS_LABELS, HOUSE_JOB_AREAS
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("nadi-engine")
 
-app = FastAPI(title="Nadi Precision Engine Gold")
+app = FastAPI(title="Nadi Precision Engine Gold v1.64")
 
 @app.on_event("startup")
 async def startup_event():
@@ -86,11 +86,11 @@ engine = get_engine(node_type="Mean", ayanamsa="KP")
 
 @app.get("/")
 def health_check():
-    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.63-HIT-THEORY"}
+    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.64-HIT-THEORY-FIX"}
 
 @app.get("/health")
 def health_check_alias():
-    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.63-HIT-THEORY"}
+    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.64-HIT-THEORY-FIX"}
 
 @app.post("/api/v1/kp/kundli")
 def generate_kundli(req: KundliRequest):

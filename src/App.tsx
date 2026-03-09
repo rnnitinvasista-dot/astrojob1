@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from './components/ui/Layout';
 import BirthDetailsForm from './components/BirthDetailsForm';
 import Dashboard from './components/Dashboard';
@@ -12,7 +12,9 @@ import JobPredictionTable from './components/tables/JobPredictionTable';
 import { getApiUrl, fetchMixedPrashna } from './services/api';
 import { useAuth } from './contexts/AuthContext';
 import LoginPage from './components/auth/LoginPage';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Lock, X } from 'lucide-react';
+import PhaladeepikaTable from './components/tables/PhaladeepikaTable';
+import { App as CapApp } from '@capacitor/app';
 
 // Types
 interface KundliResponse {
@@ -21,6 +23,7 @@ interface KundliResponse {
   planets: any[];
   aspects: any[];
   nakshatra_nadi: any[];
+  significations: any[];
   varga_charts?: any;
   dasha: {
     balance_at_birth: string;
@@ -43,17 +46,53 @@ interface KundliResponse {
 
 const App = () => {
   const [view, setView] = useState<'dashboard' | 'form' | 'result'>('dashboard');
-  const [mode, setMode] = useState<'Natal' | 'Prashna'>('Natal');
+  const [mode, setMode] = useState<'Natal' | 'Prashna' | 'Parashara'>('Natal');
   const [kundliData, setKundliData] = useState<KundliResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('planets');
+  const [activeTab, setActiveTab] = useState<'planets' | 'dasha' | 'houses' | 'predictions' | 'nadi' | 'phala'>('planets');
   const [showPlanetTable, setShowPlanetTable] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [birthDetails, setBirthDetails] = useState<any>(null);
   const [chartMode, setChartMode] = useState<'Rashi' | 'Bhava'>('Bhava');
   const [selectedArea, setSelectedArea] = useState('Job');
+  const [showAccessPopup, setShowAccessPopup] = useState(false);
 
   const { currentUser, userData, isExpired, logout } = useAuth();
+
+  useEffect(() => {
+    // Keep backend awake every 10 minutes while app is open
+    const interval = setInterval(() => {
+      import('./services/api').then(m => m.pingBackend());
+    }, 600000); 
+    
+    // Immediate ping on load
+    import('./services/api').then(m => m.pingBackend());
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Handle Capacitor Back Button
+  useEffect(() => {
+    let backListener: any;
+    
+    const setupBackListener = async () => {
+      backListener = await CapApp.addListener('backButton', () => {
+        if (view === 'result') {
+          setView('form');
+        } else if (view === 'form') {
+          setView('dashboard');
+        } else if (view === 'dashboard') {
+          CapApp.exitApp();
+        }
+      });
+    };
+
+    setupBackListener();
+
+    return () => {
+      if (backListener) backListener.remove();
+    };
+  }, [view]);
 
   // Wakeup Ping for Render
   useState(() => {
@@ -68,7 +107,7 @@ const App = () => {
     wakeup();
   });
 
-  const handleModeSelect = (selectedMode: 'Natal' | 'Prashna') => {
+  const handleModeSelect = (selectedMode: 'Natal' | 'Prashna' | 'Parashara') => {
     setMode(selectedMode);
     setView('form');
   };
@@ -122,6 +161,9 @@ const App = () => {
         setKundliData(responseData);
         setActiveTab('planets');
         setShowPlanetTable(false);
+        if (mode === 'Parashara') {
+          setChartMode('Rashi');
+        }
         setView('result');
       } else {
         setError(responseData.message || 'Engine failed');
@@ -132,6 +174,8 @@ const App = () => {
       setLoading(false);
     }
   };
+
+
 
   const renderTabContent = () => {
     if (!kundliData) return null;
@@ -151,7 +195,12 @@ const App = () => {
               margin: '0 auto'
             }}>
               <button
-                onClick={() => setChartMode('Rashi')}
+                onClick={() => {
+                  setChartMode('Rashi');
+                  if ((activeTab as string) === 'predictions' || (activeTab as string) === 'houses' || (activeTab as string) === 'nadi' || (activeTab as string) === 'phala') {
+                    setActiveTab('planets');
+                  }
+                }}
                 style={{
                   padding: '8px 16px',
                   borderRadius: '8px',
@@ -166,8 +215,15 @@ const App = () => {
               >
                 Rashi Chart
               </button>
-              <button
-                onClick={() => setChartMode('Bhava')}
+               <button
+                onClick={() => {
+                  const hasAccess = userData?.role === 'admin' || userData?.hasKPAccess;
+                  if (!hasAccess) {
+                    setShowAccessPopup(true);
+                  } else {
+                    setChartMode('Bhava');
+                  }
+                }}
                 style={{
                   padding: '8px 16px',
                   borderRadius: '8px',
@@ -177,10 +233,14 @@ const App = () => {
                   fontWeight: 'bold',
                   fontSize: '0.8rem',
                   cursor: 'pointer',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
                 }}
               >
                 KP Bhava Chart
+                {!(userData?.role === 'admin' || userData?.hasKPAccess) && <Lock size={14} style={{ opacity: 0.7 }} />}
               </button>
             </div>
 
@@ -267,8 +327,51 @@ const App = () => {
             })}
           </div>
         );
-      case 'significations':
-        return null; // Hidden as requested
+      case 'phala':
+        const signList = [
+          "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
+          "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
+        ];
+        const rulerMap: Record<string, string> = {
+          "Aries": "Mars", "Taurus": "Venus", "Gemini": "Mercury", "Cancer": "Moon",
+          "Leo": "Sun", "Virgo": "Mercury", "Libra": "Venus", "Scorpio": "Mars",
+          "Sagittarius": "Jupiter", "Capricorn": "Saturn", "Aquarius": "Saturn", "Pisces": "Jupiter"
+        };
+        
+        const ascSignIdx = signList.indexOf(kundliData.ascendant.sign);
+        
+        // Calculate House Lords (Lords of 1st to 12th)
+        const houseLords: Record<number, string> = {};
+        for (let i = 1; i <= 12; i++) {
+          const houseSignIdx = (ascSignIdx + i - 1) % 12;
+          const houseSign = signList[houseSignIdx];
+          houseLords[i] = rulerMap[houseSign];
+        }
+
+        const planetsForPhala = kundliData.planets.map((p: any) => {
+          const currentSign = p.sign?.trim();
+          const currentSignIdx = signList.findIndex(s => s.toLowerCase() === currentSign?.toLowerCase());
+          const houseNum = currentSignIdx !== -1 ? ((currentSignIdx - ascSignIdx + 12) % 12 + 1) : 1;
+          return {
+            planet: p.planet,
+            house: houseNum,
+            sign: p.sign
+          };
+        });
+
+        const sun = planetsForPhala.find(p => p.planet === 'Sun');
+        const isDayBirth = sun ? (sun.house >= 7 && sun.house <= 12) : true;
+
+        return (
+          <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
+            <PhaladeepikaTable 
+              planets={planetsForPhala} 
+              houseLords={houseLords}
+              isDayBirth={isDayBirth}
+              gender={birthDetails?.gender}
+            />
+          </div>
+        );
       case 'dasha':
         return (
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
@@ -296,12 +399,13 @@ const App = () => {
   return (
     <Layout
       activeTab={activeTab}
-      onTabChange={setActiveTab}
+      onTabChange={setActiveTab as (tab: string) => void}
       showTabs={view === 'result'}
       isAdmin={userData?.role === 'admin'}
       expiryDate={userData?.expiryDate}
       onLogout={logout}
       currentView={view}
+      chartMode={chartMode}
       onBack={() => {
         if (view === 'result') {
           setView('form');
@@ -337,7 +441,11 @@ const App = () => {
 
         <>
           {view === 'dashboard' && (
-            <Dashboard onSelect={handleModeSelect} />
+            <Dashboard 
+              onSelect={handleModeSelect} 
+              hasKPAccess={userData?.hasKPAccess}
+              isAdmin={userData?.role === 'admin'}
+            />
           )}
 
           {view === 'form' && (
@@ -381,6 +489,76 @@ const App = () => {
           </p>
         </div>
       </div>
+
+      {showAccessPopup && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10000,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: 'white',
+            padding: '2rem',
+            borderRadius: '20px',
+            maxWidth: '400px',
+            width: '100%',
+            textAlign: 'center',
+            position: 'relative',
+            boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)',
+            border: '3px solid #ef4444'
+          }}>
+            <button
+              onClick={() => setShowAccessPopup(false)}
+              style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#64748b'
+              }}
+            >
+              <X size={20} />
+            </button>
+
+            <div style={{
+              color: '#ef4444',
+              fontSize: '1.25rem',
+              fontWeight: 900,
+              lineHeight: 1.4,
+              textTransform: 'uppercase',
+              marginTop: '0.5rem'
+            }}>
+              YOU NEED TO PURCHASE THE FULL APP ACCESS
+            </div>
+
+            <button
+              onClick={() => setShowAccessPopup(false)}
+              style={{
+                marginTop: '1.5rem',
+                padding: '10px 24px',
+                background: '#ef4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                fontWeight: 800,
+                cursor: 'pointer'
+              }}
+            >
+              CLOSE
+            </button>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };

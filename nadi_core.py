@@ -428,58 +428,62 @@ class NadiEngine:
         return self.NAKSHATRAS[naksh_idx], star_lord, sub_lord, planet_lord, nadi_type, nadi_val, pl_idx + 1
 
     def get_node_agents(self, node_name, node_data, all_planets):
+        """
+        Identify agents for Rahu/Ketu based on Standard KP/Nadi Rules:
+        1. Sign Lord (Dispositor)
+        2. All Conjunct Planets (In same sign)
+        3. Aspecting Planets (Mars: 4,8; Jup: 5,9; Sat: 3,10; Opposition: 7)
+        """
         agents = []
         node_sign = node_data['sign']
         node_lon = node_data['degree_decimal']
         
+        # 1. Sign Lord
         sl_short = node_data.get('sign_lord')
         sl_full = next((k for k, v in self.SHORT_CODES.items() if v == sl_short), sl_short)
         agents.append({'type': 'Sign Lord', 'planet': sl_full})
         
         self.SIGNS = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
-        node_sign_idx = self.SIGNS.index(node_sign)
         
         for p in all_planets:
             p_name = p['planet']
             if p_name in [node_name, "Rahu", "Ketu"]: continue
             
             p_lon = p['degree_decimal']
-            dist = abs(node_lon - p_lon)
-            if dist > 180: dist = 360 - dist
-                
-            if p['sign'] == node_sign and dist <= 12.0:
+            p_sign = p['sign']
+            
+            # Rule 1: Conjunction (Strictly SAME SIGN)
+            if p_sign == node_sign:
                 agents.append({'type': 'Conjunction', 'planet': p_name})
                     
-            p_sign_idx = self.SIGNS.index(p['sign'])
-            diff = (p_sign_idx - node_sign_idx + 12) % 12 + 1
-            
-            # Forward distance from Node to Planet (0-360)
-            fwd_dist = (p_lon - node_lon + 360.0) % 360.0
+            # Rule 2: Aspects (Planet aspecting the Node)
+            # diff_deg = (Node_lon - Planet_lon + 360) % 360
+            diff_deg = (node_lon - p_lon + 360.0) % 360.0
 
             is_aspecting = False
             # 7th Aspect (Opposition)
-            if diff == 7 and abs(fwd_dist - 180) <= 12: is_aspecting = True
+            if abs(diff_deg - 180) <= 12: is_aspecting = True
             # Mars: 4th (90), 8th (210)
             elif p_name == "Mars":
-                if (abs(fwd_dist - 90) <= 12) or (abs(fwd_dist - 210) <= 12): is_aspecting = True
+                if (abs(diff_deg - 90) <= 12) or (abs(diff_deg - 210) <= 12): is_aspecting = True
             # Jupiter: 5th (120), 9th (240)
             elif p_name == "Jupiter":
-                if (abs(fwd_dist - 120) <= 12) or (abs(fwd_dist - 240) <= 12): is_aspecting = True
+                if (abs(diff_deg - 120) <= 12) or (abs(diff_deg - 240) <= 12): is_aspecting = True
             # Saturn: 3rd (60), 10th (270)
             elif p_name == "Saturn":
-                if (abs(fwd_dist - 60) <= 12) or (abs(fwd_dist - 270) <= 12): is_aspecting = True
+                if (abs(diff_deg - 60) <= 12) or (abs(diff_deg - 270) <= 12): is_aspecting = True
             
             if is_aspecting:
                 agents.append({'type': 'Aspect', 'planet': p_name})
                 
-        # Deduplicate by planet name (planet may qualify as both Sign Lord and Aspect agent)
+        # Unique list of planets
         seen = set()
-        unique_agents = []
+        final_agents = []
         for a in agents:
-            if a['planet'] and a['planet'] not in seen:
+            if a['planet'] not in seen:
+                final_agents.append(a)
                 seen.add(a['planet'])
-                unique_agents.append(a)
-        return unique_agents
+        return final_agents
 
     def calculate_kundli(self, dt_str, timezone, lat, lon, horary_number=None):
         tz = pytz.timezone(timezone)
@@ -705,15 +709,14 @@ class NadiEngine:
                 if a_name and a_name in planet_map:
                     a_data = planet_map[a_name]
                     a_occ = int(a_data["house_placed"])
-                    
-                    # 1. Agent's Occupied House (always included)
+                    # 1. Agent's Occupied House
                     if a_occ not in houses_seen:
                         sigs.append({"house": a_occ, "is_placed": False})
                         houses_seen.add(a_occ)
                         
-                    # 2. Agent's Owned Houses (ONLY if Vacant / un-occupied by actual planets)
+                    # 2. Agent's Owned Houses (Fully included for Nodes)
                     for h, o in house_owners.items():
-                        if o == a_name and h not in houses_seen and h not in occupied:
+                        if o == a_name and h not in houses_seen:
                             sigs.append({"house": h, "is_placed": False})
                             houses_seen.add(h)
                             
@@ -731,29 +734,24 @@ class NadiEngine:
         return {"L1": l2, "L2": l1, "L3": l4, "L4": l3, "is_self_strength": True} if self_strength else {"L1": l1, "L2": l2, "L3": l3, "L4": l4, "is_self_strength": False}
 
     def get_node_significators(self, node_name, planet_map, house_owners):
+        # 1. Own significations
         base = self.calculate_kp_significators_4level(node_name, planet_map, house_owners)
         
-        occupied = set()
-        for p in planet_map.values():
-            if p["planet"] not in ["Rahu", "Ketu"]:
-                occupied.add(int(p["house_placed"]))
-                
-        for agent in self.get_node_agents(node_name, planet_map[node_name], list(planet_map.values())):
+        # 2. Add ALL significations of ALL agents (Sign Lord, Conjunct, Aspect)
+        # User requested no restrictive logic, nodes act as their agents fully.
+        p_data = planet_map[node_name]
+        agents = self.get_node_agents(node_name, p_data, list(planet_map.values()))
+        
+        for agent in agents:
             a_name = agent['planet']
             if a_name and a_name in planet_map:
                 a_sigs = self.calculate_kp_significators_4level(a_name, planet_map, house_owners)
-                
-                # Agents contribute their L1 (Occupied by Star Lord) and L2 (Occupied by Agent) always
-                base["L1"] = sorted(list(set(base["L1"] + a_sigs["L1"])))
-                base["L2"] = sorted(list(set(base["L2"] + a_sigs["L2"])))
-                
-                # Agents contribute their L3 (Owned by Star Lord) and L4 (Owned by Agent) ONLY IF VACANT
-                vacant_l3 = [h for h in a_sigs["L3"] if h not in occupied]
-                vacant_l4 = [h for h in a_sigs["L4"] if h not in occupied]
-                
-                base["L3"] = sorted(list(set(base["L3"] + vacant_l3)))
-                base["L4"] = sorted(list(set(base["L4"] + vacant_l4)))
-                
+                for lvl in ["L1", "L2", "L3", "L4"]:
+                    base[lvl] = sorted(list(set(base[lvl] + a_sigs[lvl])))
+        
+        # Re-calc agents string
+        agent_names = [a['planet'] for a in agents]
+        base["agent"] = ", ".join(agent_names) if agent_names else None
         return base
 
     def calculate_dasha(self, planets_raw, birth_dt_loc):

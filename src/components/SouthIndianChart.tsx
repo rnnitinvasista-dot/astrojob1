@@ -1,4 +1,4 @@
-import type { Planet, Ascendant, House, ChartPlanet } from '../types/astrology';
+﻿import type { Planet, Ascendant, House, ChartPlanet } from '../types/astrology';
 
 // ... (imports)
 
