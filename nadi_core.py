@@ -94,36 +94,25 @@ class NadiEngine:
 
     def decimal_to_dms(self, degree, is_absolute=False):
         """
-        High-precision DMS conversion (Strict 0-360 absolute format).
-        Rounds seconds to 2 decimal places.
+        DMS conversion matching reference app (D°M'S" format).
+        No leading zeros for degrees, no decimal seconds.
         """
         val = degree % 360.0
         d = int(val)
         m_f = (val - d) * 60.0
         m = int(m_f)
         s_f = (m_f - m) * 60.0
-        sec = round(s_f, 2)
+        sec = int(round(s_f))
         
-        if sec >= 60.0:
-            sec -= 60.0
+        if sec >= 60:
+            sec -= 60
             m += 1
         if m >= 60:
             m -= 60
             d = (d + 1) % 360
             
-        return f"{d:03d}°{m:02d}'{sec:05.2f}\""
+        return f"{d}°{m:02d}'{sec:02d}\""
     
-    def get_ayanamsa_balachandran(self, jd):
-        """
-        Prof. K. Balachandran's 'KP New 2003' Ayanamsa.
-        Base: Jan 1, 1901 (JD 2415385.5) = 22° 28' 23"
-        Rate: 50.238 arcseconds per Julian year (365.25 days).
-        """
-        epoch_jd = 2415385.5
-        base_ayan = 22.47305556 # 22 + 28/60 + 23/3600
-        days_diff = jd - epoch_jd
-        precession_deg = (days_diff / 365.25) * (50.238 / 3600.0)
-        return base_ayan + precession_deg
 
     def get_varga_sign(self, lon, d_val):
         """
@@ -515,16 +504,14 @@ class NadiEngine:
         
         h_sys = b'P' if self.house_system == "Placidus" else b'E'
         if horary_number:
-            ayan_val = self.get_ayanamsa_balachandran(jd)
+            swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
+            ayan_val = swe.get_ayanamsa_ut(jd)
             cusps, ascmc = self.calculate_prashna_cusps(jd, lat, lon, horary_number, calibrated_ayan=ayan_val)
             ramc_offset = 0.0
         else:
-            if self.ayanamsa == "Lahiri":
-                swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
-                ayan_val = swe.get_ayanamsa_ut(jd)
-            else:
-                # Default to KP New 2003 (Prof. K. Balachandran) Formula
-                ayan_val = self.get_ayanamsa_balachandran(jd)
+            # Revert to standard Krishnamurti (Type 5) to match user's reference app
+            swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
+            ayan_val = swe.get_ayanamsa_ut(jd)
             
             ramc_offset = 0.0
             
