@@ -82,9 +82,10 @@ class NadiEngine:
 
     def decimal_to_dms(self, degree, is_absolute=False):
         """
-        High-precision DMS conversion with 2 decimal place rounding for seconds.
+        High-precision DMS conversion (Strict 0-360 absolute format).
+        Rounds seconds to 2 decimal places.
         """
-        val = degree % 360.0 if is_absolute else (degree % 30.0)
+        val = degree % 360.0
         d = int(val)
         m_f = (val - d) * 60.0
         m = int(m_f)
@@ -96,10 +97,21 @@ class NadiEngine:
             m += 1
         if m >= 60:
             m -= 60
-            if is_absolute: d = (d + 1) % 360
-            else: d += 1
+            d = (d + 1) % 360
             
-        return f"{d:02d}\u00b0{m:02d}'{sec:05.2f}\""
+        return f"{d:03d}°{m:02d}'{sec:05.2f}\""
+
+    def get_ayanamsa_balachandran(self, jd):
+        """
+        Prof. K. Balachandran's 'KP New 2003' Ayanamsa.
+        Base: Jan 1, 1901 (JD 2415385.5) = 22° 28' 23"
+        Rate: 50.238 arcseconds per Julian year (365.25 days).
+        """
+        epoch_jd = 2415385.5
+        base_ayan = 22.47305556 # 22 + 28/60 + 23/3600
+        days_diff = jd - epoch_jd
+        precession_deg = (days_diff / 365.25) * (50.238 / 3600.0)
+        return base_ayan + precession_deg
 
     def generate_horary_table(self):
         """Generates the 249 KP Horary mapping table mathematically."""
@@ -418,16 +430,32 @@ class NadiEngine:
         jd = swe.julday(utc_dt.year, utc_dt.month, utc_dt.day, utc_dt.hour + utc_dt.minute/60 + utc_dt.second/3600)
         
         
-        # Standardize to KP New (VP291) Ayanamsa for Universal Accuracy
-        swe.set_sid_mode(39, 0, 0) # SIDM_VP291 = 39 (KP New)
-        ayan_val = swe.get_ayanamsa_ut(jd)
-        
-        # Calculate Houses (Placidus Default for Cusps/Placement)
-        h_sys = b'P' if self.house_system == "Placidus" else b'E'
+        # Standardize to KP New 2003 (Prof. K. Balachandran) for Universal Accuracy
         if horary_number:
-            cusps, ascmc = self.calculate_prashna_cusps(jd, lat, lon, horary_number)
+            ayan_val = self.get_ayanamsa_balachandran(jd)
+            cusps, ascmc = self.calculate_prashna_cusps(jd, lat, lon, horary_number, calibrated_ayan=ayan_val)
+            ramc_offset = 0.0
         else:
-            cusps, ascmc = swe.houses_ex(jd, lat, lon, h_sys, swe.FLG_SIDEREAL)
+            if self.ayanamsa == "Lahiri":
+                swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+                ayan_val = swe.get_ayanamsa_ut(jd)
+            else:
+                ayan_val = self.get_ayanamsa_balachandran(jd)
+            
+            ramc_offset = 0.0
+            
+            # GMST -> LST -> RAMC for House Calculation
+            gmst_hrs = swe.sidtime(jd)
+            lst_hrs = (gmst_hrs + lon / 15.0) % 24.0
+            ramc_deg = (lst_hrs * 15.0) % 360.0
+            
+            res_nut, _ = swe.calc_ut(jd, swe.ECL_NUT, 0)
+            eps = res_nut[0]
+            
+            # Calculate Tropical Cusps and Subtract Ayanamsa manually for precision
+            cusps_trop, ascmc_trop = swe.houses_armc(ramc_deg + ramc_offset, lat, eps, h_sys)
+            cusps = [(c - ayan_val) % 360 for c in cusps_trop]
+            ascmc = [(a - ayan_val) % 360 for a in ascmc_trop]
         
         # HOUSE OWNERSHIP LOGIC - STRICT WHOLE SIGN (User Requirement)
         # User explicitly flagged that for Gemini Ascendant, Sun MUST own 3rd (Leo) and Jupiter 7th/10th (Sag/Pis).
@@ -443,17 +471,19 @@ class NadiEngine:
         
         # house_owners = {i+1: self.SIGN_RULERS[self.get_kp_lords(cusps[i])[0]] for i in range(12)} # OLD PLACIDUS LOGIC
         
-        # Calculate Planets
+        # Calculate Planets (Tropical then Subtract Ayanamsa)
         planets_raw = []
         for name, code in self.PLANETS.items():
-            # CRITICAL: Must include FLG_SPEED to get accurate speed!
-            res, _ = swe.calc_ut(jd, code, swe.FLG_SIDEREAL | swe.FLG_SPEED)
-            lon_val = res[0]
+            # Calculate tropical from ephemeris
+            res, _ = swe.calc_ut(jd, code, swe.FLG_SWIEPH | swe.FLG_SPEED)
+            lon_tropical = res[0]
+            # Manual subtraction for absolute precision
+            lon_sidereal = (lon_tropical - ayan_val) % 360.0
             speed_val = res[3]
-            if name == "Ketu": lon_val = (lon_val + 180) % 360
-            planets_raw.append({"planet": name, "lon": lon_val, "speed": speed_val})
+            if name == "Ketu": lon_sidereal = (lon_sidereal + 180) % 360
+            planets_raw.append({"planet": name, "lon": lon_sidereal, "speed": speed_val})
             if name == "Venus":
-                print(f"DEBUG VENUS: Lon: {lon_val}")
+                print(f"DEBUG VENUS: Lon: {lon_sidereal}")
 
             
         planets_raw_map = {p["planet"]: p for p in planets_raw}
@@ -472,7 +502,8 @@ class NadiEngine:
                 sn, sl, nlk, sub, ssl, nak, nadi, sub_idx = self.get_kp_lords(lon_val)
                 
             houses_res.append({
-                "house_number": i+1, "cusp_degree_dms": f"{self.decimal_to_dms(lon_val)} {sn}",
+                "house_number": i+1,
+                "cusp_degree_dms": self.decimal_to_dms(lon_val, is_absolute=True),
                 "sign": sn, "sign_lord": sl, "star_lord": nlk, "sub_lord": sub, "sub_sub_lord": ssl,
                 "nakshatra": nak, "nadi": nadi, "nadi_index": sub_idx, "planet_lord": sl,
                 "cusp_degree_decimal": lon_val
@@ -516,7 +547,7 @@ class NadiEngine:
                 
             # Ensure house_placed is always an integer for safety
             planets_res.append({
-                "planet": p["planet"], "degree_dms": f"{self.decimal_to_dms(lon_val)} {sn}", "house_placed": int(hp),
+                "planet": p["planet"], "degree_dms": self.decimal_to_dms(lon_val, is_absolute=True), "house_placed": int(hp),
                 "sign": sn, "sign_lord": sl, "star_lord": nlk, "sub_lord": sub, "sub_sub_lord": ssl,
                 "nakshatra": nak, "nadi": nadi, "nadi_index": sub_idx, 
                 "is_retrograde": True if p["planet"] in ["Rahu", "Ketu"] else p["speed"] < 0, 
