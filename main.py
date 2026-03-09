@@ -15,8 +15,8 @@ from nadi_core import NadiEngine, HIT_MATRIX, SUCCESS_LABELS, HOUSE_JOB_AREAS
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("nadi-engine")
 
-# Version: 1.2.1 - Calibrated Precision ebf
-app = FastAPI(title="Nadi Precision Engine Gold v1.2.1")
+# Version: 1.2.2 - Fix Rahu/Ketu & Nadi Combinations
+app = FastAPI(title="Nadi Precision Engine Gold v1.2.2")
 
 @app.on_event("startup")
 async def startup_event():
@@ -110,7 +110,7 @@ def health():
     return {
         "status": "online", 
         "service": "Nadi Precision Engine Gold", 
-        "version": "1.70-FULL-DASHA"
+        "version": "1.2.2-FULL-DASHA"
     }
 
 if __name__ == "__main__":

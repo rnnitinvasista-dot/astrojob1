@@ -451,13 +451,23 @@ class NadiEngine:
                 agents.append({'type': 'Conjunction', 'planet': p_name})
                     
             p_sign_idx = self.SIGNS.index(p['sign'])
-            diff = (node_sign_idx - p_sign_idx + 12) % 12 + 1
+            diff = (p_sign_idx - node_sign_idx + 12) % 12 + 1
             
+            # Forward distance from Node to Planet (0-360)
+            fwd_dist = (p_lon - node_lon + 360.0) % 360.0
+
             is_aspecting = False
-            if diff == 7 and dist >= 168: is_aspecting = True
-            elif p_name == "Mars" and diff in [4, 8] and (abs(dist-90)<=12 or abs(dist-210)<=12): is_aspecting = True
-            elif p_name == "Jupiter" and diff in [5, 9] and (abs(dist-120)<=12 or abs(dist-240)<=12): is_aspecting = True
-            elif p_name == "Saturn" and diff in [3, 10] and (abs(dist-60)<=12 or abs(dist-270)<=12): is_aspecting = True
+            # 7th Aspect (Opposition)
+            if diff == 7 and abs(fwd_dist - 180) <= 12: is_aspecting = True
+            # Mars: 4th (90), 8th (210)
+            elif p_name == "Mars":
+                if (abs(fwd_dist - 90) <= 12) or (abs(fwd_dist - 210) <= 12): is_aspecting = True
+            # Jupiter: 5th (120), 9th (240)
+            elif p_name == "Jupiter":
+                if (abs(fwd_dist - 120) <= 12) or (abs(fwd_dist - 240) <= 12): is_aspecting = True
+            # Saturn: 3rd (60), 10th (270)
+            elif p_name == "Saturn":
+                if (abs(fwd_dist - 60) <= 12) or (abs(fwd_dist - 270) <= 12): is_aspecting = True
             
             if is_aspecting:
                 agents.append({'type': 'Aspect', 'planet': p_name})
@@ -615,7 +625,7 @@ class NadiEngine:
                 "pl_signified": self.get_eff_sigs_detailed(p_name, planet_res_map, house_owners),
                 "star_lord": sl_name, "nl_signified": self.get_eff_sigs_detailed(sl_name, planet_res_map, house_owners),
                 "sub_lord": sub_name, "sl_signified": self.get_eff_sigs_detailed(sub_name, planet_res_map, house_owners),
-                "planet_lord": pl_name
+                "planet_lord": pl_name, "pl_lord_signified": self.get_eff_sigs_detailed(pl_name, planet_res_map, house_owners)
             })
             
         dasha_data = self.calculate_dasha(planets_raw, birth_dt_loc)
