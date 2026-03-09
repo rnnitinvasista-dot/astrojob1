@@ -739,42 +739,228 @@ class NadiEngine:
             if a_name and a_name in planet_map:
                 a_sigs = self.calculate_kp_significators_4level(a_name, planet_map, house_owners)
                 for lvl in ["L1", "L2", "L3", "L4"]:
+            lon_sidereal = (lon_tropical - ayan_val) % 360.0
+            speed_val = res[3]
+            if name == "Ketu":
+                lon_sidereal = (lon_sidereal + 180.0) % 360.0  # Ketu = Rahu + 180
+            planets_raw.append({"planet": name, "lon": lon_sidereal, "speed": speed_val})
+            
+        houses_res = []
+        for i in range(12):
+            lon_val = cusps[i]
+            if i == 0 and horary_number:
+                entry = self.HORARY_TABLE[horary_number]
+                sn, sl, nlk, sub = entry["sign"], entry["sl"], entry["nl"], entry["sub"]
+                _, _, _, _, ssl, nak, nadi, sub_idx = self.get_kp_lords(lon_val)
+            else:
+                sn, sl, nlk, sub, ssl, nak, nadi, sub_idx = self.get_kp_lords(lon_val)
+                
+            houses_res.append({
+                "house_number": i+1, 
+                "cusp_degree_dms": self.decimal_to_dms(lon_val, is_absolute=True),
+                "sign": sn, 
+                "sign_lord": self.SHORT_CODES.get(sl, sl), 
+                "star_lord": self.SHORT_CODES.get(nlk, nlk), 
+                "sub_lord": self.SHORT_CODES.get(sub, sub), 
+                "sub_sub_lord": self.SHORT_CODES.get(ssl, ssl),
+                "nakshatra": nak, "nadi": nadi, "nadi_index": sub_idx, "planet_lord": sl, "cusp_degree_decimal": lon_val
+            })
+            
+        planets_res = []
+        sun_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Sun")
+        for p in planets_raw:
+            lon_val = p["lon"]
+            hp = 1
+            for i in range(12):
+                cusp_curr, cusp_next = cusps[i], cusps[(i+1)%12]
+                if (cusp_next < cusp_curr and (lon_val >= cusp_curr or lon_val < cusp_next)) or (cusp_curr <= lon_val < cusp_next):
+                    hp = i + 1; break
+            
+            sn, sl, nlk, sub, ssl, nak, nadi, sub_idx = self.get_kp_lords(lon_val)
+            is_combust = False
+            if p["planet"] != "Sun" and p["planet"] in ["Moon","Mars","Mercury","Jupiter","Venus","Saturn"]:
+                orbs = {"Moon": 12, "Mars": 17, "Mercury": 13, "Jupiter": 11, "Venus": 9, "Saturn": 15}
+                dist = abs(lon_val - sun_lon)
+                if dist > 180: dist = 360 - dist
+                if dist < orbs.get(p["planet"], 12): is_combust = True
+                
+            planets_res.append({
+                "planet": p["planet"], 
+                "degree_dms": self.decimal_to_dms(lon_val, is_absolute=True), # Absolute 0-360 to match user images
+                "house_placed": int(hp),
+                "sign": sn, 
+                "sign_lord": self.SHORT_CODES.get(sl, sl), 
+                "star_lord": self.SHORT_CODES.get(nlk, nlk), 
+                "sub_lord": self.SHORT_CODES.get(sub, sub), 
+                "sub_sub_lord": self.SHORT_CODES.get(ssl, ssl),
+                "nakshatra": nak, "nadi": nadi, "nadi_index": sub_idx, 
+                "is_retrograde": True if p["planet"] in ["Rahu", "Ketu"] else p["speed"] < 0, "is_combust": is_combust,
+                "planet_lord": sl, "degree_decimal": lon_val
+            })
+            
+        planet_res_map = {p["planet"]: p for p in planets_res}
+        significations_res = []
+        for p in planets_res:
+            p_name = p["planet"]
+            sigs_4 = self.get_node_significators(p_name, planet_res_map, house_owners) if p_name in ["Rahu", "Ketu"] else self.calculate_kp_significators_4level(p_name, planet_res_map, house_owners)
+            total_houses = sorted(list(set(sigs_4["L1"] + sigs_4["L2"] + sigs_4["L3"] + sigs_4["L4"])))
+            significations_res.append({"planet": p_name, "levels": sigs_4, "total": total_houses, "agent": sigs_4.get("agent", None)})
+            
+        nak_nadi_res = []
+        for p in planets_res:
+            p_name = p["planet"]
+            p_lon = next(raw["lon"] for raw in planets_raw if raw["planet"] == p_name)
+            nak, sl_name, sub_name, pl_name, nadi, sub_idx, pl_idx = self.get_nadi_triple_combination(p_lon)
+            nak_nadi_res.append({
+                "planet": p_name, "nakshatra_name": nak, "is_retrograde": p["is_retrograde"], "is_combust": p["is_combust"],
+                "pl_signified": self.get_eff_sigs_detailed(p_name, planet_res_map, house_owners),
+                "star_lord": sl_name, "nl_signified": self.get_eff_sigs_detailed(sl_name, planet_res_map, house_owners),
+                "sub_lord": sub_name, "sl_signified": self.get_eff_sigs_detailed(sub_name, planet_res_map, house_owners),
+                "planet_lord": pl_name, "pl_lord_signified": self.get_eff_sigs_detailed(pl_name, planet_res_map, house_owners)
+            })
+            
+        dasha_data = self.calculate_dasha(planets_raw, birth_dt_loc)
+        
+        varga_configs = {
+            "D1": 1, "D2": 2, "D3": 3, "D4": 4, "D7": 7, "D9": 9, 
+            "D10": 10, "D12": 12, "D16": 16, "D20": 20, "D24": 24, 
+            "D27": 27, "D30": 30, "D40": 40, "D45": 45, "D60": 60
+        }
+        varga_charts = {}
+        
+        for v_name, d_val in varga_configs.items():
+            chart_planets = []
+            for p_dict in planets_raw:
+                p_name = p_dict["planet"]
+                lon = p_dict["lon"]
+                v_sign_idx = self.get_varga_sign(lon, d_val)
+                chart_planets.append({
+                    "planet": p_name,
+                    "sign": self.SIGNS[v_sign_idx],
+                    "is_retrograde": p_name in ["Rahu", "Ketu"] or p_dict["speed"] < 0
+                })
+            # Add Ascendant to Varga
+            asc_v_sign = self.get_varga_sign(ascmc[0], d_val)
+            varga_charts[v_name] = {
+                "planets": chart_planets,
+                "ascendant": {"sign": self.SIGNS[asc_v_sign]}
+            }
+
+        sn, sl, nlk, sub, ssl, nak, nadi, sub_idx = self.get_kp_lords(ascmc[0])
+        asc_res = {"degree_dms": f"{self.decimal_to_dms(ascmc[0])} {sn}", "sign": sn, "sign_lord": sl, "star_lord": nlk, "sub_lord": sub, "sub_sub_lord": ssl, "nakshatra": nak, "nadi": nadi, "planet_lord": sl}
+        moon_lon = dasha_data["moon_lon"]
+        nak_size = 360/27
+        return {
+            "status": "success", "ascendant": asc_res, "houses": houses_res, "planets": planets_res,
+            "significations": significations_res, "nakshatra_nadi": nak_nadi_res, "dasha": dasha_data,
+            "varga_charts": varga_charts,
+            "metadata": {"ayanamsa": self.ayanamsa, "ayanamsa_value": f"{ayan_val:.4f}°", "janma_nakshatra": self.NAKSHATRAS[int(moon_lon/nak_size)%27], "pada": int((moon_lon % nak_size) / (nak_size / 4)) + 1, "horary_number": horary_number},
+            "aspects": self.calculate_aspects(planets_raw)
+        }
+
+    def calculate_aspects(self, planets_raw):
+        res = []
+        for i in range(len(planets_raw)):
+            p1 = planets_raw[i]
+            for j in range(len(planets_raw)):
+                if i == j: continue
+                p2 = planets_raw[j]
+                diff = abs(p1["lon"] - p2["lon"])
+                if diff > 180: diff = 360 - diff
+                for name, deg in self.ASPECTS.items():
+                    if abs(diff - deg) <= 6.0:
+                        res.append({"planet": p1["planet"], "aspect": name, "target": p2["planet"], "degree_diff": round(diff, 2)})
+        final_res = []
+        for r in res:
+            if r["planet"] in ["Rahu", "Ketu"] and r["aspect"] not in ["Trine", "Opposition", "Conjunction"]: continue
+            final_res.append(r)
+        return final_res
+
+    def get_eff_sigs_detailed(self, p_name, planet_map, house_owners):
+        if p_name not in planet_map: return []
+        p_data = planet_map[p_name]
+        sigs = [{"house": int(p_data["house_placed"]), "is_placed": True}]
+        houses_seen = {int(p_data["house_placed"])}
+        
+        for h, owner in house_owners.items():
+            if owner == p_name and h not in houses_seen:
+                sigs.append({"house": h, "is_placed": False})
+                houses_seen.add(h)
+                
+        if p_name in ["Rahu", "Ketu"]:
+            # Identify all occupied houses (excluding Nodes themselves)
+            occupied = set(int(p["house_placed"]) for p in planet_map.values() if p["planet"] not in ["Rahu", "Ketu"])
+            
+            for agent in self.get_node_agents(p_name, p_data, list(planet_map.values())):
+                a_name = agent['planet']
+                if a_name and a_name in planet_map:
+                    a_data = planet_map[a_name]
+                    a_occ = int(a_data["house_placed"])
+                    # 1. Agent's Occupied House
+                    if a_occ not in houses_seen:
+                        sigs.append({"house": a_occ, "is_placed": False})
+                        houses_seen.add(a_occ)
+                        
+                    # 2. Agent's Owned Houses (Fully included for Nodes)
+                    for h, o in house_owners.items():
+                        if o == a_name and h not in houses_seen:
+                            sigs.append({"house": h, "is_placed": False})
+                            houses_seen.add(h)
+                            
+        return sorted(sigs, key=lambda x: x["house"])
+
+    def calculate_kp_significators_4level(self, p_name, planet_map, house_owners):
+        if p_name not in planet_map: return {"L1":[], "L2":[], "L3":[], "L4":[], "is_self_strength": False}
+        p_data = planet_map[p_name]
+        sl_data = planet_map.get(p_data["star_lord"])
+        l1 = [int(sl_data["house_placed"])] if sl_data else []
+        l2 = [int(p_data["house_placed"])]
+        l3 = sorted([int(h) for h, o in house_owners.items() if o == p_data["star_lord"]])
+        l4 = sorted([int(h) for h, o in house_owners.items() if o == p_name])
+        self_strength = not any(p["star_lord"] == p_name for p in planet_map.values())
+        return {"L1": l2, "L2": l1, "L3": l4, "L4": l3, "is_self_strength": True} if self_strength else {"L1": l1, "L2": l2, "L3": l3, "L4": l4, "is_self_strength": False}
+
+    def get_node_significators(self, node_name, planet_map, house_owners):
+        # 1. Own significations
+        base = self.calculate_kp_significators_4level(node_name, planet_map, house_owners)
+        
+        # 2. Add ALL significations of ALL agents (Sign Lord, Conjunct, Aspect)
+        # User requested no restrictive logic, nodes act as their agents fully.
+        p_data = planet_map[node_name]
+        agents = self.get_node_agents(node_name, p_data, list(planet_map.values()))
+        
+        for agent in agents:
+            a_name = agent['planet']
+            if a_name and a_name in planet_map:
+                a_sigs = self.calculate_kp_significators_4level(a_name, planet_map, house_owners)
+                for lvl in ["L1", "L2", "L3", "L4"]:
                     base[lvl] = sorted(list(set(base[lvl] + a_sigs[lvl])))
         
         # Re-calc agents string
         agent_names = [a['planet'] for a in agents]
         base["agent"] = ", ".join(agent_names) if agent_names else None
         return base
-
     def calculate_dasha(self, planets_raw, birth_dt_loc):
         """
         Final High-Precision Vimshottari Dasha (v1.2.8)
         Sidereal Year = 365.25636 days.
         Nakshatra Length = 48000 arcseconds.
-        Level Formula: (MD * AD * PD * ...) / 120^(level-1)
         """
-        # Step 1-3: Moon Position & Balance
         moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
         abs_arcsec = moon_lon * 3600.0
         nak_len_arcsec = 48000.0 
         nak_idx = int(abs_arcsec // nak_len_arcsec) % 27
-        elapsed_arcsec = abs_arcsec % nak_len_arcsec
-        remaining_arcsec = nak_len_arcsec - elapsed_arcsec
+        remaining_arcsec = nak_len_arcsec - (abs_arcsec % nak_len_arcsec)
         balance_fraction = remaining_arcsec / nak_len_arcsec
-        
         lord_name = self.DASHA_ORDER[nak_idx % 9]
         bal_yrs_f = self.DASHA_YEARS[lord_name] * balance_fraction
-        
-        # sidereal year = 365.25636 days
         DAYS_PER_YEAR = 365.25636
-        
+
         def add_precise(dt, float_yrs):
             return dt + datetime.timedelta(days=float_yrs * DAYS_PER_YEAR)
 
         fmt_dt = lambda dt: dt.strftime("%d/%m/%Y %H:%M:%S")
         today = datetime.datetime.now(pytz.UTC)
-        
-        # MD Sequence Start
         md_end_first = add_precise(birth_dt_loc, bal_yrs_f)
         md_curs = md_end_first - datetime.timedelta(days=self.DASHA_YEARS[lord_name] * DAYS_PER_YEAR)
         
@@ -782,50 +968,51 @@ class NadiEngine:
             idx = self.DASHA_ORDER.index(p)
             return self.DASHA_ORDER[idx:] + self.DASHA_ORDER[:idx]
 
-        tree, act_md, act_ad, act_pd = [], "None", "None", "None"
-        
-        # Level 1: Mahadasha (D)
+        tree, act_md, act_ad, act_pd, act_sd = [], "None", "None", "None", "None"
         for md_p in get_seq(lord_name):
             md_start = md_curs
-            md_yrs = self.DASHA_YEARS[md_p]
-            md_end = md_start + datetime.timedelta(days=md_yrs * DAYS_PER_YEAR)
+            md_end = add_precise(md_start, self.DASHA_YEARS[md_p])
             md_item = {"planet": md_p, "label": "D", "start_date": fmt_dt(md_start), "end_date": fmt_dt(md_end), "bukthis": []}
-            
             if md_start <= today <= md_end: act_md = md_p
             
-            # Level 2: Antardasha (B)
             ad_curs = md_start
             for ad_p in get_seq(md_p):
                 ad_yrs_f = (self.DASHA_YEARS[md_p] * self.DASHA_YEARS[ad_p]) / 120.0
                 ad_end = add_precise(ad_curs, ad_yrs_f)
                 ad_item = {"planet": ad_p, "label": "B", "start_date": fmt_dt(ad_curs), "end_date": fmt_dt(ad_end), "antaras": []}
-                
                 if act_md == md_p and ad_curs <= today <= ad_end: act_ad = ad_p
                 
-                # Level 3: Pratyantardasha (A)
                 pd_curs = ad_curs
                 for pd_p in get_seq(ad_p):
                     pd_yrs_f = (self.DASHA_YEARS[md_p] * self.DASHA_YEARS[ad_p] * self.DASHA_YEARS[pd_p]) / (120.0**2)
                     pd_end = add_precise(pd_curs, pd_yrs_f)
-                    pd_item = {"planet": pd_p, "label": "A", "start_date": fmt_dt(pd_curs), "end_date": fmt_dt(pd_end)}
-                    
+                    pd_item = {"planet": pd_p, "label": "A", "start_date": fmt_dt(pd_curs), "end_date": fmt_dt(pd_end), "pratyantars": []}
                     if act_ad == ad_p and pd_curs <= today <= pd_end: act_pd = pd_p
                     
+                    if act_ad == ad_p:
+                        sd_curs = pd_curs
+                        for sd_p in get_seq(pd_p):
+                            sd_yrs_f = (self.DASHA_YEARS[md_p] * self.DASHA_YEARS[ad_p] * self.DASHA_YEARS[pd_p] * self.DASHA_YEARS[sd_p]) / (120.0**3)
+                            sd_end = add_precise(sd_curs, sd_yrs_f)
+                            if act_pd == pd_p and sd_curs <= today <= sd_end: act_sd = sd_p
+                            pd_item["pratyantars"].append({"planet": sd_p, "label": "P", "start_date": fmt_dt(sd_curs), "end_date": fmt_dt(sd_end)})
+                            sd_curs = sd_end
+
                     ad_item["antaras"].append(pd_item)
                     pd_curs = pd_end
-                
                 md_item["bukthis"].append(ad_item)
                 ad_curs = ad_end
-                
             tree.append(md_item)
             md_curs = md_end
-            
-        # Tree building logic
+
+        bal_total_days = bal_yrs_f * DAYS_PER_YEAR
+        y_bal = int(bal_yrs_f)
+        rem_days = bal_total_days - y_bal * DAYS_PER_YEAR
+        m_bal = int(rem_days / 30.436875)
+        d_bal = int(rem_days - m_bal * 30.436875)
+        
         return {
-            "current_path": [act_md, act_ad, act_pd], 
-            "tree": tree, 
-            "moon_lon": moon_lon, 
-            "balance": f"{bal_yrs_f:.4f} years",
-            "nakshatra": self.NAKSHATRAS[nak_idx], 
-            "pada": int((elapsed_arcsec % nak_len_arcsec) / (nak_len_arcsec / 4)) + 1
+            "balance_at_birth": f"{y_bal}y {m_bal}m {d_bal}d", 
+            "current_dasha": act_md, "current_bukthi": act_ad, "current_antara": act_pd, "current_pratyantar": act_sd,
+            "mahadasha_sequence": tree, "moon_lon": moon_lon
         }
