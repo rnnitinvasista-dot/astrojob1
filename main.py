@@ -10,13 +10,25 @@ import os
 import traceback
 import logging
 from nadi_core import NadiEngine, HIT_MATRIX, SUCCESS_LABELS, HOUSE_JOB_AREAS
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from typing import List, Optional, Dict, Set, Tuple, Union
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+import json
+import os
+import traceback
+import logging
+from nadi_core import NadiEngine, HIT_MATRIX, SUCCESS_LABELS, HOUSE_JOB_AREAS
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("nadi-engine")
 
 # Version: 1.2.2 - Fix Rahu/Ketu & Nadi Combinations
-app = FastAPI(title="Nadi Precision Engine Gold v1.2.3")
+app = FastAPI(title="Nadi Precision Engine Gold v1.2.4")
 
 @app.on_event("startup")
 async def startup_event():
@@ -107,11 +119,7 @@ def mixed_prashna(req: PrashnaRequest):
 @app.get("/health")
 @app.get("/api/v1/kp/health")
 def health():
-    return {
-        "status": "online",
-        "service": "Nadi Precision Engine Gold",
-        "version": "1.2.3-FULL-DASHA"
-    }
+    return {"status": "online", "service": "Nadi Precision Engine Gold", "version": "1.2.4-FULL-DASHA"}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
