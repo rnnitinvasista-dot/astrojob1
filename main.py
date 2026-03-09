@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("nadi-engine")
 
 # Version: 1.2.2 - Fix Rahu/Ketu & Nadi Combinations
-app = FastAPI(title="Nadi Precision Engine Gold v1.2.2")
+app = FastAPI(title="Nadi Precision Engine Gold v1.2.3")
 
 @app.on_event("startup")
 async def startup_event():
@@ -108,9 +108,9 @@ def mixed_prashna(req: PrashnaRequest):
 @app.get("/api/v1/kp/health")
 def health():
     return {
-        "status": "online", 
-        "service": "Nadi Precision Engine Gold", 
-        "version": "1.2.2-FULL-DASHA"
+        "status": "online",
+        "service": "Nadi Precision Engine Gold",
+        "version": "1.2.3-FULL-DASHA"
     }
 
 if __name__ == "__main__":
