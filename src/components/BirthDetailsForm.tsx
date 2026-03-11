@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
 import { Search, MapPin, X, History as HistoryIcon } from 'lucide-react';
 import type { BirthDetails } from '../types/astrology';
@@ -39,6 +39,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
     const [activeTab, setActiveTab] = useState<'NEW' | 'RECENTS'>('NEW');
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [locationInput, setLocationInput] = useState('');
+    const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Defaults
     const [birthDay, setBirthDay] = useState('');
@@ -165,39 +166,38 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                 return;
             }
 
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=20&countrycodes=${selectedCountry}`);
-            let data: LocationSuggestion[] = await response.json();
+            // Use Open-Meteo Geocoding API — free, no key, CORS-friendly, no rate limits
+            const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=15&language=en&format=json`;
+            const response = await fetch(url);
+            const data = await response.json();
 
-            // Filter: keep only city/town/village types, remove district/county/state
-            // Also remove variants like 'Urban', 'Rural', 'North', 'South', 'East', 'West' etc
-            const noiseWords = ['urban', 'rural', 'north', 'south', 'east', 'west', 'railway station', 'bus stand', 'terminal', 'airport', 'cantonment', 'district', 'division', 'bbmp'];
-            data = data.filter(item => {
-                const name = item.display_name.toLowerCase();
-                // Filter out any entries with noise keywords
-                return !noiseWords.some(word => name.includes(word));
-            });
+            if (!data.results || data.results.length === 0) {
+                setSuggestions([]);
+                return;
+            }
 
-            // Deduplicate: we already handled standardMatch, now handle generic results
+            // Filter by selected country code
+            const countryResults = data.results.filter((r: any) =>
+                r.country_code?.toLowerCase() === selectedCountry.toLowerCase()
+            );
+
+            // Use country-filtered results, or fallback to all if none match
+            const pool = countryResults.length > 0 ? countryResults : data.results;
+
             const seenCities = new Set<string>();
             const uniqueData: LocationSuggestion[] = [];
 
-            for (const item of data) {
-                // Get the first part of the location name (the city itself)
-                const cityName = item.display_name.split(',')[0].trim();
-                const primaryWord = cityName.split(' ')[0].toLowerCase().trim();
-
-                // If we haven't seen this primary city word yet, and it's not a noise variant, add it
+            for (const item of pool) {
+                const primaryWord = item.name.split(' ')[0].toLowerCase().trim();
                 if (!seenCities.has(primaryWord)) {
                     seenCities.add(primaryWord);
-                    // Simplify the display name for the suggestion list if it's too long
-                    const parts = item.display_name.split(',');
-                    const simplifiedName = parts.length > 2
-                        ? `${parts[0].trim()}, ${parts[parts.length - 3].trim()}, ${parts[parts.length - 2].trim()}`
-                        : item.display_name;
-
+                    // Build a readable display name: City, State, Country
+                    const parts = [item.name, item.admin1, item.country].filter(Boolean);
+                    const displayName = parts.join(', ');
                     uniqueData.push({
-                        ...item,
-                        display_name: simplifiedName
+                        display_name: displayName,
+                        lat: item.latitude.toString(),
+                        lon: item.longitude.toString()
                     });
                 }
             }
@@ -325,7 +325,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     required
-                                    style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
+                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
                                 />
                             </div>
                         )}
@@ -333,22 +333,22 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                         <div className="parchment-card">
                             <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Date: * (DD/MM/YYYY)</label>
                             <div className="input-segmented">
-                                <input className="segmented-field" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="DD" maxLength={2} value={birthDay} onChange={(e) => setBirthDay(e.target.value)} />
+                                <input className="segmented-field" style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} type="text" placeholder="DD" maxLength={2} value={birthDay} onChange={(e) => setBirthDay(e.target.value)} />
                                 <span style={{ color: 'black', fontWeight: 800 }}>/</span>
-                                <input className="segmented-field" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="MM" maxLength={2} value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} />
+                                <input className="segmented-field" style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} type="text" placeholder="MM" maxLength={2} value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} />
                                 <span style={{ color: 'black', fontWeight: 800 }}>/</span>
-                                <input className="segmented-field" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="YYYY" maxLength={4} value={birthYear} onChange={(e) => setBirthYear(e.target.value)} />
+                                <input className="segmented-field" style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} type="text" placeholder="YYYY" maxLength={4} value={birthYear} onChange={(e) => setBirthYear(e.target.value)} />
                             </div>
                         </div>
 
                         <div className="parchment-card">
                             <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Time: * (00:00:00 - 24 hrs)</label>
                             <div className="input-segmented">
-                                <input className="segmented-field" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="HH" maxLength={2} value={birthHour} onChange={(e) => setBirthHour(e.target.value)} />
+                                <input className="segmented-field" style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} type="text" placeholder="HH" maxLength={2} value={birthHour} onChange={(e) => setBirthHour(e.target.value)} />
                                 <span style={{ color: 'black', fontWeight: 800 }}>:</span>
-                                <input className="segmented-field" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="MM" maxLength={2} value={birthMin} onChange={(e) => setBirthMin(e.target.value)} />
+                                <input className="segmented-field" style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} type="text" placeholder="MM" maxLength={2} value={birthMin} onChange={(e) => setBirthMin(e.target.value)} />
                                 <span style={{ color: 'black', fontWeight: 800 }}>:</span>
-                                <input className="segmented-field" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.5rem' }} type="text" placeholder="SS" maxLength={2} value={birthSec} onChange={(e) => setBirthSec(e.target.value)} />
+                                <input className="segmented-field" style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} type="text" placeholder="SS" maxLength={2} value={birthSec} onChange={(e) => setBirthSec(e.target.value)} />
                             </div>
                         </div>
 
@@ -388,7 +388,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                                     placeholder="1 - 249"
                                     value={formData.horary_number || ''}
                                     onChange={(e) => setFormData({ ...formData, horary_number: parseInt(e.target.value) })}
-                                    style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
+                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
                                     required
                                 />
                             </div>
@@ -398,7 +398,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                                 <select
                                     value={formData.ayanamsa || 'KP'}
                                     onChange={(e) => setFormData({ ...formData, ayanamsa: e.target.value })}
-                                    style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
+                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
                                 >
                                     <option value="KP">KP-NEW (Krishnamurti)</option>
                                     <option value="KP_OLD">KP-OLD</option>
@@ -439,7 +439,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                                 <select
                                     value={selectedCountry}
                                     onChange={(e) => setSelectedCountry(e.target.value)}
-                                    style={{ borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '1rem', background: '#f8fafc' }}
+                                    style={{ borderRadius: '0', border: '1.5px solid #cbd5e1', marginBottom: '1rem', background: '#f8fafc' }}
                                 >
                                     <option value="in">India 🇮🇳</option>
                                     <option value="us">USA 🇺🇸</option>
@@ -458,10 +458,22 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                                 placeholder="Search city name..."
                                 value={locationInput}
                                 onChange={(e) => {
-                                    setLocationInput(e.target.value);
-                                    if (e.target.value.length >= 3) searchLocations(e.target.value);
+                                    const val = e.target.value;
+                                    setLocationInput(val);
+                                    
+                                    if (searchTimeout.current) {
+                                        clearTimeout(searchTimeout.current);
+                                    }
+                                    
+                                    if (val.length >= 3) {
+                                        searchTimeout.current = setTimeout(() => {
+                                            searchLocations(val);
+                                        }, 600);
+                                    } else {
+                                        setSuggestions([]);
+                                    }
                                 }}
-                                style={{ borderRadius: '12px', border: '1px solid #e2e8f0' }}
+                                style={{ borderRadius: '0', border: '1.5px solid #cbd5e1' }}
                             />
                             <ul className="results-list" style={{ marginTop: '1rem' }}>
                                 {isSearching && <li style={{ padding: '1rem', color: '#64748b' }}>Searching...</li>}
