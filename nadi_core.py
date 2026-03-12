@@ -624,7 +624,13 @@ class NadiEngine:
                 "planet_lord": pl_name, "pl_lord_signified": self.get_eff_sigs_detailed(pl_name, planet_res_map, house_owners)
             })
             
-        dasha_data = self.calculate_dasha(planets_raw, birth_dt_loc)
+        # Calculate specialized Moon longitude for Dasha using Lahiri Ayanamsa
+        swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+        ayan_lahiri = swe.get_ayanamsa_ut(jd)
+        res_moon, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_SWIEPH)
+        moon_lon_lahiri = (res_moon[0] - ayan_lahiri) % 360.0
+        
+        dasha_data = self.calculate_dasha(planets_raw, birth_dt_loc, moon_lon_lahiri=moon_lon_lahiri)
         
         varga_configs = {
             "D1": 1, "D2": 2, "D3": 3, "D4": 4, "D7": 7, "D9": 9, 

@@ -587,7 +587,13 @@ class NadiEngine:
                 "planet_lord": pl_name, "pl_lord_signified": self.get_eff_sigs_detailed(pl_name, planet_res_map, house_owners, include_node_self=True)
             })
             
-        dasha_data = self.calculate_dasha(planets_raw, birth_dt_loc)
+        # Calculate specialized Moon longitude for Dasha using Lahiri Ayanamsa
+        swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+        ayan_lahiri = swe.get_ayanamsa_ut(jd)
+        res_moon, _ = swe.calc_ut(jd, swe.MOON, swe.FLG_SWIEPH)
+        moon_lon_lahiri = (res_moon[0] - ayan_lahiri) % 360.0
+        
+        dasha_data = self.calculate_dasha(planets_raw, birth_dt_loc, moon_lon_lahiri=moon_lon_lahiri)
         
         # DEBUG LOGGING FOR ENGINE
         print(f"DEBUG: Calculated {len(nak_nadi_res)} Nadi entries.")
@@ -772,7 +778,7 @@ class NadiEngine:
         base["agent"] = ", ".join(agent_names) if agent_names else None
         return base
 
-    def calculate_dasha(self, planets_raw, birth_dt_loc):
+    def calculate_dasha(self, planets_raw, birth_dt_loc, moon_lon_lahiri=None):
         """
         Final High-Precision Vimshottari Dasha (v1.2.8)
         Sidereal Year = 365.25636 days.
@@ -781,7 +787,10 @@ class NadiEngine:
         import datetime
         import pytz
         
-        moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
+        if moon_lon_lahiri is not None:
+            moon_lon = moon_lon_lahiri
+        else:
+            moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
         abs_arcsec = moon_lon * 3600.0
         nak_len_arcsec = 48000.0 
         nak_idx = int(abs_arcsec // nak_len_arcsec) % 27
