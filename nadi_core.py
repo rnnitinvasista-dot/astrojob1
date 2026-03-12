@@ -751,7 +751,7 @@ class NadiEngine:
         base["agent"] = ", ".join(agent_names) if agent_names else None
         return base
 
-    def calculate_dasha(self, planets_raw, birth_dt_loc):
+    def calculate_dasha(self, planets_raw, birth_dt_loc, moon_lon_lahiri=None):
         """
         Final High-Precision Vimshottari Dasha (v1.2.8)
         Sidereal Year = 365.25636 days.
@@ -760,7 +760,10 @@ class NadiEngine:
         import datetime
         import pytz
         
-        moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
+        if moon_lon_lahiri is not None:
+            moon_lon = moon_lon_lahiri
+        else:
+            moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
         abs_arcsec = moon_lon * 3600.0
         nak_len_arcsec = 48000.0 
         nak_idx = int(abs_arcsec // nak_len_arcsec) % 27
