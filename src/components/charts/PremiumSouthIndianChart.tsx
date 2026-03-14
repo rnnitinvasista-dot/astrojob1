@@ -18,6 +18,7 @@ interface PremiumSouthIndianChartProps {
     ascendant: Ascendant; // D1 fallback
     birthDetails?: any;
     chartMode?: 'Rashi' | 'Bhava';
+    chartStyle?: 'South Indian' | 'North Indian';
 }
 
 const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
@@ -25,7 +26,8 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
     planets,
     ascendant,
     birthDetails,
-    chartMode = 'Rashi'
+    chartMode = 'Rashi',
+    chartStyle: _chartStyle = 'South Indian'
 }) => {
     const [selectedVarga, setSelectedVarga] = useState<string>('D1');
 

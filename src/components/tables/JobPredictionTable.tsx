@@ -73,16 +73,66 @@ const HEALTH_RESULT_MAP: Record<number, string> = {
     1: "Good Health, Recovery potential.",
     2: "Normal Health, Face/Eye area focus.",
     3: "Normal Health, Ears/Hands area.",
-    4: "Long term or Incurable potential, High intensity.",
-    5: "Robust Health, Active, Fast recovery.",
-    6: "Small Disease, Acute issues.",
+    4: "Long term or incurable disease",
+    5: "Strong health",
+    6: "Small disease",
     7: "Normal Health, Kidneys/Urine area.",
-    8: "Long Disease, Chronic issues, Surgery potential.",
-    9: "God's Grace, Protection, Good Health.",
-    10: "Significant Disease Name, Back/Knee area.",
-    11: "Gain of health, Successful recovery.",
-    12: "Hospitalization, Bed ridden, Feet area focus."
+    8: "Chronic disease",
+    9: "Divine protection",
+    10: "Major disease diagnosis",
+    11: "Gain or recovery of health",
+    12: "Hospitalization or bed rest"
 };
+
+const HEALTH_DISEASE_MAP: Record<string, string> = {
+    "SUN": "Headache, Eyesight problem, Fever, Migraine, Brain and Heart related problem, Acidity, Spinal Cord, Loss of appetite, Bile, Sun stroke",
+    "MOON": "Poor blood circulation, Heart issue, Common Cough and Cold, Depression, Poor Eyesight, Fears and Phobia, Wetting in hand, Unconsciousness (Coma), Breast related problem, Stomach Problem, Insomnia",
+    "MARS": "All Blood related problem, Accidents, Operation to any part of body, Bone marrow, Fracture, Calcium deficiency, BP and low BP, Varicose Veins, Tooth related Problem, Nail Problems, Fever",
+    "MERCURY": "Fits or Epilepsy, Skin and Nerve problem, Deaf and Dumb, Psoriasis, White Patches, Varicose and Veins, Ear Nose Throat Problems, Memory Loss, Alzimer's disease, Parkinson's disease",
+    "JUPITER": "Diabetes, Cholesterol, Lungs, Thyroid, Obesity, Jaundice, Liver problems, fat accumulation",
+    "VENUS": "Kidney, PCOD, Spermatozoa, Fungus and Infection, Skin problem, White Patches, Stones, Urine and Uterus",
+    "SATURN": "Deformalities of a body, Joint and Back pain, Spondylosis, Hair fall and White hair, Disc slip, Leprosy, Asthma, Snoring, Knee pain, Insomnia, Leg pain",
+    "RAHU": "Incurable disease like Cancer, Aids, Disease which is difficult to diagnosis, Immunity, Bite of poisonous insects, Operations, Hospitalization",
+    "KETU": "Allergies and Infection, B P, Contagious disease, Airborne disease, Infections, Amputations, Heat related problem, Piles and Fistula, Intestine, Constipation"
+};
+
+
+const PROPERTY_LITIGATION = [[3, 5, 6, 8, 12], [3, 5, 6, 12], [3, 5, 6, 8], [3, 5, 8, 12], [3, 5, 12]];
+
+
+const DONATION_MAP: Record<string, { item: string, day: string, time: string }> = {
+    "SUN": { item: "Wheat", day: "Sunday", time: "Morning 6:00 AM to 7:00 AM" },
+    "MOON": { item: "Rice", day: "Monday", time: "Morning 6:00 AM to 7:00 AM" },
+    "MARS": { item: "Toordal", day: "Tuesday", time: "Morning 6:00 AM to 7:00 AM" },
+    "MERCURY": { item: "Green Gram", day: "Wednesday", time: "Morning 6:00 AM to 7:00 AM" },
+    "JUPITER": { item: "Bengal Gram", day: "Thursday", time: "Morning 6:00 AM to 7:00 AM" },
+    "VENUS": { item: "Hyacinth Beans", day: "Friday", time: "Morning 6:00 AM to 7:00 AM" },
+    "SATURN": { item: "Black Sesame", day: "Saturday", time: "Morning 6:00 AM to 7:00 AM" },
+    "RAHU": { item: "Black Urad", day: "Saturday", time: "Morning 6:00 AM to 7:00 AM" },
+    "KETU": { item: "Horse Gram", day: "Thursday", time: "Morning 6:00 AM to 7:00 AM" }
+};
+
+const HEALTH_GOOD_HIGH = [[5, 9, 11]];
+const HEALTH_GOOD_MEDIUM = [[5, 11], [5, 9]];
+const HEALTH_GOOD_LOW = [[5], [11], [9]];
+
+const HEALTH_BAD_HIGH = [[4, 6, 8, 10, 12], [4, 6, 10, 12], [4, 8, 10, 12]];
+const HEALTH_BAD_MEDIUM = [[4, 6, 8, 10], [4, 8, 12], [4, 6, 12], [4, 6, 10], [4, 8, 10], [4, 10], [6, 8, 12]];
+const HEALTH_BAD_LOW = [[4], [6, 12], [6, 8], [8], [6]];
+
+const MARRIAGE_GOOD_VERY_GOOD = [[2, 7, 9, 11]];
+const MARRIAGE_GOOD_GOOD = [[2, 7, 11], [7, 9, 11], [2, 9, 11]];
+const MARRIAGE_GOOD_MEDIUM = [[2, 7], [2, 11], [7, 11]];
+const MARRIAGE_GOOD_LOW = [[2], [7], [9], [11]];
+
+const MARRIAGE_BAD_VERY_BAD = [[1, 5, 6, 8, 10, 12]];
+const MARRIAGE_BAD_BAD = [[1, 5, 6, 10], [1, 6, 10], [5, 6, 10]];
+const MARRIAGE_BAD_MEDIUM = [[6, 10], [5, 10], [5, 6]];
+const MARRIAGE_BAD_LOW = [[5], [6], [1, 10]];
+
+function checkSubset(set: Set<number>, subsets: number[][]): boolean {
+    return subsets.some(sub => sub.every(h => set.has(h)));
+}
 
 const JOB_SUCCESS_MATRIX: Record<number, Record<number, string>> = {
     1: { 1: "M", 2: "M", 3: "M", 4: "M", 5: "M", 6: "M", 7: "M", 8: "L", 9: "M", 10: "H", 11: "H", 12: "B!" },
@@ -159,6 +209,25 @@ const HEALTH_SUCCESS_MATRIX: Record<number, Record<number, string>> = {
     12: { 1: "VB", 2: "B", 3: "B", 4: "VB", 5: "B", 6: "VB", 7: "B", 8: "VB", 9: "B", 10: "VB", 11: "B", 12: "VB" }
 };
 
+const TRAVEL_ABROAD_VERY_HIGH = [[1, 3, 7, 9, 11, 12], [3, 7, 9, 12], [3, 9, 12]];
+const TRAVEL_ABROAD_HIGH = [[9, 12], [3, 12], [12]];
+const TRAVEL_ABROAD_MEDIUM = [[9], [3]];
+
+const TRAVEL_HOME_VERY_HIGH = [[2, 4, 11]];
+const TRAVEL_HOME_HIGH = [[2, 11]];
+const TRAVEL_HOME_MEDIUM = [[4, 11]];
+const TRAVEL_HOME_LOW = [[2, 4], [2], [4]];
+
+const PROPERTY_PURCHASE_VERY_HIGH = [[4, 6, 8, 11, 12], [4, 6, 11, 12]];
+const PROPERTY_PURCHASE_HIGH = [[4, 8, 11, 12], [4, 11, 12], [4, 6, 11]];
+const PROPERTY_PURCHASE_MEDIUM = [[4, 8, 11], [4, 11]];
+const PROPERTY_PURCHASE_LOW = [[4], [8, 11]];
+
+const PROPERTY_SALE_VERY_HIGH = [[3, 5, 10, 11], [3, 5, 10, 11, 12]];
+const PROPERTY_SALE_HIGH = [[3, 5, 11], [3, 5, 11, 12]];
+const PROPERTY_SALE_MEDIUM = [[3, 5, 10], [3, 11], [3, 11, 12]];
+const PROPERTY_SALE_LOW = [[3, 12], [3, 5], [3, 10], [3]];
+
 const JOB_GOOD_A_PLUS = [
     [2, 6, 7, 9, 10, 11], [2, 6, 7, 9, 11], [2, 6, 7, 11], [2, 6, 11], [2, 7, 11], [2, 11], [10, 11], [7, 11], [4, 11], [3, 11], [5, 11], [8, 11], [11]
 ];
@@ -176,15 +245,13 @@ const JOB_BAD_02 = [
     [6, 8, 9, 12], [7, 8, 9, 12], [6, 8, 12], [7, 8, 12], [6, 12], [7, 12], [9, 12]
 ];
 
-const CHILD_BIRTH_HIGH = [[2, 5, 9, 11], [2, 5, 11]];
-const CHILD_BIRTH_MEDIUM = [[5, 9, 11], [5, 11]];
-const CHILD_BIRTH_LOW = [[5], [2], [11]];
-const CHILD_BIRTH_NEGATIVE = [[1, 4, 8, 10, 12], [1, 4, 8, 10], [1, 4, 10], [4, 10], [4], [1, 10]];
+const CHILD_BIRTH_VERY_HIGH = [[2, 5, 9, 11]];
+const CHILD_BIRTH_HIGH = [[2, 5, 11], [5, 9, 11], [5, 11]];
+const CHILD_BIRTH_MEDIUM = [[5], [2], [11]];
+const CHILD_BIRTH_BAD = [[1, 4, 8, 10, 12], [1, 4, 8, 10], [1, 4, 10], [4, 10], [4], [1, 10]];
 const CHILD_BIRTH_ABORTION = [[2, 5, 6, 8, 12], [2, 5, 8, 12], [5, 8, 12]];
+const CHILD_BIRTH_SPECIAL_CASE = [[2, 5, 8, 11]]; // Caesarean / IVF / Test Tube Baby
 
-const checkSubset = (target: Set<number>, subsets: number[][]) => {
-    return subsets.some(sub => sub.every(h => target.has(h)));
-};
 
 const getSuccessInfo = (code: string) => {
     switch (code) {
@@ -265,6 +332,12 @@ const getBifurcation = (houseSet: Set<number>, area: string) => {
     } else if (area === 'Health') {
         good = [1, 2, 3, 5, 7, 9, 11];
         bad = [4, 6, 8, 10, 12];
+    } else if (area === 'Travel') {
+        good = [1, 3, 7, 9, 11, 12];
+        bad = [2, 4, 11];
+    } else if (area === 'Property & Vehicle') {
+        good = [1, 2, 4, 6, 7, 8, 11, 12];
+        bad = [3, 5, 10];
     } else {
         const combo = Array.from(houseSet);
         const has11 = combo.includes(11);
@@ -305,21 +378,35 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
     const isMarriage = selectedArea === 'Marriage';
     const isChildBirth = selectedArea === 'Child Birth';
     const isHealth = selectedArea === 'Health';
+    const isTravel = selectedArea === 'Travel';
+    const isProperty = selectedArea === 'Property & Vehicle';
+    
     const [isExpanded, setIsExpanded] = useState(false);
+    const [activeTab, setActiveTab] = useState<'DETAILS' | 'REMEDIES'>('DETAILS');
+    const [subTab, setSubTab] = useState<'ABROAD' | 'HOME' | 'PURCHASE' | 'SALE'>(isTravel ? 'ABROAD' : 'PURCHASE');
 
     const planetData = data.find(p => p.planet === planetName) || data[0];
     if (!planetData) return <div>No data available</div>;
 
     const placementMap: Record<string, number> = {};
-    planets.forEach(p => { placementMap[p.planet] = p.house_placed; });
+    planets.forEach(p => { placementMap[p.planet.toUpperCase()] = p.house_placed; });
 
-    const plHit = placementMap[planetData.planet];
-    const nlHit = placementMap[planetData.star_lord];
-    const slHit = placementMap[planetData.sub_lord];
+    let plHit = placementMap[planetData.planet.toUpperCase()];
+    let nlHit = placementMap[planetData.star_lord.toUpperCase()];
+    let slHit = placementMap[planetData.sub_lord.toUpperCase()];
 
-    const plHouses = planetData.pl_signified.map(h => h.house);
-    const nlHouses = planetData.nl_signified.map(h => h.house);
-    const slHouses = planetData.sl_signified.map(h => h.house);
+    let plHouses = planetData.pl_signified.map(h => h.house);
+    let nlHouses = planetData.nl_signified.map(h => h.house);
+    let slHouses = planetData.sl_signified.map(h => h.house);
+
+    if (isChildBirth) {
+        plHouses = plHouses.filter(h => h !== 3 && h !== 6 && h !== 7);
+        nlHouses = nlHouses.filter(h => h !== 3 && h !== 6 && h !== 7);
+        slHouses = slHouses.filter(h => h !== 3 && h !== 6 && h !== 7);
+        if (plHit === 3 || plHit === 6 || plHit === 7) plHit = -1; // -1 to avoid matching any house
+        if (nlHit === 3 || nlHit === 6 || nlHit === 7) nlHit = -1;
+        if (slHit === 3 || slHit === 6 || slHit === 7) slHit = -1;
+    }
 
     const getHouseColor = (h: number, isBad: boolean, area: string) => {
         if (area === 'Education') {
@@ -337,8 +424,9 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
             return '#ef4444';
         }
         if (area === 'Health') {
+            if (h === 1) return isBad ? '#ef4444' : '#16a34a';
             if ([5, 9, 11].includes(h)) return '#16a34a';
-            if ([1, 2, 3, 7].includes(h)) return '#60a5fa';
+            if ([2, 3, 7].includes(h)) return '#60a5fa';
             return '#ef4444';
         }
         if (isBad) return '#ef4444';
@@ -348,8 +436,11 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
     };
 
     const renderHousesPerRow = (sigs: number[], hit: number) => {
-        const pool = new Set([...sigs, hit]);
-        const bif = getBifurcation(pool, selectedArea);
+        const hSet = new Set(sigs);
+        if (hit !== -1) hSet.add(hit);
+        const pool = Array.from(hSet);
+        
+        const bif = getBifurcation(hSet, selectedArea);
         const uniquePool = Array.from(pool).sort((a, b) => a - b);
         const good = uniquePool.filter(h => bif.colGood.includes(h));
         const bad = uniquePool.filter(h => bif.colBad.includes(h));
@@ -377,7 +468,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
         return { good, bad, renderCell };
     };
 
-    const plBif = renderHousesPerRow(plHouses, plHit);
+    const plBif = renderHousesPerRow(plHouses, isHealth ? -1 : plHit);
     const nlBif = renderHousesPerRow(nlHouses, nlHit);
     const slBif = renderHousesPerRow(slHouses, slHit);
 
@@ -385,10 +476,13 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
     const comboBadSet = new Set([...plBif.bad, ...nlBif.bad, ...slBif.bad]);
 
     const allHousesSet = new Set([
-        ...plHouses, plHit,
-        ...nlHouses, nlHit,
-        ...slHouses, slHit
+        ...plHouses,
+        ...nlHouses,
+        ...slHouses
     ]);
+    if (plHit !== -1) allHousesSet.add(plHit);
+    if (nlHit !== -1) allHousesSet.add(nlHit);
+    if (slHit !== -1) allHousesSet.add(slHit);
 
     const counts: Record<number, number> = {};
     [...plHouses, ...nlHouses, ...slHouses].forEach(h => { counts[h] = (counts[h] || 0) + 1; });
@@ -455,15 +549,18 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
 
     const jobNoteText = React.useMemo(() => {
         if (!isEducation && !isMarriage && !isChildBirth && !isHealth) {
-            return shuffleText("Technology, Medicine, Software, Abroad, Astrology, any Business without investments");
+            // Only show this fixed text when success rate is bad/very bad. Do not shuffle.
+            if (successCode.startsWith('B') || successCode.startsWith('VB')) {
+                return "Good in Medicine, Abroad, Software, any Business without investments, Astrology, Technology";
+            }
         }
         return "";
-    }, [selectedArea, isEducation, isMarriage, isChildBirth, isHealth]);
+    }, [selectedArea, isEducation, isMarriage, isChildBirth, isHealth, successCode]);
 
     return (
         <div style={{
             background: '#ffffff',
-            borderRadius: '16px',
+            borderRadius: '0',
             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
             marginBottom: '1.5rem',
             overflow: 'hidden',
@@ -471,10 +568,9 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
             width: '100%',
             maxWidth: '100%',
             margin: '0 0 0.75rem',
-            border: '2px solid #000000',
-            borderTop: '5px solid #000000'
+            border: '3px solid #000000',
         }}>
-            <div style={{ background: headerStyle.background, padding: '10px 8px', textAlign: 'center', borderBottom: '1.5px solid #000000' }}>
+            <div style={{ background: headerStyle.background, padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #000000' }}>
                 <h3 style={{ margin: 0, color: headerStyle.color, fontWeight: 900, fontSize: '1rem', letterSpacing: '0.5px' }}>
                     {planetData.planet.toUpperCase()}
                 </h3>
@@ -502,11 +598,15 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                             <div style={{ background: '#f0fdf4', padding: '6px', borderRadius: '6px', border: '1px solid #dcfce7' }}>
-                                <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#15803d', marginBottom: '4px', textTransform: 'uppercase' }}>GOOD</div>
+                                <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#15803d', marginBottom: '4px', textTransform: 'uppercase' }}>
+                                    {isTravel ? "ABROAD / AWAY" : isProperty ? "PURCHASE" : "GOOD"}
+                                </div>
                                 {row.bif.renderCell(row.bif.good, false)}
                             </div>
                             <div style={{ background: '#fef2f2', padding: '6px', borderRadius: '6px', border: '1px solid #fee2e2' }}>
-                                <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#b91c1c', marginBottom: '4px', textTransform: 'uppercase' }}>BAD</div>
+                                <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#b91c1c', marginBottom: '4px', textTransform: 'uppercase' }}>
+                                    {isTravel ? "HOME" : isProperty ? "SALE" : "BAD"}
+                                </div>
                                 {row.bif.renderCell(row.bif.bad, true)}
                             </div>
                         </div>
@@ -516,89 +616,523 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
                 <div style={{ borderBottom: '1.5px solid #000000', padding: '8px 12px', background: '#f8fafc', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                     <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>COMBINATION</div>
                     <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                        {renderCombination(comboGoodSet, false)}
-                        <span style={{ color: '#000000', fontWeight: 900, fontSize: '1rem' }}>/</span>
-                        {renderCombination(comboBadSet, true)}
+                        {isTravel || isProperty ? (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px' }}>
+                                {Array.from(allHousesSet)
+                                    .filter(h => (isTravel ? (subTab === 'ABROAD' ? [1,3,7,9,11,12] : [2,4,11]) : (subTab === 'PURCHASE' ? [1,2,4,6,7,8,11,12] : [3,5,10])).includes(h))
+                                    .sort((a,b) => a-b)
+                                    .map((h, i, arr) => (
+                                        <React.Fragment key={h}>
+                                            <span style={{ 
+                                                fontSize: '0.8rem', fontWeight: 900, color: '#1e293b',
+                                                background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', border: '1px solid #e2e8f0'
+                                            }}>{h}</span>
+                                            {i < arr.length - 1 && <span style={{ color: '#cbd5e1', fontWeight: 400 }}>-</span>}
+                                        </React.Fragment>
+                                    ))
+                                }
+                            </div>
+                        ) : (
+                            <>
+                                {renderCombination(comboGoodSet, false)}
+                                <span style={{ color: '#000000', fontWeight: 900, fontSize: '1rem' }}>/</span>
+                                {renderCombination(comboBadSet, true)}
+                            </>
+                        )}
                     </div>
                 </div>
+                {(isTravel || isProperty) && (
+                    <div style={{ borderBottom: '1.5px solid #000000', background: '#f8fafc' }}>
+                        <div style={{ display: 'flex', borderBottom: '1px solid #000000' }}>
+                            <div 
+                                onClick={() => setSubTab(isTravel ? 'ABROAD' : 'PURCHASE')}
+                                style={{ 
+                                    flex: 1, padding: '10px', textAlign: 'center', cursor: 'pointer',
+                                    fontSize: '0.7rem', fontWeight: 900, 
+                                    background: (subTab === 'ABROAD' || subTab === 'PURCHASE') ? '#ffffff' : '#f1f5f9',
+                                    color: (subTab === 'ABROAD' || subTab === 'PURCHASE') ? '#1e3a8a' : '#64748b',
+                                    borderRight: '1px solid #000000'
+                                }}
+                            >
+                                {isTravel ? "ABROAD / AWAY" : "PURCHASE"}
+                            </div>
+                            <div 
+                                onClick={() => setSubTab(isTravel ? 'HOME' : 'SALE')}
+                                style={{ 
+                                    flex: 1, padding: '10px', textAlign: 'center', cursor: 'pointer',
+                                    fontSize: '0.7rem', fontWeight: 900, 
+                                    background: (subTab === 'HOME' || subTab === 'SALE') ? '#ffffff' : '#f1f5f9',
+                                    color: (subTab === 'HOME' || subTab === 'SALE') ? '#1e3a8a' : '#64748b'
+                                }}
+                            >
+                                {isTravel ? "HOME" : "SALE"}
+                            </div>
+                        </div>
+                    </div>
+                )}
 
-                <div style={{ borderBottom: '1.5px solid #000000', padding: '8px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                <div style={{ borderBottom: '1.5px solid #000000', padding: '8px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                     <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>
-                        {isEducation ? "EXAM" : isMarriage ? "INDICATION" : isChildBirth ? "INDICATION" : isHealth ? "HEALTH STATUS" : "INCOME/EXPENSES"}
+                        {isEducation ? "EXAM" : (isMarriage || isChildBirth || isHealth || isTravel || isProperty) ? "INDICATION" : "INCOME/EXPENSES"}
                     </div>
                     <div style={{ display: 'flex', gap: '8px', fontWeight: 800, fontSize: '0.85rem', alignItems: 'center' }}>
                         <span style={{ color: '#16a34a' }}>
-                            {isEducation
-                                ? (() => {
+                            {(() => {
+                                if (isEducation) {
                                     const comboGoodArray = Array.from(comboGoodSet);
                                     const greenHouses = comboGoodArray.filter(h => ![1, 5, 7].includes(h));
                                     const greenCount = greenHouses.length;
-
                                     if (greenCount > 3) return "Very High";
                                     if (greenCount === 3) return "High Indication";
                                     if (greenCount === 2) return "Medium Indication";
                                     return "Low";
-                                })()
-                                : isMarriage ? "High Indication" : isChildBirth ? (() => {
-                                    if (checkSubset(allHousesSet, CHILD_BIRTH_HIGH)) return "High Indication";
-                                    if (checkSubset(allHousesSet, CHILD_BIRTH_MEDIUM)) return "Medium Indication";
-                                    if (checkSubset(allHousesSet, CHILD_BIRTH_LOW)) return "Low Indication";
+                                }
+                                if (isMarriage) {
+                                    if (checkSubset(allHousesSet, MARRIAGE_GOOD_VERY_GOOD)) return "Very Good Indication";
+                                    if (checkSubset(allHousesSet, MARRIAGE_GOOD_GOOD)) return "Good Indication";
+                                    if (checkSubset(allHousesSet, MARRIAGE_GOOD_MEDIUM)) return "Medium Indication";
+                                    if (checkSubset(allHousesSet, MARRIAGE_GOOD_LOW)) return "Low Indication";
                                     return "No Indication";
-                                })() : isHealth ? "Excellent" : (() => {
-                                    if (checkSubset(comboGoodSet, JOB_GOOD_A_PLUS)) return "Very High";
-                                    if (checkSubset(comboGoodSet, JOB_GOOD_A)) return "High";
-                                    if (checkSubset(comboGoodSet, JOB_GOOD_B)) return "Medium";
-                                    return "Low";
-                                })()
-                            }
-                        </span>
-                        <span style={{ color: '#cbd5e1', fontWeight: 400 }}>/</span>
-                        <span style={{ color: '#ef4444' }}>
-                            {isChildBirth ? (() => {
-                                if (checkSubset(allHousesSet, CHILD_BIRTH_NEGATIVE)) return "High Difficulty";
-                                if (checkSubset(allHousesSet, CHILD_BIRTH_ABORTION)) return "Abortion Risk";
-                                return "Low Loss";
-                            })() : isEducation ? "Low" : isMarriage ? "Low Loss" : isHealth ? "Neutral" : (() => {
-                                if (checkSubset(comboBadSet, JOB_BAD_01)) return "High Loss";
-                                if (checkSubset(comboBadSet, JOB_BAD_02)) return "Medium Loss";
-                                return "Low Loss";
+                                }
+                                if (isChildBirth) {
+                                    if (checkSubset(allHousesSet, CHILD_BIRTH_VERY_HIGH)) return "Very Good Indication";
+                                    if (checkSubset(allHousesSet, CHILD_BIRTH_HIGH)) return "Good Indication";
+                                    if (checkSubset(allHousesSet, CHILD_BIRTH_MEDIUM)) return "Medium Indication";
+                                    const has9 = allHousesSet.has(9);
+                                    const has2 = allHousesSet.has(2);
+                                    const has5 = allHousesSet.has(5);
+                                    if (has9 && (has2 || has5)) return "Medium Indication";
+                                    if (checkSubset(allHousesSet, CHILD_BIRTH_BAD)) return "Bad / No Indication";
+                                    return "Low Indication";
+                                }
+                                if (isHealth) {
+                                    if (checkSubset(allHousesSet, HEALTH_GOOD_HIGH)) return "High";
+                                    if (checkSubset(allHousesSet, HEALTH_GOOD_MEDIUM)) return "Medium";
+                                    if (checkSubset(allHousesSet, HEALTH_GOOD_LOW)) return "Low";
+                                    return "No Indication";
+                                }
+                                if (isTravel) {
+                                    if (subTab === 'ABROAD') {
+                                        if (checkSubset(allHousesSet, TRAVEL_ABROAD_VERY_HIGH)) return "VERY HIGH";
+                                        if (checkSubset(allHousesSet, TRAVEL_ABROAD_HIGH)) return "HIGH";
+                                        if (checkSubset(allHousesSet, TRAVEL_ABROAD_MEDIUM)) return "MEDIUM";
+                                    } else { // subTab === 'HOME'
+                                        if (checkSubset(allHousesSet, TRAVEL_HOME_VERY_HIGH)) return "VERY HIGH";
+                                        if (checkSubset(allHousesSet, TRAVEL_HOME_HIGH)) return "HIGH";
+                                        if (checkSubset(allHousesSet, TRAVEL_HOME_MEDIUM)) return "MEDIUM";
+                                        if (checkSubset(allHousesSet, TRAVEL_HOME_LOW)) return "LOW";
+                                    }
+                                    return "NO INDICATION";
+                                }
+                                if (isProperty) {
+                                    if (subTab === 'PURCHASE') {
+                                        if (checkSubset(allHousesSet, PROPERTY_PURCHASE_VERY_HIGH)) return "VERY HIGH";
+                                        if (checkSubset(allHousesSet, PROPERTY_PURCHASE_HIGH)) return "HIGH";
+                                        if (checkSubset(allHousesSet, PROPERTY_PURCHASE_MEDIUM)) return "MEDIUM";
+                                        if (checkSubset(allHousesSet, PROPERTY_PURCHASE_LOW)) return "LOW";
+                                    } else { // subTab === 'SALE'
+                                        if (checkSubset(allHousesSet, PROPERTY_SALE_VERY_HIGH)) return "VERY HIGH";
+                                        if (checkSubset(allHousesSet, PROPERTY_SALE_HIGH)) return "HIGH";
+                                        if (checkSubset(allHousesSet, PROPERTY_SALE_MEDIUM)) return "MEDIUM";
+                                        if (checkSubset(allHousesSet, PROPERTY_SALE_LOW)) return "LOW";
+                                    }
+                                    return "NO INDICATION";
+                                }
+                                if (checkSubset(comboGoodSet, JOB_GOOD_A_PLUS)) return "Very High";
+                                if (checkSubset(comboGoodSet, JOB_GOOD_A)) return "High";
+                                if (checkSubset(comboGoodSet, JOB_GOOD_B)) return "Medium";
+                                return "Low";
                             })()}
                         </span>
+                        {!(isTravel || isProperty) && (isHealth ? (() => {
+                            if (checkSubset(allHousesSet, HEALTH_GOOD_HIGH) || checkSubset(allHousesSet, HEALTH_GOOD_MEDIUM) || checkSubset(allHousesSet, HEALTH_GOOD_LOW)) {
+                                if (checkSubset(allHousesSet, HEALTH_BAD_HIGH) || checkSubset(allHousesSet, HEALTH_BAD_MEDIUM) || checkSubset(allHousesSet, HEALTH_BAD_LOW)) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        })() : isMarriage ? (() => {
+                            if (checkSubset(allHousesSet, MARRIAGE_GOOD_VERY_GOOD) || checkSubset(allHousesSet, MARRIAGE_GOOD_GOOD) || checkSubset(allHousesSet, MARRIAGE_GOOD_MEDIUM) || checkSubset(allHousesSet, MARRIAGE_GOOD_LOW)) {
+                                if (checkSubset(allHousesSet, MARRIAGE_BAD_VERY_BAD) || checkSubset(allHousesSet, MARRIAGE_BAD_BAD) || checkSubset(allHousesSet, MARRIAGE_BAD_MEDIUM) || checkSubset(allHousesSet, MARRIAGE_BAD_LOW)) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        })() : true) && <span style={{ color: '#cbd5e1', fontWeight: 400 }}>/</span>}
+                        {!(isTravel || isProperty) && (
+                            <span style={{ color: '#ef4444' }}>
+                                {isChildBirth ? (() => {
+                                    if (checkSubset(allHousesSet, CHILD_BIRTH_BAD)) return "High Difficulty";
+                                    if (checkSubset(allHousesSet, CHILD_BIRTH_ABORTION)) return "Abortion Risk";
+                                    return ""; 
+                                })() : isEducation ? "Low" : isMarriage ? (() => {
+                                    if (checkSubset(allHousesSet, MARRIAGE_BAD_VERY_BAD)) return "Very Bad Indication";
+                                    if (checkSubset(allHousesSet, MARRIAGE_BAD_BAD)) return "Bad Indication";
+                                    if (checkSubset(allHousesSet, MARRIAGE_BAD_MEDIUM)) return "Medium Problems";
+                                    if (checkSubset(allHousesSet, MARRIAGE_BAD_LOW)) return "Low Problems";
+                                    return "";
+                                })() : isHealth ? (() => {
+                                    if (checkSubset(allHousesSet, HEALTH_BAD_HIGH)) return "High";
+                                    if (checkSubset(allHousesSet, HEALTH_BAD_MEDIUM)) return "Medium";
+                                    if (checkSubset(allHousesSet, HEALTH_BAD_LOW)) return "Low";
+                                    return "";
+                                })() : (() => {
+                                    if (checkSubset(comboBadSet, JOB_BAD_01)) return "High Loss";
+                                    if (checkSubset(comboBadSet, JOB_BAD_02)) return "Medium Loss";
+                                    return "Low Loss";
+                                })()}
+                            </span>
+                        )}
                     </div>
                 </div>
 
-                <div onClick={() => setIsExpanded(!isExpanded)} style={{ padding: '10px', textAlign: 'center', cursor: 'pointer', background: '#ffffff', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', borderBottom: '1.5px solid #000000' }}>
-                    <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>SUCCESS RATE</div>
-                    <span style={{ color: successInfo.color, fontWeight: 900, fontSize: '0.9rem', letterSpacing: '1px' }}>
-                        {successInfo.label.toUpperCase()}
-                    </span>
-                    <span style={{ fontSize: '0.75rem', color: '#000000', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }}>▼</span>
-                </div>
+                {isChildBirth && (() => {
+                    const hasGoodNL = nlBif.good.length > 0;
+                    const resultToUse = hasGoodNL ? nlProfessionText : slProfessionText;
+                    const labelToUse = hasGoodNL ? "RESULT (NL)" : "RESULT (SL)";
+                    
+                    const formatResult = (text: string) => {
+                        if (text.includes("Low Loss")) return "Low";
+                        if (text.includes("Medium Loss")) return "Medium";
+                        if (text.includes("High Loss")) return "High";
+                        if (text.includes("Loss")) return text.replace("Loss", "").trim();
+                        return text;
+                    };
 
-                {isExpanded && (
-                    <div style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0', padding: '16px' }}>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#35a4f4', marginBottom: '10px', textTransform: 'uppercase' }}>DETAILED FINDINGS</div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <div style={{ display: 'flex', gap: '8px', fontSize: '0.85rem' }}>
-                                <span style={{ fontWeight: 900, color: '#35a4f4' }}>NL:</span>
-                                <span style={{ color: '#334155' }}>{nlProfessionText}</span>
+                    return (
+                        <div style={{ borderBottom: '1.5px solid #000000', padding: '8px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                            <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>{labelToUse}</div>
+                            <div style={{ display: 'flex', gap: '8px', fontWeight: 800, fontSize: '0.85rem', alignItems: 'center', textAlign: 'center' }}>
+                                <span style={{ color: '#334155' }}>
+                                    {formatResult(resultToUse)}
+                                </span>
                             </div>
-                            <div style={{ display: 'flex', gap: '8px', fontSize: '0.85rem' }}>
-                                <span style={{ fontWeight: 900, color: '#35a4f4' }}>SL:</span>
-                                <span style={{ color: '#334155' }}>{slProfessionText}</span>
-                            </div>
-                            {isEducation && successCode && (successCode.startsWith('B') || successCode.startsWith('VB')) && (
-                                <div style={{ marginTop: '8px', padding: '8px', background: '#fef2f2', borderRadius: '6px', fontSize: '0.8rem', color: '#dc2626', fontWeight: 800 }}>
-                                    ! Note: Till 2nd PUC or 10+2
-                                </div>
-                            )}
-
-                            {!isEducation && !isMarriage && !isChildBirth && !isHealth && successCode && (successCode.startsWith('B') || successCode.startsWith('VB')) && (
-                                <div style={{ marginTop: '8px', padding: '8px', background: '#fef2f2', borderRadius: '6px', fontSize: '0.8rem', color: '#dc2626', fontWeight: 800 }}>
-                                    ! Note: {jobNoteText}
-                                </div>
-                            )}
                         </div>
+                    );
+                })()}
+
+                {isProperty && subTab === 'SALE' && checkSubset(allHousesSet, PROPERTY_LITIGATION) && (
+                    <div style={{ borderBottom: '1.5px solid #000000', padding: '8px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                        <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#b91c1c', textTransform: 'uppercase' }}>DESCRIPTION</div>
+                        <div style={{ display: 'flex', gap: '8px', fontWeight: 800, fontSize: '0.85rem', alignItems: 'center', textAlign: 'center' }}>
+                            <span style={{ color: '#ef4444' }}>
+                                PROBLEM TIME (LITIGATION)
+                            </span>
+                        </div>
+                    </div>
+                )}
+                
+                {!isHealth && !isTravel && !isProperty && (
+                    <div onClick={() => setIsExpanded(!isExpanded)} style={{ padding: '10px', textAlign: 'center', cursor: 'pointer', background: '#ffffff', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', borderBottom: '1.5px solid #000000' }}>
+                        <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>SUCCESS RATE</div>
+                        <span style={{ color: successInfo.color, fontWeight: 900, fontSize: '0.9rem', letterSpacing: '1px' }}>
+                            {successInfo.label.toUpperCase()}
+                        </span>
+                        <span style={{ fontSize: '0.75rem', color: '#000000', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }}>▼</span>
+                    </div>
+                )}
+
+                {isHealth && (
+                    <div style={{ borderBottom: '1.5px solid #000000', background: '#f8fafc' }}>
+                        <div style={{ display: 'flex', borderBottom: '1px solid #000000' }}>
+                            <div 
+                                onClick={() => setActiveTab('DETAILS')}
+                                style={{ 
+                                    flex: 1, padding: '10px', textAlign: 'center', cursor: 'pointer',
+                                    fontSize: '0.7rem', fontWeight: 900, 
+                                    background: activeTab === 'DETAILS' ? '#ffffff' : '#f1f5f9',
+                                    color: activeTab === 'DETAILS' ? '#1e3a8a' : '#64748b',
+                                    borderRight: '1px solid #000000'
+                                }}
+                            >
+                                DISEASE POSSIBILITY
+                            </div>
+                            <div 
+                                onClick={() => setActiveTab('REMEDIES')}
+                                style={{ 
+                                    flex: 1, padding: '10px', textAlign: 'center', cursor: 'pointer',
+                                    fontSize: '0.7rem', fontWeight: 900, 
+                                    background: activeTab === 'REMEDIES' ? '#ffffff' : '#f1f5f9',
+                                    color: activeTab === 'REMEDIES' ? '#1e3a8a' : '#64748b'
+                                }}
+                            >
+                                REMIDIES
+                            </div>
+                        </div>
+
+                        {activeTab === 'DETAILS' ? (
+                            <div style={{ padding: '12px' }}>
+                                <div style={{ fontSize: '0.8rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    {plHit !== -1 && (
+                                        <div style={{ display: 'flex', gap: '6px' }}>
+                                            <span style={{ fontWeight: 900, color: '#000000', minWidth: '40px' }}>PL:</span>
+                                            <span>{shuffleText(HEALTH_DISEASE_MAP[planetData.planet.toUpperCase()] || "General health issues")}</span>
+                                        </div>
+                                    )}
+                                    {nlHit !== -1 && (
+                                        <div style={{ display: 'flex', gap: '6px' }}>
+                                            <span style={{ fontWeight: 900, color: '#000000', minWidth: '40px' }}>NL:</span>
+                                            <span>{shuffleText(HEALTH_DISEASE_MAP[planetData.star_lord.toUpperCase()] || "General health issues")}</span>
+                                        </div>
+                                    )}
+                                    
+                                    <div style={{ height: '1px', background: '#e2e8f0', margin: '4px 0' }} />
+                                    
+                                    <div style={{ display: 'flex', gap: '8px', fontSize: '0.85rem' }}>
+                                        <span style={{ fontWeight: 900, color: '#35a4f4' }}>NL:</span>
+                                        <span style={{ color: '#334155' }}>{nlProfessionText}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '8px', fontSize: '0.85rem' }}>
+                                        <span style={{ fontWeight: 900, color: '#35a4f4' }}>SL:</span>
+                                        <span style={{ color: '#334155' }}>{slProfessionText}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{ padding: '12px' }}>
+                                {(() => {
+                                    // Donation Logic - Planet selection based on hit boxes
+                                    const nlHasRemedy = nlHit === 8 || nlHit === 12;
+                                    const slHasRemedy = slHit === 8 || slHit === 12;
+                                    let targetPlanets: string[] = [];
+
+                                    if (nlHasRemedy && slHasRemedy) {
+                                        const badSet = new Set([4, 6, 8, 10, 12]);
+                                        const nlBadCount = nlBif.bad.filter((h: number) => badSet.has(h)).length;
+                                        const slBadCount = slBif.bad.filter((h: number) => badSet.has(h)).length;
+                                        
+                                        if (nlBadCount > slBadCount) {
+                                            targetPlanets.push(planetData.star_lord);
+                                        } else if (slBadCount > nlBadCount) {
+                                            targetPlanets.push(planetData.sub_lord);
+                                        } else {
+                                            targetPlanets.push(planetData.star_lord);
+                                            targetPlanets.push(planetData.sub_lord);
+                                        }
+                                    } else if (nlHasRemedy) {
+                                        targetPlanets.push(planetData.star_lord);
+                                    } else if (slHasRemedy) {
+                                        targetPlanets.push(planetData.sub_lord);
+                                    }
+
+                                    targetPlanets = Array.from(new Set(targetPlanets)).filter(p => DONATION_MAP[p.toUpperCase()]);
+
+                                    const showDonation = targetPlanets.length > 0;
+
+                                    if (!showDonation) {
+                                        return <div style={{ textAlign: 'center', fontSize: '0.75rem', opacity: 0.6 }}>No specific remedies for this period</div>;
+                                    }
+
+                                    return (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            {showDonation && (
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                    {targetPlanets.map((planet, idx) => {
+                                                        const donation = DONATION_MAP[planet.toUpperCase()];
+                                                        return (
+                                                            <div key={idx} style={{ padding: '8px', background: '#fefce8', borderRadius: '6px', border: '1px solid #fef08a' }}>
+                                                                <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#854d0e', marginBottom: '4px' }}>DONATION REMEDY ({planet.toUpperCase()})</div>
+                                                                <div style={{ fontSize: '0.85rem', color: '#854d0e', lineHeight: 1.4 }}>
+                                                                    Donate <strong>{donation.item}</strong> on <strong>{donation.day}</strong> between <strong>{donation.time}</strong>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                    <div style={{ marginTop: '4px', padding: '10px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                                                        <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 900, marginBottom: '6px' }}>OFFERING GUIDELINES:</div>
+                                                        <div style={{ fontSize: '0.75rem', color: '#64748b', lineHeight: 1.5, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                            <div>• For the initial three months, please perform the donation every week on the indicated day. Thereafter, from the 4th to 6th month, you may continue once per month on that same day.</div>
+                                                            <div>• Should the disruptive hit come along with secondary houses <strong>(5 or 11)</strong> in the combination, a monthly donation for a six-month duration on the specified day is appropriate.</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {isMarriage && (
+                    <div style={{ borderBottom: '1.5px solid #000000', padding: '12px', background: '#f8fafc' }}>
+                        <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#1e3a8a', marginBottom: '8px', textTransform: 'uppercase', textAlign: 'center' }}>
+                            IMPORTANT NOTES
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {(() => {
+                                const notes = [];
+                                // Love Marriage Logic
+                                const has5 = allHousesSet.has(5);
+                                const marriageHouses = [2, 7, 11];
+                                const hasMarriageHouses = marriageHouses.some(h => allHousesSet.has(h));
+                                
+                                if (has5 && hasMarriageHouses) {
+                                    if (comboGoodSet.has(5)) {
+                                        notes.push({
+                                            title: "Love Marriage Indication",
+                                            desc: "Involvement of house 5 with marriage houses (2, 7, 11) indicates a strong promise of love marriage or a romantic relationship before marriage.",
+                                            color: '#16a34a'
+                                        });
+                                    } else if (comboBadSet.has(5)) {
+                                        notes.push({
+                                            title: "Love Indication",
+                                            desc: "Involvement of house 5 indicates attraction and love, but since it appears on the problem side, it may indicate love without a successful marriage.",
+                                            color: '#ef4444'
+                                        });
+                                    }
+                                }
+
+                                // Second Marriage Logic
+                                if (allHousesSet.has(9) && hasMarriageHouses) {
+                                    notes.push({
+                                        title: "Second Marriage Indication",
+                                        desc: "Involvement of house 9 with marriage houses (2, 7, 11) indicates the possibility of a second marriage, typically after a separation or divorce.",
+                                        color: '#2563eb'
+                                    });
+                                }
+
+                                if (notes.length === 0) return <div style={{ textAlign: 'center', opacity: 0.6 }}>No special notes for this period</div>;
+
+                                return notes.map((note, idx) => (
+                                    <div key={idx} style={{ padding: '8px', background: '#ffffff', borderRadius: '6px', border: `1px solid ${note.color}44` }}>
+                                        <div style={{ fontWeight: 900, color: note.color, marginBottom: '2px', fontSize: '0.75rem' }}>{note.title.toUpperCase()}</div>
+                                        <div style={{ fontSize: '0.75rem', lineHeight: '1.4' }}>{note.desc}</div>
+                                    </div>
+                                ));
+                            })()}
+                        </div>
+                    </div>
+                )}
+
+                {isExpanded && !isChildBirth && !isHealth && (
+                    <div style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+                        <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0' }}>
+                            <div 
+                                onClick={() => setActiveTab('DETAILS')}
+                                style={{ 
+                                    flex: 1, padding: '10px', textAlign: 'center', cursor: 'pointer',
+                                    fontSize: '0.7rem', fontWeight: 900, 
+                                    background: activeTab === 'DETAILS' ? '#ffffff' : '#f1f5f9',
+                                    color: activeTab === 'DETAILS' ? '#1e3a8a' : '#64748b',
+                                    borderRight: '1px solid #e2e8f0'
+                                }}
+                            >
+                                DETAILED FINDINGS
+                            </div>
+                            <div 
+                                onClick={() => setActiveTab('REMEDIES')}
+                                style={{ 
+                                    flex: 1, padding: '10px', textAlign: 'center', cursor: 'pointer',
+                                    fontSize: '0.7rem', fontWeight: 900, 
+                                    background: activeTab === 'REMEDIES' ? '#ffffff' : '#f1f5f9',
+                                    color: activeTab === 'REMEDIES' ? '#1e3a8a' : '#64748b'
+                                }}
+                            >
+                                REMIDIES
+                            </div>
+                        </div>
+
+                        {activeTab === 'DETAILS' ? (
+                            <div style={{ padding: '16px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <div style={{ display: 'flex', gap: '8px', fontSize: '0.85rem' }}>
+                                        <span style={{ fontWeight: 900, color: '#35a4f4' }}>NL:</span>
+                                        <span style={{ color: '#334155' }}>{nlProfessionText}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '8px', fontSize: '0.85rem' }}>
+                                        <span style={{ fontWeight: 900, color: '#35a4f4' }}>SL:</span>
+                                        <span style={{ color: '#334155' }}>{slProfessionText}</span>
+                                    </div>
+                                    
+                                    {(isEducation && successCode && (successCode.startsWith('B') || successCode.startsWith('VB'))) && (
+                                        <div style={{ marginTop: '8px', padding: '8px', background: '#fef2f2', borderRadius: '6px', fontSize: '0.8rem', color: '#dc2626', fontWeight: 800 }}>
+                                            ! Note: Till 2nd PUC or 10+2
+                                        </div>
+                                    )}
+
+                                    {!isEducation && !isMarriage && !isChildBirth && !isHealth && jobNoteText && (
+                                        <div style={{ marginTop: '8px', padding: '10px', background: '#f1f5f9', borderRadius: '6px', fontSize: '0.8rem', color: '#1e3a8a', fontWeight: 800, border: '1px solid #3b82f6' }}>
+                                            Note: {jobNoteText}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{ padding: '16px' }}>
+                                {(() => {
+                                    // Donation Logic - Planet selection based on hit boxes
+                                    const nlHasRemedy = nlHit === 8 || nlHit === 12;
+                                    const slHasRemedy = slHit === 8 || slHit === 12;
+                                    let targetPlanets: string[] = [];
+
+                                    if (nlHasRemedy && slHasRemedy) {
+                                        const badSet = new Set(isMarriage ? [1, 5, 6, 8, 10, 12] : [4, 6, 8, 10, 12]);
+                                        const nlBadCount = nlBif.bad.filter((h: number) => badSet.has(h)).length;
+                                        const slBadCount = slBif.bad.filter((h: number) => badSet.has(h)).length;
+                                        
+                                        if (nlBadCount > slBadCount) {
+                                            targetPlanets.push(planetData.star_lord);
+                                        } else if (slBadCount > nlBadCount) {
+                                            targetPlanets.push(planetData.sub_lord);
+                                        } else {
+                                            targetPlanets.push(planetData.star_lord);
+                                            targetPlanets.push(planetData.sub_lord);
+                                        }
+                                    } else if (nlHasRemedy) {
+                                        targetPlanets.push(planetData.star_lord);
+                                    } else if (slHasRemedy) {
+                                        targetPlanets.push(planetData.sub_lord);
+                                    }
+
+                                    targetPlanets = Array.from(new Set(targetPlanets)).filter(p => DONATION_MAP[p.toUpperCase()]);
+                                    const showDonation = targetPlanets.length > 0;
+
+                                    if (!showDonation) {
+                                        return <div style={{ textAlign: 'center', fontSize: '0.75rem', opacity: 0.6 }}>No specific remedies for this period</div>;
+                                    }
+
+                                    return (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+                                            {showDonation && (
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                    {targetPlanets.map((planet, idx) => {
+                                                        const donation = DONATION_MAP[planet.toUpperCase()];
+                                                        return (
+                                                            <div key={idx} style={{ padding: '8px', background: '#fefce8', borderRadius: '6px', border: '1px solid #fef08a' }}>
+                                                                <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#854d0e', marginBottom: '4px' }}>DONATION REMEDY ({planet.toUpperCase()})</div>
+                                                                <div style={{ fontSize: '0.85rem', color: '#854d0e', lineHeight: 1.4 }}>
+                                                                    Donate <strong>{donation.item}</strong> on <strong>{donation.day}</strong> between <strong>{donation.time}</strong>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                    <div style={{ marginTop: '4px', padding: '10px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                                                        <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 900, marginBottom: '6px' }}>OFFERING GUIDELINES:</div>
+                                                        <div style={{ fontSize: '0.75rem', color: '#64748b', lineHeight: 1.5, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                            <div>• For the initial three months, please perform the donation every week on the indicated day. Thereafter, from the 4th to 6th month, you may continue once per month on that same day.</div>
+                                                            <div>• Should the disruptive hit come along with secondary houses <strong>{isMarriage ? "(2, 7, or 9)" : isEducation ? "(4, 9, 10, or 11)" : "(2, 6, 10, or 11)"}</strong> in the combination, a monthly donation for a six-month duration on the specified day is appropriate.</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {isExpanded && isChildBirth && (
+                    <div style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0', padding: '16px' }}>
+                       {checkSubset(allHousesSet, CHILD_BIRTH_SPECIAL_CASE) && (
+                            <div style={{ marginTop: '8px', padding: '8px', background: '#e0f2fe', borderRadius: '6px', fontSize: '0.8rem', color: '#0369a1', fontWeight: 800 }}>
+                                ! Note: Caesarean / IVF / Test Tube Baby
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

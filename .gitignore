@@ -18,6 +18,7 @@ node_modules/
 dist/
 dist-ssr/
 *.local
+cusp_sublord_logic.json
 
 # Editor directories and files
 .vscode/*

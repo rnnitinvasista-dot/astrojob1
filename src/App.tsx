@@ -9,6 +9,9 @@ import PlanetTable from './components/tables/PlanetTable';
 import DashaTable from './components/tables/DashaTable';
 import NakshatraNadiTable from './components/tables/NakshatraNadiTable';
 import JobPredictionTable from './components/tables/JobPredictionTable';
+import TravelPredictionTable from './components/tables/TravelPredictionTable';
+import PropertyPredictionTable from './components/tables/PropertyPredictionTable';
+import AdvancePredictionTable from './components/tables/AdvancePredictionTable';
 import { getApiUrl, fetchMixedPrashna } from './services/api';
 import { useAuth } from './contexts/AuthContext';
 import LoginPage from './components/auth/LoginPage';
@@ -49,13 +52,14 @@ const App = () => {
   const [mode, setMode] = useState<'Natal' | 'Prashna' | 'Parashara'>('Natal');
   const [kundliData, setKundliData] = useState<KundliResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'planets' | 'dasha' | 'houses' | 'predictions' | 'nadi' | 'phala'>('planets');
+  const [activeTab, setActiveTab] = useState<'planets' | 'dasha' | 'houses' | 'predictions' | 'advance_predictions' | 'nadi' | 'phala'>('planets');
   const [showPlanetTable, setShowPlanetTable] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [birthDetails, setBirthDetails] = useState<any>(null);
   const [chartMode, setChartMode] = useState<'Rashi' | 'Bhava'>('Bhava');
   const [selectedArea, setSelectedArea] = useState('Job');
   const [showAccessPopup, setShowAccessPopup] = useState(false);
+  const [chartStyle, setChartStyle] = useState<'South Indian' | 'North Indian'>('South Indian');
 
   const { currentUser, userData, isExpired, logout } = useAuth();
 
@@ -203,7 +207,7 @@ const App = () => {
                 }}
                 style={{
                   padding: '8px 16px',
-                  borderRadius: '8px',
+                  borderRadius: '0',
                   border: 'none',
                   background: chartMode === 'Rashi' ? '#3b82f6' : 'transparent',
                   color: chartMode === 'Rashi' ? 'white' : '#64748b',
@@ -226,7 +230,7 @@ const App = () => {
                 }}
                 style={{
                   padding: '8px 16px',
-                  borderRadius: '8px',
+                  borderRadius: '0',
                   border: 'none',
                   background: chartMode === 'Bhava' ? '#3b82f6' : 'transparent',
                   color: chartMode === 'Bhava' ? 'white' : '#64748b',
@@ -250,6 +254,7 @@ const App = () => {
               birthDetails={birthDetails}
               vargaCharts={kundliData.varga_charts}
               chartMode={chartMode === 'Rashi' ? 'Rashi' : 'Bhava'}
+              chartStyle={chartStyle}
             />
 
             <button
@@ -258,8 +263,8 @@ const App = () => {
                 width: '100%',
                 padding: '12px',
                 background: '#eff6ff',
-                border: '1px solid #3b82f6',
-                borderRadius: '8px',
+                border: '3px solid #000000',
+                borderRadius: '0',
                 color: '#1e3a8a',
                 fontWeight: 700,
                 fontSize: '0.9rem',
@@ -274,7 +279,7 @@ const App = () => {
               {showPlanetTable ? 'Hide KP Planets Table' : 'Show KP Planets Table'}
             </button>
 
-            {showPlanetTable && <PlanetTable planets={kundliData.planets} />}
+            {showPlanetTable && <PlanetTable planets={kundliData.planets} ascendant={kundliData.ascendant} />}
           </div>
         );
       case 'houses':
@@ -292,11 +297,67 @@ const App = () => {
       case 'predictions':
         return (
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
-            <div style={{ padding: '8px', margin: '1rem 0', background: '#eff6ff', borderRadius: '12px', border: '1px solid #3b82f6' }}>
+            <div style={{ padding: '8px', margin: '1rem 0', background: '#eff6ff', borderRadius: '0', border: 'none' }}>
               <select
                 value={selectedArea}
                 onChange={(e) => setSelectedArea(e.target.value)}
-                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #3b82f6', background: 'white', fontWeight: 'bold', color: '#1e3a8a' }}
+                style={{ width: '100%', padding: '12px', borderRadius: '0', border: '2px solid #1e3a8a', background: 'white', fontWeight: 'bold', color: '#1e3a8a' }}
+              >
+                <option>Job</option>
+                <option>Business</option>
+                <option>Education</option>
+                <option>Marriage</option>
+                <option>Child Birth</option>
+                <option>Health</option>
+                <option>Travel</option>
+                <option>Property &amp; Vehicle</option>
+              </select>
+            </div>
+
+            {selectedArea === 'Travel' ? (
+                <TravelPredictionTable
+                  data={kundliData.nakshatra_nadi}
+                  planets={kundliData.planets}
+                  types={[]}
+                  planetName=""
+                />
+              ) : selectedArea === 'Property & Vehicle' ? (
+                <PropertyPredictionTable
+                  data={kundliData.nakshatra_nadi}
+                  planets={kundliData.planets}
+                  types={[]}
+                  planetName=""
+                />
+              ) : (
+                kundliData.planets.map((p: any) => {
+                  const planetName = p.planet;
+                  const activeTypes: ('Dasha' | 'Bhukti' | 'Antara')[] = [];
+                  if (planetName === kundliData.dasha.current_dasha) activeTypes.push('Dasha');
+                  if (planetName === kundliData.dasha.current_bukthi) activeTypes.push('Bhukti');
+                  if (planetName === kundliData.dasha.current_antara) activeTypes.push('Antara');
+
+                  return (
+                    <JobPredictionTable
+                      key={`${planetName}-${selectedArea}`}
+                      data={kundliData.nakshatra_nadi}
+                      planets={kundliData.planets}
+                      types={activeTypes}
+                      planetName={planetName}
+                      selectedArea={selectedArea}
+                    />
+                  );
+                })
+              )}
+          </div>
+        );
+      case 'advance_predictions':
+        return (
+          <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
+            <div style={{ padding: '8px', margin: '1rem 0', background: '#eff6ff', borderRadius: '0', border: 'none' }}>
+              <select
+                value={selectedArea}
+                onChange={(e) => setSelectedArea(e.target.value)}
+                style={{ width: '100%', padding: '12px', borderRadius: '0', border: '2px solid #1e3a8a', background: 'white', fontWeight: 'bold', color: '#1e3a8a' }}
               >
                 <option>Job</option>
                 <option>Business</option>
@@ -315,7 +376,7 @@ const App = () => {
               if (planetName === kundliData.dasha.current_antara) activeTypes.push('Antara');
 
               return (
-                <JobPredictionTable
+                <AdvancePredictionTable
                   key={planetName}
                   data={kundliData.nakshatra_nadi}
                   planets={kundliData.planets}
@@ -396,6 +457,20 @@ const App = () => {
     }
             `;
 
+  const getPageTitle = () => {
+    if (view === 'dashboard') return '';
+    if (view === 'form') {
+      return mode === 'Prashna' ? 'KP Prashna' : 
+             mode === 'Parashara' ? 'Parashara Kundli' : 'KP Prediction';
+    }
+    if (view === 'result') {
+      return mode === 'Prashna' ? 'KP Prashna Kundli' : 
+             mode === 'Parashara' ? `Parashara ${chartMode}` : 
+             `KP ${chartMode} Prediction`;
+    }
+    return '';
+  };
+
   return (
     <Layout
       activeTab={activeTab}
@@ -406,6 +481,9 @@ const App = () => {
       onLogout={logout}
       currentView={view}
       chartMode={chartMode}
+      chartStyle={chartStyle}
+      onChartStyleChange={setChartStyle}
+      title={getPageTitle()}
       onBack={() => {
         if (view === 'result') {
           setView('form');

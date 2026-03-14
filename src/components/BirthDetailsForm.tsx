@@ -394,16 +394,10 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                             </div>
                         ) : (
                             <div className="parchment-card">
-                                <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Ayanamsa: *</label>
-                                <select
-                                    value={formData.ayanamsa || 'KP'}
-                                    onChange={(e) => setFormData({ ...formData, ayanamsa: e.target.value })}
-                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
-                                >
-                                    <option value="KP">KP-NEW (Krishnamurti)</option>
-                                    <option value="KP_OLD">KP-OLD</option>
-                                    <option value="Lahiri">Lahiri (Chitra Paksha)</option>
-                                </select>
+                                <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Ayanamsa:</label>
+                                <div style={{ padding: '0.6rem', border: '1.5px solid #cbd5e1', background: '#f8fafc', color: '#1e3a8a', fontWeight: 600, fontSize: '0.9rem' }}>
+                                    KP New (Krishnamurti)
+                                </div>
                             </div>
                         )}
 

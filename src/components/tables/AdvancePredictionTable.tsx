@@ -41,16 +41,6 @@ const AdvancePredictionTable: React.FC<AdvancePredictionTableProps> = ({ data, p
             if ([2, 3, 7].includes(h)) return '#60a5fa';
             return '#ef4444';
         }
-        if (area === 'Travel') {
-            if ([1, 3, 7, 9, 11, 12].includes(h)) return '#16a34a';
-            if ([2, 4].includes(h)) return '#60a5fa';
-            return '#ef4444';
-        }
-        if (area === 'Property' || area === 'Property & Vehicle') {
-            if ([4, 6, 8, 11, 12].includes(h)) return '#16a34a';
-            if ([2, 7, 9].includes(h)) return '#60a5fa';
-            return '#ef4444';
-        }
         if ([2, 5, 6, 7, 8, 9, 10, 11].includes(h)) return '#16a34a';
         if ([1, 3, 4].includes(h)) return '#0ea5e9';
         return '#1e293b';

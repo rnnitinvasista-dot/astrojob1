@@ -1,11 +1,12 @@
 import React from 'react';
-import type { Planet } from '../../types/astrology';
+import type { Planet, Ascendant } from '../../types/astrology';
 
 interface PlanetTableProps {
     planets: Planet[];
+    ascendant?: Ascendant;
 }
 
-const PlanetTable: React.FC<PlanetTableProps> = ({ planets }) => {
+const PlanetTable: React.FC<PlanetTableProps> = ({ planets, ascendant }) => {
     return (
         <div className="card" style={{
             width: '100%',
@@ -28,6 +29,20 @@ const PlanetTable: React.FC<PlanetTableProps> = ({ planets }) => {
                         </tr>
                     </thead>
                     <tbody>
+                        {/* Ascendant row */}
+                        {ascendant && (
+                            <tr style={{ background: '#fff7ed' }}>
+                                <td style={{ fontWeight: '700', border: '1px solid #e2e8f0', padding: '8px', color: '#ea580c' }}>
+                                    Lagna
+                                </td>
+                                <td style={{ border: '1px solid #e2e8f0', padding: '8px' }}>{ascendant.degree_dms}</td>
+                                <td style={{ color: '#6366f1', border: '1px solid #e2e8f0', padding: '8px' }}>{ascendant.sign_lord?.substring(0, 2) || '--'}</td>
+                                <td style={{ color: '#3b82f6', border: '1px solid #e2e8f0', padding: '8px' }}>{ascendant.star_lord?.substring(0, 2) || '--'}</td>
+                                <td style={{ color: '#10b981', border: '1px solid #e2e8f0', padding: '8px' }}>{ascendant.sub_lord?.substring(0, 2) || '--'}</td>
+                                <td style={{ color: '#ec4899', border: '1px solid #e2e8f0', padding: '8px' }}>{ascendant.sub_sub_lord?.substring(0, 2) || '--'}</td>
+                                <td style={{ fontWeight: 600, border: '1px solid #e2e8f0', padding: '8px' }}>1</td>
+                            </tr>
+                        )}
                         {planets.map((planet) => (
                             <tr key={planet.planet}>
                                 <td style={{ fontWeight: '600', border: '1px solid #e2e8f0', padding: '8px' }}>

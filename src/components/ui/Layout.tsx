@@ -13,9 +13,12 @@ interface LayoutProps {
     onLogout: () => void;
     currentView: string;
     chartMode?: 'Rashi' | 'Bhava';
+    chartStyle?: 'South Indian' | 'North Indian';
+    onChartStyleChange?: (style: 'South Indian' | 'North Indian') => void;
+    title?: string;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showTabs, onBack, isAdmin, expiryDate, onLogout, currentView, chartMode }) => {
+const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showTabs, onBack, isAdmin, expiryDate, onLogout, currentView, chartMode, chartStyle: _chartStyle, onChartStyleChange: _onChartStyleChange, title }) => {
     const { currentUser } = useAuth();
     const [showMenu, setShowMenu] = React.useState(false);
 
@@ -123,6 +126,27 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                             </div>
                         </>
                     )}
+                </div>
+
+                {/* Central Title */}
+                <div style={{
+                    position: 'absolute',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    textAlign: 'center',
+                    width: '60%',
+                    pointerEvents: 'none'
+                }}>
+                    <div style={{
+                        fontSize: '1rem',
+                        fontWeight: 800,
+                        color: '#ffffff',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        lineHeight: 1.2
+                    }}>
+                        {title}
+                    </div>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -257,6 +281,11 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                                     onClick={() => onTabChange('predictions')}
                                     style={{ fontWeight: 'bold', color: '#000000' }}>
                                     Predictions
+                                </div>
+                                <div className={`tab-item ${activeTab === 'advance_predictions' ? 'active' : ''}`}
+                                    onClick={() => onTabChange('advance_predictions')}
+                                    style={{ fontWeight: 'bold', color: '#000000' }}>
+                                    Advance Predictions
                                 </div>
                                 <div className={`tab-item ${activeTab === 'nadi' ? 'active' : ''}`}
                                     onClick={() => onTabChange('nadi')}
