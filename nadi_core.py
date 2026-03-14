@@ -478,8 +478,15 @@ class NadiEngine:
         jd = swe.julday(utc_dt.year, utc_dt.month, utc_dt.day, utc_dt.hour + utc_dt.minute/60 + utc_dt.second/3600)
         
         # Calculate Multi-Ayanamsas
-        swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
-        ayan_kp = swe.get_ayanamsa_ut(jd) - (6.2 / 3600.0)
+        swe.set_sid_mode(5, 0, 0) # SIDM_KRISHNAMURTI
+        ayan_kp_old = swe.get_ayanamsa_ut(jd) - (6.2 / 3600.0)
+        
+        swe.set_sid_mode(41, 0, 0) # SIDM_KP_NEW
+        ayan_kp_new = swe.get_ayanamsa_ut(jd)
+        
+        # Keep Prashna unchanged (Old KP), use KP New for Natal
+        ayan_kp = ayan_kp_old if horary_number else ayan_kp_new
+        
         swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
         ayan_lahiri = swe.get_ayanamsa_ut(jd)
         
@@ -543,21 +550,24 @@ class NadiEngine:
                 if (cusp_next < cusp_curr and (kp_data["lon"] >= cusp_curr or kp_data["lon"] < cusp_next)) or (cusp_curr <= kp_data["lon"] < cusp_next):
                     hp = i + 1; break
             
-            sn_lh, sl_lh, nlk_lh, sub_lh, ssl_lh, nak_lh, nadi_lh, sub_idx_lh = self.get_kp_lords(lh_data["lon"])
+            # Use KP New for Lords, Nakshatra, and SSL
+            sn_kp, sl_kp, nlk_kp, sub_kp, ssl_kp, nak_kp, nadi_kp, sub_idx_kp = self.get_kp_lords(kp_data["lon"])
+            
             is_combust = False
             if p_name != "Sun" and p_name in ["Moon","Mars","Mercury","Jupiter","Venus","Saturn"]:
                 orbs = {"Moon": 12, "Mars": 17, "Mercury": 13, "Jupiter": 11, "Venus": 9, "Saturn": 15}
-                dist = abs(lh_data["lon"] - sun_lon_lh)
+                # Combustion usually checked in tropical or standard sidereal, but we'll use KP lon here for consistency
+                dist = abs(kp_data["lon"] - p_map_kp["Sun"]["lon"])
                 if dist > 180: dist = 360 - dist
                 if dist < orbs.get(p_name, 12): is_combust = True
                 
             planets_res.append({
-                "planet": p_name, "degree_dms": self.decimal_to_dms(lh_data["lon"], is_absolute=True),
-                "house_placed": int(hp), "sign": sn_lh, "sign_lord": self.SHORT_CODES.get(sl_lh, sl_lh),
-                "star_lord": self.SHORT_CODES.get(nlk_lh, nlk_lh), "sub_lord": self.SHORT_CODES.get(sub_lh, sub_lh),
-                "sub_sub_lord": self.SHORT_CODES.get(ssl_lh, ssl_lh), "nakshatra": nak_lh, "nadi": nadi_lh,
-                "nadi_index": sub_idx_lh, "is_retrograde": True if p_name in ["Rahu", "Ketu"] else kp_data["speed"] < 0,
-                "is_combust": is_combust, "planet_lord": sl_lh, "degree_decimal": lh_data["lon"], "kp_lon_debug": kp_data["lon"]
+                "planet": p_name, "degree_dms": self.decimal_to_dms(kp_data["lon"], is_absolute=True),
+                "house_placed": int(hp), "sign": sn_kp, "sign_lord": self.SHORT_CODES.get(sl_kp, sl_kp),
+                "star_lord": self.SHORT_CODES.get(nlk_kp, nlk_kp), "sub_lord": self.SHORT_CODES.get(sub_kp, sub_kp),
+                "sub_sub_lord": self.SHORT_CODES.get(ssl_kp, ssl_kp), "nakshatra": nak_kp, "nadi": nadi_kp,
+                "nadi_index": sub_idx_kp, "is_retrograde": True if p_name in ["Rahu", "Ketu"] else kp_data["speed"] < 0,
+                "is_combust": is_combust, "planet_lord": sl_kp, "degree_decimal": kp_data["lon"], "kp_lon_debug": kp_data["lon"]
             })
             
         planet_res_map_kp = {p["planet"]: {**p, "degree_decimal": p_map_kp[p["planet"]]["lon"], "sign": self.get_kp_lords(p_map_kp[p["planet"]]["lon"])[0], "sign_lord": self.SHORT_CODES.get(self.get_kp_lords(p_map_kp[p["planet"]]["lon"])[1])} for p in planets_res}
@@ -592,8 +602,8 @@ class NadiEngine:
             asc_v = self.get_varga_sign(ascmc[0] + (ayan_kp - ayan_lahiri), d_val)
             varga_charts[v_name] = {"planets": vp, "ascendant": {"sign": self.SIGNS[asc_v]}}
 
-        sn_lh, sl_lh, nlk_lh, sub_lh, ssl_lh, nak_lh, nadi_lh, sub_idx_lh = self.get_kp_lords(ascmc[0] + (ayan_kp - ayan_lahiri))
-        asc_res = {"degree_dms": f"{self.decimal_to_dms(ascmc[0] + (ayan_kp - ayan_lahiri))} {sn_lh}", "sign": sn_lh, "sign_lord": sl_lh, "star_lord": nlk_lh, "sub_lord": sub_lh, "sub_sub_lord": ssl_lh, "nakshatra": nak_lh, "nadi": nadi_lh, "planet_lord": sl_lh}
+        sn_kp, sl_kp, nlk_kp, sub_kp, ssl_kp, nak_kp, nadi_kp, sub_idx_kp = self.get_kp_lords(cusps[0])
+        asc_res = {"degree_dms": f"{self.decimal_to_dms(cusps[0])} {sn_kp}", "sign": sn_kp, "sign_lord": sl_kp, "star_lord": nlk_kp, "sub_lord": sub_kp, "sub_sub_lord": ssl_kp, "nakshatra": nak_kp, "nadi": nadi_kp, "planet_lord": sl_kp}
         
         moon_lon_lh = dasha_data["moon_lon"]
         nak_size = 360/27
