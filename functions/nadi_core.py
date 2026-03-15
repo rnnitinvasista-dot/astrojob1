@@ -497,12 +497,10 @@ class NadiEngine:
             ascmc = [(a - ayan_kp) % 360 for a in ascmc_trop]
 
         house_owners = {}
-        signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
-        asc_sn_kp, _, _, _, _, _, _, _ = self.get_kp_lords(cusps[0])
-        asc_idx_kp = signs.index(asc_sn_kp)
         for i in range(12):
-            curr_sign = signs[(asc_idx_kp + i) % 12]
-            house_owners[i+1] = self.SIGN_RULERS[curr_sign]
+            lon_val = cusps[i]
+            _, sl, _, _, _, _, _, _ = self.get_kp_lords(lon_val)
+            house_owners[i+1] = sl
         
         planets_raw_kp = []
         planets_raw_lahiri = []
