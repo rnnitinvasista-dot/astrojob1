@@ -691,11 +691,22 @@ class NadiEngine:
             cusps = [(c - ayan_kp) % 360 for c in cusps_trop]
             ascmc = [(a - ayan_kp) % 360 for a in ascmc_trop]
 
-        house_owners = {}
+        # Dual House Ownership Mapping:
+        # 1. Traditional (for Rahu/Ketu agents - as expected in commit 184c1c4)
+        house_owners_trad = {}
+        signs_list = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
+        asc_sn_kp, _, _, _, _, _, _, _ = self.get_kp_lords(cusps[0])
+        asc_idx_kp = signs_list.index(asc_sn_kp)
+        for i in range(12):
+            curr_sign = signs_list[(asc_idx_kp + i) % 12]
+            house_owners_trad[i+1] = self.SIGN_RULERS[curr_sign]
+
+        # 2. KP Based (for other planets)
+        house_owners_kp = {}
         for i in range(12):
             lon_val = cusps[i]
             _, sl, _, _, _, _, _, _ = self.get_kp_lords(lon_val)
-            house_owners[i+1] = sl
+            house_owners_kp[i+1] = sl
         
         planets_raw_kp = []
         planets_raw_lahiri = []
@@ -758,7 +769,10 @@ class NadiEngine:
         significations_res = []
         for p in planets_res:
             p_name = p["planet"]
-            sigs = self.get_node_significators(p_name, planet_res_map_kp, house_owners) if p_name in ["Rahu", "Ketu"] else self.calculate_kp_significators_4level(p_name, planet_res_map_kp, house_owners)
+            # Rahu/Ketu use Traditional House Owners for their agents
+            # Other planets use KP House Owners
+            h_owners = house_owners_trad if p_name in ["Rahu", "Ketu"] else house_owners_kp
+            sigs = self.get_node_significators(p_name, planet_res_map_kp, house_owners_trad) if p_name in ["Rahu", "Ketu"] else self.calculate_kp_significators_4level(p_name, planet_res_map_kp, house_owners_kp)
             total = sorted(list(set(sigs["L1"] + sigs["L2"] + sigs["L3"] + sigs["L4"])))
             significations_res.append({"planet": p_name, "levels": sigs, "total": total, "agent": sigs.get("agent", None)})
             
@@ -767,15 +781,21 @@ class NadiEngine:
             p_name = p["planet"]
             p_lon_kp = p_map_kp[p_name]["lon"]
             nak, sl_n, sub_n, pl_n, nadi, s_idx, p_idx = self.get_nadi_triple_combination(p_lon_kp)
+            
+            # Gold Nadi Table significators
+            h_owners = house_owners_trad if p_name in ["Rahu", "Ketu"] else house_owners_kp
+            
             nak_nadi_res.append({
                 "planet": p_name, "nakshatra_name": nak, "is_retrograde": p["is_retrograde"], "is_combust": p["is_combust"],
-                "pl_signified": self.get_eff_sigs_detailed(p_name, planet_res_map_kp, house_owners),
-                "star_lord": sl_n, "nl_signified": self.get_eff_sigs_detailed(sl_n, planet_res_map_kp, house_owners),
-                "sub_lord": sub_n, "sl_signified": self.get_eff_sigs_detailed(sub_n, planet_res_map_kp, house_owners),
-                "planet_lord": pl_n, "pl_lord_signified": self.get_eff_sigs_detailed(pl_n, planet_res_map_kp, house_owners)
+                "pl_signified": self.get_eff_sigs_detailed(p_name, planet_res_map_kp, h_owners),
+                "star_lord": sl_n, "nl_signified": self.get_eff_sigs_detailed(sl_n, planet_res_map_kp, house_owners_kp),
+                "sub_lord": sub_n, "sl_signified": self.get_eff_sigs_detailed(sub_n, planet_res_map_kp, house_owners_kp),
+                "planet_lord": pl_n, "pl_lord_signified": self.get_eff_sigs_detailed(pl_n, planet_res_map_kp, house_owners_kp)
             })
             
-        dasha_data = self.calculate_dasha(planets_raw_lahiri, birth_dt_loc)
+        # Use Lahiri Moon Longitude for Dasha for maximum precision
+        moon_lon_lh = next(p["lon"] for p in planets_raw_lahiri if p["planet"] == "Moon")
+        dasha_data = self.calculate_dasha(planets_raw_lahiri, birth_dt_loc, moon_lon_lahiri=moon_lon_lh)
         
         varga_configs = {
             "D1": 1, "D2": 2, "D3": 3, "D4": 4, "D7": 7, "D9": 9, 
@@ -872,16 +892,16 @@ class NadiEngine:
         base["agent"] = ", ".join(agent_names) if agent_names else None
         return base
 
-    def calculate_dasha(self, planets_raw, birth_dt_loc):
+    def calculate_dasha(self, planets_raw, birth_dt_loc, moon_lon_lahiri=None):
         """
         Final High-Precision Vimshottari Dasha (v1.2.8)
         Sidereal Year = 365.25636 days.
         Nakshatra Length = 48000 arcseconds.
         """
-        import datetime
-        import pytz
-        
-        moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
+        if moon_lon_lahiri is not None:
+            moon_lon = moon_lon_lahiri
+        else:
+            moon_lon = next(p["lon"] for p in planets_raw if p["planet"] == "Moon")
         abs_arcsec = moon_lon * 3600.0
         nak_len_arcsec = 48000.0 
         nak_idx = int(abs_arcsec // nak_len_arcsec) % 27
