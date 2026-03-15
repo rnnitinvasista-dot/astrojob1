@@ -747,21 +747,33 @@ class NadiEngine:
                 if (cusp_next < cusp_curr and (kp_data["lon"] >= cusp_curr or kp_data["lon"] < cusp_next)) or (cusp_curr <= kp_data["lon"] < cusp_next):
                     hp = i + 1; break
             
-            sn_lh, sl_lh, nlk_lh, sub_lh, ssl_lh, nak_lh, nadi_lh, sub_idx_lh = self.get_kp_lords(lh_data["lon"])
+            # Revert to KP for Lords and Degrees (to match commit 184c1c4)
+            sn_kp, sl_kp, nlk_kp, sub_kp, ssl_kp, nak_kp, nadi_kp, sub_idx_kp = self.get_kp_lords(kp_data["lon"])
+            
             is_combust = False
             if p_name != "Sun" and p_name in ["Moon","Mars","Mercury","Jupiter","Venus","Saturn"]:
                 orbs = {"Moon": 12, "Mars": 17, "Mercury": 13, "Jupiter": 11, "Venus": 9, "Saturn": 15}
-                dist = abs(lh_data["lon"] - sun_lon_lh)
+                # Combustion usually uses Lahiri/Standard in most traditions, but we check KP dist if that's what was used.
+                dist = abs(kp_data["lon"] - p_map_kp["Sun"]["lon"])
                 if dist > 180: dist = 360 - dist
                 if dist < orbs.get(p_name, 12): is_combust = True
                 
             planets_res.append({
-                "planet": p_name, "degree_dms": self.decimal_to_dms(lh_data["lon"], is_absolute=True),
-                "house_placed": int(hp), "sign": sn_lh, "sign_lord": self.SHORT_CODES.get(sl_lh, sl_lh),
-                "star_lord": self.SHORT_CODES.get(nlk_lh, nlk_lh), "sub_lord": self.SHORT_CODES.get(sub_lh, sub_lh),
-                "sub_sub_lord": self.SHORT_CODES.get(ssl_lh, ssl_lh), "nakshatra": nak_lh, "nadi": nadi_lh,
-                "nadi_index": sub_idx_lh, "is_retrograde": True if p_name in ["Rahu", "Ketu"] else kp_data["speed"] < 0,
-                "is_combust": is_combust, "planet_lord": sl_lh, "degree_decimal": lh_data["lon"], "kp_lon_debug": kp_data["lon"]
+                "planet": p_name, 
+                "degree_dms": self.decimal_to_dms(kp_data["lon"], is_absolute=True),
+                "house_placed": int(hp), 
+                "sign": sn_kp, 
+                "sign_lord": self.SHORT_CODES.get(sl_kp, sl_kp),
+                "star_lord": self.SHORT_CODES.get(nlk_kp, nlk_kp), 
+                "sub_lord": self.SHORT_CODES.get(sub_kp, sub_kp),
+                "sub_sub_lord": self.SHORT_CODES.get(ssl_kp, ssl_kp), 
+                "nakshatra": nak_kp, 
+                "nadi": nadi_kp,
+                "nadi_index": sub_idx_kp, 
+                "is_retrograde": True if p_name in ["Rahu", "Ketu"] else kp_data["speed"] < 0,
+                "is_combust": is_combust, 
+                "planet_lord": sl_kp, 
+                "degree_decimal": kp_data["lon"]
             })
             
         planet_res_map_kp = {p["planet"]: {**p, "degree_decimal": p_map_kp[p["planet"]]["lon"], "sign": self.get_kp_lords(p_map_kp[p["planet"]]["lon"])[0], "sign_lord": self.SHORT_CODES.get(self.get_kp_lords(p_map_kp[p["planet"]]["lon"])[1])} for p in planets_res}
@@ -783,11 +795,11 @@ class NadiEngine:
             nak, sl_n, sub_n, pl_n, nadi, s_idx, p_idx = self.get_nadi_triple_combination(p_lon_kp)
             
             # Gold Nadi Table significators
-            h_owners = house_owners_trad if p_name in ["Rahu", "Ketu"] else house_owners_kp
+            h_owners_gold = house_owners_trad if p_name in ["Rahu", "Ketu"] else house_owners_kp
             
             nak_nadi_res.append({
                 "planet": p_name, "nakshatra_name": nak, "is_retrograde": p["is_retrograde"], "is_combust": p["is_combust"],
-                "pl_signified": self.get_eff_sigs_detailed(p_name, planet_res_map_kp, h_owners),
+                "pl_signified": self.get_eff_sigs_detailed(p_name, planet_res_map_kp, h_owners_gold),
                 "star_lord": sl_n, "nl_signified": self.get_eff_sigs_detailed(sl_n, planet_res_map_kp, house_owners_kp),
                 "sub_lord": sub_n, "sl_signified": self.get_eff_sigs_detailed(sub_n, planet_res_map_kp, house_owners_kp),
                 "planet_lord": pl_n, "pl_lord_signified": self.get_eff_sigs_detailed(pl_n, planet_res_map_kp, house_owners_kp)
