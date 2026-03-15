@@ -820,11 +820,11 @@ class NadiEngine:
             for p_dict in planets_raw_lahiri:
                 v_s = self.get_varga_sign(p_dict["lon"], d_val)
                 vp.append({"planet": p_dict["planet"], "sign": self.SIGNS[v_s], "is_retrograde": p_dict["planet"] in ["Rahu", "Ketu"] or p_dict["speed"] < 0})
-            asc_v = self.get_varga_sign(ascmc[0] + (ayan_kp - ayan_lahiri), d_val)
+            asc_v = self.get_varga_sign(ascmc[0], d_val)
             varga_charts[v_name] = {"planets": vp, "ascendant": {"sign": self.SIGNS[asc_v]}}
 
-        sn_lh, sl_lh, nlk_lh, sub_lh, ssl_lh, nak_lh, nadi_lh, sub_idx_lh = self.get_kp_lords(ascmc[0] + (ayan_kp - ayan_lahiri))
-        asc_res = {"degree_dms": f"{self.decimal_to_dms(ascmc[0] + (ayan_kp - ayan_lahiri))} {sn_lh}", "sign": sn_lh, "sign_lord": sl_lh, "star_lord": nlk_lh, "sub_lord": sub_lh, "sub_sub_lord": ssl_lh, "nakshatra": nak_lh, "nadi": nadi_lh, "planet_lord": sl_lh}
+        sn_kp, sl_kp, nlk_kp, sub_kp, ssl_kp, nak_kp, nadi_kp, sub_idx_kp = self.get_kp_lords(ascmc[0])
+        asc_res = {"degree_dms": f"{self.decimal_to_dms(ascmc[0])} {sn_kp}", "sign": sn_kp, "sign_lord": sl_kp, "star_lord": nlk_kp, "sub_lord": sub_kp, "sub_sub_lord": ssl_kp, "nakshatra": nak_kp, "nadi": nadi_kp, "planet_lord": sl_kp}
         
         moon_lon_lh = dasha_data["moon_lon"]
         nak_size = 360/27
@@ -832,7 +832,7 @@ class NadiEngine:
             "status": "success", "ascendant": asc_res, "houses": houses_res, "planets": planets_res,
             "significations": significations_res, "nakshatra_nadi": nak_nadi_res, "dasha": dasha_data,
             "varga_charts": varga_charts,
-            "metadata": {"ayanamsa": "Hybrid (Lahiri Degrees, KP Logic)", "ayanamsa_value": f"KP:{ayan_kp:.4f} L:{ayan_lahiri:.4f}", "janma_nakshatra": self.NAKSHATRAS[int(moon_lon_lh/nak_size)%27], "pada": int((moon_lon_lh % nak_size) / (nak_size / 4)) + 1, "horary_number": horary_number},
+            "metadata": {"ayanamsa": "KP (Planet Table), Lahiri (Dasha)", "ayanamsa_value": f"KP:{ayan_kp:.4f} L:{ayan_lahiri:.4f}", "janma_nakshatra": self.NAKSHATRAS[int(moon_lon_lh/nak_size)%27], "pada": int((moon_lon_lh % nak_size) / (nak_size / 4)) + 1, "horary_number": horary_number},
             "aspects": self.calculate_aspects(planets_raw_lahiri)
         }
 
