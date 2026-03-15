@@ -9,14 +9,14 @@ import PlanetTable from './components/tables/PlanetTable';
 import DashaTable from './components/tables/DashaTable';
 import NakshatraNadiTable from './components/tables/NakshatraNadiTable';
 import JobPredictionTable from './components/tables/JobPredictionTable';
-import TravelPredictionTable from './components/tables/TravelPredictionTable';
-import PropertyPredictionTable from './components/tables/PropertyPredictionTable';
 import AdvancePredictionTable from './components/tables/AdvancePredictionTable';
+import PowerPositionTable from './components/tables/PowerPositionTable';
 import { getApiUrl, fetchMixedPrashna } from './services/api';
 import { useAuth } from './contexts/AuthContext';
 import LoginPage from './components/auth/LoginPage';
 import { AlertCircle, Lock, X } from 'lucide-react';
 import PhaladeepikaTable from './components/tables/PhaladeepikaTable';
+import AIBotContent from './components/AIBotContent';
 import { App as CapApp } from '@capacitor/app';
 
 // Types
@@ -47,12 +47,24 @@ interface KundliResponse {
 }
 
 
+const NADI_PLANET_ORDER = ['Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury'];
+
+const sortPlanetsByNadi = <T,>(planets: T[], getName: (p: T) => string): T[] => {
+  return [...planets].sort((a, b) => {
+    const idxA = NADI_PLANET_ORDER.indexOf(getName(a));
+    const idxB = NADI_PLANET_ORDER.indexOf(getName(b));
+    if (idxA === -1) return 1;
+    if (idxB === -1) return -1;
+    return idxA - idxB;
+  });
+};
+
 const App = () => {
   const [view, setView] = useState<'dashboard' | 'form' | 'result'>('dashboard');
   const [mode, setMode] = useState<'Natal' | 'Prashna' | 'Parashara'>('Natal');
   const [kundliData, setKundliData] = useState<KundliResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'planets' | 'dasha' | 'houses' | 'predictions' | 'advance_predictions' | 'nadi' | 'phala'>('planets');
+  const [activeTab, setActiveTab] = useState<'planets' | 'dasha' | 'houses' | 'predictions' | 'advance_predictions' | 'nadi' | 'phala' | 'power_position' | 'analysis'>('planets');
   const [showPlanetTable, setShowPlanetTable] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [birthDetails, setBirthDetails] = useState<any>(null);
@@ -113,6 +125,7 @@ const App = () => {
 
   const handleModeSelect = (selectedMode: 'Natal' | 'Prashna' | 'Parashara') => {
     setMode(selectedMode);
+    setBirthDetails(null);
     setView('form');
   };
 
@@ -255,6 +268,9 @@ const App = () => {
               vargaCharts={kundliData.varga_charts}
               chartMode={chartMode === 'Rashi' ? 'Rashi' : 'Bhava'}
               chartStyle={chartStyle}
+              janmaNakshatra={kundliData.metadata.janma_nakshatra}
+              pada={kundliData.metadata.pada}
+              rashi={kundliData.planets.find(p => p.planet === 'Moon')?.sign}
             />
 
             <button
@@ -279,7 +295,7 @@ const App = () => {
               {showPlanetTable ? 'Hide KP Planets Table' : 'Show KP Planets Table'}
             </button>
 
-            {showPlanetTable && <PlanetTable planets={kundliData.planets} ascendant={kundliData.ascendant} />}
+            {showPlanetTable && <PlanetTable planets={kundliData.planets} ascendant={kundliData.ascendant} dasha={kundliData.dasha} />}
           </div>
         );
       case 'houses':
@@ -314,43 +330,36 @@ const App = () => {
               </select>
             </div>
 
-            {selectedArea === 'Travel' ? (
-                <TravelPredictionTable
-                  data={kundliData.nakshatra_nadi}
-                  planets={kundliData.planets}
-                  types={[]}
-                  planetName=""
-                />
-              ) : selectedArea === 'Property & Vehicle' ? (
-                <PropertyPredictionTable
-                  data={kundliData.nakshatra_nadi}
-                  planets={kundliData.planets}
-                  types={[]}
-                  planetName=""
-                />
-              ) : (
-                kundliData.planets.map((p: any) => {
-                  const planetName = p.planet;
-                  const activeTypes: ('Dasha' | 'Bhukti' | 'Antara')[] = [];
-                  if (planetName === kundliData.dasha.current_dasha) activeTypes.push('Dasha');
-                  if (planetName === kundliData.dasha.current_bukthi) activeTypes.push('Bhukti');
-                  if (planetName === kundliData.dasha.current_antara) activeTypes.push('Antara');
+            {sortPlanetsByNadi(kundliData.planets, p => p.planet).map((p: any) => {
+              const planetName = p.planet;
+              const activeTypes: ('Dasha' | 'Bhukti' | 'Antara')[] = [];
+              if (planetName === kundliData.dasha.current_dasha) activeTypes.push('Dasha');
+              if (planetName === kundliData.dasha.current_bukthi) activeTypes.push('Bhukti');
+              if (planetName === kundliData.dasha.current_antara) activeTypes.push('Antara');
 
-                  return (
-                    <JobPredictionTable
-                      key={`${planetName}-${selectedArea}`}
-                      data={kundliData.nakshatra_nadi}
-                      planets={kundliData.planets}
-                      types={activeTypes}
-                      planetName={planetName}
-                      selectedArea={selectedArea}
-                    />
-                  );
-                })
-              )}
+              return (
+                <JobPredictionTable
+                  key={`${planetName}-${selectedArea}`}
+                  data={kundliData.nakshatra_nadi}
+                  planets={kundliData.planets}
+                  types={activeTypes}
+                  planetName={planetName}
+                  selectedArea={selectedArea}
+                />
+              );
+            })}
           </div>
         );
       case 'advance_predictions':
+        if (!(userData?.role === 'admin' || userData?.hasAdvancePredictionsAccess)) {
+          return (
+            <div style={{ padding: '2rem', textAlign: 'center', color: '#ef4444' }}>
+              <Lock size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
+              <h3 style={{ fontWeight: 800 }}>ACCESS DENIED</h3>
+              <p>You need specific permission to view Advance Predictions.</p>
+            </div>
+          );
+        }
         return (
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
             <div style={{ padding: '8px', margin: '1rem 0', background: '#eff6ff', borderRadius: '0', border: 'none' }}>
@@ -368,7 +377,7 @@ const App = () => {
               </select>
             </div>
 
-            {kundliData.planets.map((p: any) => {
+            {sortPlanetsByNadi(kundliData.planets, p => p.planet).map((p: any) => {
               const planetName = p.planet;
               const activeTypes: ('Dasha' | 'Bhukti' | 'Antara')[] = [];
               if (planetName === kundliData.dasha.current_dasha) activeTypes.push('Dasha');
@@ -386,6 +395,25 @@ const App = () => {
                 />
               );
             })}
+          </div>
+        );
+      case 'power_position':
+        if (!(userData?.role === 'admin' || userData?.hasPowerPositionAccess)) {
+          return (
+            <div style={{ padding: '2rem', textAlign: 'center', color: '#ef4444' }}>
+              <Lock size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
+              <h3 style={{ fontWeight: 800 }}>ACCESS DENIED</h3>
+              <p>You need specific permission to view Remedies.</p>
+            </div>
+          );
+        }
+        return (
+          <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
+            <PowerPositionTable 
+              data={sortPlanetsByNadi(kundliData.nakshatra_nadi, (item: any) => item.planet)}
+              planets={kundliData.planets}
+              dasha={kundliData.dasha}
+            />
           </div>
         );
       case 'phala':
@@ -431,6 +459,21 @@ const App = () => {
               isDayBirth={isDayBirth}
               gender={birthDetails?.gender}
             />
+          </div>
+        );
+      case 'analysis':
+        if (!(userData?.role === 'admin' || userData?.hasAnalysisAccess)) {
+          return (
+            <div style={{ padding: '2rem', textAlign: 'center', color: '#ef4444' }}>
+              <Lock size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
+              <h3 style={{ fontWeight: 800 }}>ACCESS DENIED</h3>
+              <p>You need specific permission to view AI Analysis.</p>
+            </div>
+          );
+        }
+        return (
+          <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
+            <AIBotContent kundliData={kundliData} selectedArea={selectedArea} />
           </div>
         );
       case 'dasha':
@@ -509,10 +552,10 @@ const App = () => {
             <AlertCircle size={48} color="#ef4444" style={{ margin: '0 auto 1rem' }} />
             <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#991b1b', margin: '0 0 0.5rem' }}>Subscription Over!</h2>
             <p style={{ color: '#b91c1c', fontWeight: 500, margin: 0 }}>
-              Your membership has expired. Please contact Ankit (Admin) to renew your access immediately.
+              Your membership has expired. Please contact Ankita (Admin) to renew your access immediately.
             </p>
-            <div style={{ marginTop: '1rem', padding: '8px', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '8px', fontSize: '0.8rem', color: '#991b1b' }}>
-              User ID: {currentUser.uid}
+            <div style={{ marginTop: '0.8rem', padding: '8px', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '8px', fontSize: '0.9rem', color: '#991b1b', fontWeight: 700 }}>
+              Email: ankitarn17@gmail.com | Ph: 9741689125
             </div>
           </div>
         )}
@@ -535,8 +578,9 @@ const App = () => {
                 isExpired={isExpired}
                 onBack={() => setView('dashboard')}
                 days={userData?.expiryDate ? Math.ceil((new Date(userData.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : null}
-                isAdmin={userData?.role === 'admin'}
-              />
+                 isAdmin={userData?.role === 'admin'}
+                 initialData={birthDetails}
+               />
               {error && (
                 <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: '12px', color: '#b91c1c', textAlign: 'center' }}>
                   {error}

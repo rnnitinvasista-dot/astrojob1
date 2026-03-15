@@ -11,6 +11,9 @@ interface UserMetadata {
     role: 'user' | 'admin';
     expiryDate: string; // ISO String
     hasKPAccess?: boolean;
+    hasPowerPositionAccess?: boolean;
+    hasAnalysisAccess?: boolean;
+    hasAdvancePredictionsAccess?: boolean;
 }
 
 interface AuthContextType {
@@ -67,7 +70,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         const defaultData: UserMetadata = {
                             role: isMasterAdmin ? 'admin' : 'user',
                             expiryDate: trialDate.toISOString(),
-                            hasKPAccess: isMasterAdmin ? true : false
+                            hasKPAccess: isMasterAdmin ? true : false,
+                            hasPowerPositionAccess: isMasterAdmin ? true : false,
+                            hasAnalysisAccess: isMasterAdmin ? true : false,
+                            hasAdvancePredictionsAccess: isMasterAdmin ? true : false
                         };
                         setDoc(userDocRef, {
                             ...defaultData,

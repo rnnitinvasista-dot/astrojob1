@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Dasha, DashaSequenceItem } from '../../types/astrology';
 import { ChevronRight, ChevronDown } from 'lucide-react';
+import { getCurrentDashaLords } from '../../services/api';
 
 interface DashaTableProps {
     dasha: Dasha;
@@ -24,23 +25,29 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
 
     // Auto-expand current period on load
     React.useEffect(() => {
-        const mdIdx = dasha.mahadasha_sequence.findIndex(md => md.planet === dasha.current_dasha);
+        const trueLords = getCurrentDashaLords(dasha.mahadasha_sequence);
+        const activeDasha = trueLords.dasha || dasha.current_dasha;
+        const activeBukthi = trueLords.bukthi || dasha.current_bukthi;
+        const activeAntara = trueLords.antara || dasha.current_antara;
+        const activePratyantar = trueLords.pratyantar || dasha.current_pratyantar;
+
+        const mdIdx = dasha.mahadasha_sequence.findIndex(md => md.planet === activeDasha);
         if (mdIdx !== -1) {
             setExpandedMD(mdIdx);
-            const adIdx = dasha.mahadasha_sequence[mdIdx].bukthis?.findIndex(ad => ad.planet === dasha.current_bukthi);
+            const adIdx = dasha.mahadasha_sequence[mdIdx].bukthis?.findIndex(ad => ad.planet === activeBukthi);
             if (adIdx !== undefined && adIdx !== -1) {
                 setExpandedAD(`${mdIdx}-${adIdx}`);
-                const pdIdx = dasha.mahadasha_sequence[mdIdx].bukthis?.[adIdx].antaras?.findIndex(pd => pd.planet === dasha.current_antara);
+                const pdIdx = dasha.mahadasha_sequence[mdIdx].bukthis?.[adIdx].antaras?.findIndex(pd => pd.planet === activeAntara);
                 if (pdIdx !== undefined && pdIdx !== -1) {
                     setExpandedPD(`${mdIdx}-${adIdx}-${pdIdx}`);
-                    const sdIdx = dasha.mahadasha_sequence[mdIdx].bukthis?.[adIdx].antaras?.[pdIdx].pratyantars?.findIndex(sd => sd.planet === dasha.current_pratyantar);
+                    const sdIdx = dasha.mahadasha_sequence[mdIdx].bukthis?.[adIdx].antaras?.[pdIdx].pratyantars?.findIndex(sd => sd.planet === activePratyantar);
                     if (sdIdx !== undefined && sdIdx !== -1) {
                         setExpandedSD(`${mdIdx}-${adIdx}-${pdIdx}-${sdIdx}`);
                     }
                 }
             }
         }
-    }, [dasha.current_dasha, dasha.current_bukthi, dasha.current_antara, dasha.current_pratyantar, dasha.mahadasha_sequence]);
+    }, [dasha.mahadasha_sequence, dasha.current_dasha]); // Only re-run if sequence changes or on initial load
 
     const toggleMD = (idx: number) => {
         setExpandedMD(expandedMD === idx ? null : idx);
@@ -67,6 +74,13 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
         setExpandedSD(expandedSD === key ? null : key);
     };
 
+    const trueLords = getCurrentDashaLords(dasha.mahadasha_sequence);
+    const activeD = trueLords.dasha || dasha.current_dasha;
+    const activeB = trueLords.bukthi || dasha.current_bukthi;
+    const activeA = trueLords.antara || dasha.current_antara;
+    const activeP = trueLords.pratyantar || dasha.current_pratyantar;
+    const activeS = trueLords.sookshma || dasha.current_sookshma;
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%', maxWidth: '100%' }}>
             <div className="card" style={{
@@ -85,7 +99,7 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                     <div>
                         <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Active Path</label>
                         <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--primary)' }}>
-                            {dasha.current_dasha}/{dasha.current_bukthi}/{dasha.current_antara}{dasha.current_pratyantar ? `/${dasha.current_pratyantar}` : ''}{dasha.current_sookshma ? `/${dasha.current_sookshma}` : ''}
+                            {activeD}/{activeB}/{activeA}{activeP ? `/${activeP}` : ''}{activeS ? `/${activeS}` : ''}
                         </div>
                     </div>
                 </div>
@@ -116,15 +130,15 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                                         onClick={() => toggleMD(mdIdx)}
                                         style={{
                                             cursor: 'pointer',
-                                            background: md.planet === dasha.current_dasha ? '#1d4ed8' : 'white',
-                                            color: md.planet === dasha.current_dasha ? 'white' : 'inherit'
+                                            background: md.planet === activeD ? '#1d4ed8' : 'white',
+                                            color: md.planet === activeD ? 'white' : 'inherit'
                                         }}
                                     >
                                         <td style={{ padding: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #e2e8f0' }}>
-                                            {expandedMD === mdIdx ? <ChevronDown size={16} color={md.planet === dasha.current_dasha ? 'white' : 'currentColor'} /> : <ChevronRight size={16} color={md.planet === dasha.current_dasha ? 'white' : 'currentColor'} />}
+                                            {expandedMD === mdIdx ? <ChevronDown size={16} color={md.planet === activeD ? 'white' : 'currentColor'} /> : <ChevronRight size={16} color={md.planet === activeD ? 'white' : 'currentColor'} />}
                                             {md.planet} (D)
                                         </td>
-                                        <td style={{ padding: '1rem', color: md.planet === dasha.current_dasha ? 'rgba(255,255,255,0.8)' : '#64748b', border: '1px solid #e2e8f0' }}>{formatDate(md.end_date)}</td>
+                                        <td style={{ padding: '1rem', color: md.planet === activeD ? 'rgba(255,255,255,0.8)' : '#64748b', border: '1px solid #e2e8f0' }}>{formatDate(md.end_date)}</td>
                                     </tr>
 
                                     {/* Bukthis (AD) */}
@@ -133,16 +147,16 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                                             <tr
                                                 onClick={(e) => { e.stopPropagation(); toggleAD(mdIdx, adIdx); }}
                                                 style={{
-                                                    background: (md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi) ? '#15803d' : (expandedAD === `${mdIdx}-${adIdx}` ? '#eff6ff' : '#fafafa'),
-                                                    color: (md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi) ? 'white' : 'inherit',
+                                                    background: (md.planet === activeD && ad.planet === activeB) ? '#15803d' : (expandedAD === `${mdIdx}-${adIdx}` ? '#eff6ff' : '#fafafa'),
+                                                    color: (md.planet === activeD && ad.planet === activeB) ? 'white' : 'inherit',
                                                     cursor: 'pointer'
                                                 }}
                                             >
-                                                <td style={{ padding: '0.75rem 1rem 0.75rem 2.5rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', color: (md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi) ? 'white' : '#475569', border: '1px solid #e2e8f0' }}>
-                                                    {expandedAD === `${mdIdx}-${adIdx}` ? <ChevronDown size={14} color={(md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi) ? 'white' : 'currentColor'} /> : <ChevronRight size={14} color={(md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi) ? 'white' : 'currentColor'} />}
+                                                <td style={{ padding: '0.75rem 1rem 0.75rem 2.5rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', color: (md.planet === activeD && ad.planet === activeB) ? 'white' : '#475569', border: '1px solid #e2e8f0' }}>
+                                                    {expandedAD === `${mdIdx}-${adIdx}` ? <ChevronDown size={14} color={(md.planet === activeD && ad.planet === activeB) ? 'white' : 'currentColor'} /> : <ChevronRight size={14} color={(md.planet === activeD && ad.planet === activeB) ? 'white' : 'currentColor'} />}
                                                     {ad.planet} (B)
                                                 </td>
-                                                <td style={{ padding: '0.75rem 1rem', fontSize: '0.8rem', color: (md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi) ? 'rgba(255,255,255,0.8)' : '#94a3b8', border: '1px solid #e2e8f0' }}>{formatDate(ad.end_date)}</td>
+                                                <td style={{ padding: '0.75rem 1rem', fontSize: '0.8rem', color: (md.planet === activeD && ad.planet === activeB) ? 'rgba(255,255,255,0.8)' : '#94a3b8', border: '1px solid #e2e8f0' }}>{formatDate(ad.end_date)}</td>
                                             </tr>
 
                                             {/* Antaras (PD) */}
@@ -151,16 +165,16 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                                                     <tr
                                                         onClick={(e) => { e.stopPropagation(); togglePD(mdIdx, adIdx, pdIdx); }}
                                                         style={{
-                                                            background: (md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi && pd.planet === dasha.current_antara) ? '#b45309' : (expandedPD === `${mdIdx}-${adIdx}-${pdIdx}` ? '#fef3c7' : '#ffffff'),
-                                                            color: (md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi && pd.planet === dasha.current_antara) ? 'white' : 'inherit',
+                                                            background: (md.planet === activeD && ad.planet === activeB && pd.planet === activeA) ? '#b45309' : (expandedPD === `${mdIdx}-${adIdx}-${pdIdx}` ? '#fef3c7' : '#ffffff'),
+                                                            color: (md.planet === activeD && ad.planet === activeB && pd.planet === activeA) ? 'white' : 'inherit',
                                                             cursor: 'pointer'
                                                         }}
                                                     >
-                                                        <td style={{ padding: '0.5rem 1rem 0.5rem 4rem', fontSize: '0.85rem', color: (md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi && pd.planet === dasha.current_antara) ? 'white' : '#64748b', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #e2e8f0' }}>
-                                                            {expandedPD === `${mdIdx}-${adIdx}-${pdIdx}` ? <ChevronDown size={12} color={(md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi && pd.planet === dasha.current_antara) ? 'white' : 'currentColor'} /> : <ChevronRight size={12} color={(md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi && pd.planet === dasha.current_antara) ? 'white' : 'currentColor'} />}
+                                                        <td style={{ padding: '0.5rem 1rem 0.5rem 4rem', fontSize: '0.85rem', color: (md.planet === activeD && ad.planet === activeB && pd.planet === activeA) ? 'white' : '#64748b', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #e2e8f0' }}>
+                                                            {expandedPD === `${mdIdx}-${adIdx}-${pdIdx}` ? <ChevronDown size={12} color={(md.planet === activeD && ad.planet === activeB && pd.planet === activeA) ? 'white' : 'currentColor'} /> : <ChevronRight size={12} color={(md.planet === activeD && ad.planet === activeB && pd.planet === activeA) ? 'white' : 'currentColor'} />}
                                                             {pd.planet} (A)
                                                         </td>
-                                                        <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', color: (md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi && pd.planet === dasha.current_antara) ? 'rgba(255,255,255,0.8)' : '#cbd5e1', border: '1px solid #e2e8f0' }}>{formatDate(pd.end_date)}</td>
+                                                        <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', color: (md.planet === activeD && ad.planet === activeB && pd.planet === activeA) ? 'rgba(255,255,255,0.8)' : '#cbd5e1', border: '1px solid #e2e8f0' }}>{formatDate(pd.end_date)}</td>
                                                     </tr>
 
                                                     {/* Pratyantars (SD) */}
@@ -169,28 +183,28 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                                                             <tr
                                                                 onClick={(e) => { e.stopPropagation(); toggleSD(mdIdx, adIdx, pdIdx, sdIdx); }}
                                                                 style={{
-                                                                    background: (md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi && pd.planet === dasha.current_antara && sd.planet === dasha.current_pratyantar) ? '#7c3aed' : (expandedSD === `${mdIdx}-${adIdx}-${pdIdx}-${sdIdx}` ? '#f5f3ff' : '#ffffff'),
-                                                                    color: (md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi && pd.planet === dasha.current_antara && sd.planet === dasha.current_pratyantar) ? 'white' : 'inherit',
+                                                                    background: (md.planet === activeD && ad.planet === activeB && pd.planet === activeA && sd.planet === activeP) ? '#7c3aed' : (expandedSD === `${mdIdx}-${adIdx}-${pdIdx}-${sdIdx}` ? '#f5f3ff' : '#ffffff'),
+                                                                    color: (md.planet === activeD && ad.planet === activeB && pd.planet === activeA && sd.planet === activeP) ? 'white' : 'inherit',
                                                                     cursor: 'pointer'
                                                                 }}
                                                             >
-                                                                <td style={{ padding: '0.4rem 1rem 0.4rem 5.5rem', fontSize: '0.8rem', color: (md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi && pd.planet === dasha.current_antara && sd.planet === dasha.current_pratyantar) ? 'white' : '#7c3aed', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #e2e8f0' }}>
-                                                                    {expandedSD === `${mdIdx}-${adIdx}-${pdIdx}-${sdIdx}` ? <ChevronDown size={10} color={(md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi && pd.planet === dasha.current_antara && sd.planet === dasha.current_pratyantar) ? 'white' : 'currentColor'} /> : <ChevronRight size={10} color={(md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi && pd.planet === dasha.current_antara && sd.planet === dasha.current_pratyantar) ? 'white' : 'currentColor'} />}
+                                                                <td style={{ padding: '0.4rem 1rem 0.4rem 5.5rem', fontSize: '0.8rem', color: (md.planet === activeD && ad.planet === activeB && pd.planet === activeA && sd.planet === activeP) ? 'white' : '#7c3aed', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #e2e8f0' }}>
+                                                                    {expandedSD === `${mdIdx}-${adIdx}-${pdIdx}-${sdIdx}` ? <ChevronDown size={10} color={(md.planet === activeD && ad.planet === activeB && pd.planet === activeA && sd.planet === activeP) ? 'white' : 'currentColor'} /> : <ChevronRight size={10} color={(md.planet === activeD && ad.planet === activeB && pd.planet === activeA && sd.planet === activeP) ? 'white' : 'currentColor'} />}
                                                                     {sd.planet} (P)
                                                                 </td>
-                                                                <td style={{ padding: '0.4rem 1rem', fontSize: '0.7rem', color: (md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi && pd.planet === dasha.current_antara && sd.planet === dasha.current_pratyantar) ? 'rgba(255,255,255,0.8)' : '#d1d5db', border: '1px solid #e2e8f0' }}>{formatDate(sd.end_date)}</td>
+                                                                <td style={{ padding: '0.4rem 1rem', fontSize: '0.7rem', color: (md.planet === activeD && ad.planet === activeB && pd.planet === activeA && sd.planet === activeP) ? 'rgba(255,255,255,0.8)' : '#d1d5db', border: '1px solid #e2e8f0' }}>{formatDate(sd.end_date)}</td>
                                                             </tr>
 
                                                             {/* Sookshmas (PR) */}
                                                             {expandedSD === `${mdIdx}-${adIdx}-${pdIdx}-${sdIdx}` && sd.sookshmas?.map((pr: DashaSequenceItem, prIdx: number) => (
                                                                 <tr key={prIdx} style={{
-                                                                    background: (md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi && pd.planet === dasha.current_antara && sd.planet === dasha.current_pratyantar && pr.planet === dasha.current_sookshma) ? '#db2777' : '#ffffff',
-                                                                    color: (md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi && pd.planet === dasha.current_antara && sd.planet === dasha.current_pratyantar && pr.planet === dasha.current_sookshma) ? 'white' : 'inherit'
+                                                                    background: (md.planet === activeD && ad.planet === activeB && pd.planet === activeA && sd.planet === activeP && pr.planet === activeS) ? '#db2777' : '#ffffff',
+                                                                    color: (md.planet === activeD && ad.planet === activeB && pd.planet === activeA && sd.planet === activeP && pr.planet === activeS) ? 'white' : 'inherit'
                                                                 }}>
-                                                                    <td style={{ padding: '0.3rem 1rem 0.3rem 7rem', fontSize: '0.75rem', color: (md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi && pd.planet === dasha.current_antara && sd.planet === dasha.current_pratyantar && pr.planet === dasha.current_sookshma) ? 'white' : '#db2777', border: '1px solid #e2e8f0' }}>
+                                                                    <td style={{ padding: '0.3rem 1rem 0.3rem 7rem', fontSize: '0.75rem', color: (md.planet === activeD && ad.planet === activeB && pd.planet === activeA && sd.planet === activeP && pr.planet === activeS) ? 'white' : '#db2777', border: '1px solid #e2e8f0' }}>
                                                                         • {md.planet.substring(0, 2)}/{ad.planet.substring(0, 2)}/{pd.planet.substring(0, 2)}/{sd.planet.substring(0, 2)}/{pr.planet.substring(0, 2)}
                                                                     </td>
-                                                                    <td style={{ padding: '0.3rem 1rem', fontSize: '0.65rem', color: (md.planet === dasha.current_dasha && ad.planet === dasha.current_bukthi && pd.planet === dasha.current_antara && sd.planet === dasha.current_pratyantar && pr.planet === dasha.current_sookshma) ? 'rgba(255,255,255,0.8)' : '#e5e7eb', border: '1px solid #e2e8f0' }}>{formatDate(pr.end_date)}</td>
+                                                                    <td style={{ padding: '0.3rem 1rem', fontSize: '0.65rem', color: (md.planet === activeD && ad.planet === activeB && pd.planet === activeA && sd.planet === activeP && pr.planet === activeS) ? 'rgba(255,255,255,0.8)' : '#e5e7eb', border: '1px solid #e2e8f0' }}>{formatDate(pr.end_date)}</td>
                                                                 </tr>
                                                             ))}
                                                         </React.Fragment>
@@ -199,11 +213,11 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                                             ))}
                                         </React.Fragment>
                                     ))}
-                                </React.Fragment>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                                    </React.Fragment>
+                                ))}
+                            </tbody>
+                            </table>
+                        </div>
             </div>
         </div>
     );

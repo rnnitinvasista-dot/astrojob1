@@ -19,8 +19,13 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showTabs, onBack, isAdmin, expiryDate, onLogout, currentView, chartMode, chartStyle: _chartStyle, onChartStyleChange: _onChartStyleChange, title }) => {
-    const { currentUser } = useAuth();
+    const { currentUser, userData } = useAuth();
     const [showMenu, setShowMenu] = React.useState(false);
+
+    // Access flags
+    const hasPowerPositionAccess = isAdmin || userData?.hasPowerPositionAccess;
+    const hasAnalysisAccess = isAdmin || userData?.hasAnalysisAccess;
+    const hasAdvancePredictionsAccess = isAdmin || userData?.hasAdvancePredictionsAccess;
 
     const getDaysRemaining = () => {
         if (!expiryDate) return null;
@@ -277,16 +282,32 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                                     style={{ fontWeight: 'bold', color: '#000000' }}>
                                     House Signification
                                 </div>
+                                {hasPowerPositionAccess && (
+                                    <div className={`tab-item ${activeTab === 'power_position' ? 'active' : ''}`}
+                                        onClick={() => onTabChange('power_position')}
+                                        style={{ fontWeight: 'bold', color: '#000000' }}>
+                                        Remedies
+                                    </div>
+                                )}
                                 <div className={`tab-item ${activeTab === 'predictions' ? 'active' : ''}`}
                                     onClick={() => onTabChange('predictions')}
                                     style={{ fontWeight: 'bold', color: '#000000' }}>
                                     Predictions
                                 </div>
-                                <div className={`tab-item ${activeTab === 'advance_predictions' ? 'active' : ''}`}
-                                    onClick={() => onTabChange('advance_predictions')}
-                                    style={{ fontWeight: 'bold', color: '#000000' }}>
-                                    Advance Predictions
-                                </div>
+                                {hasAnalysisAccess && (
+                                    <div className={`tab-item ${activeTab === 'analysis' ? 'active' : ''}`}
+                                        onClick={() => onTabChange('analysis')}
+                                        style={{ fontWeight: 'bold', color: '#000000' }}>
+                                        Analysis
+                                    </div>
+                                )}
+                                {hasAdvancePredictionsAccess && (
+                                    <div className={`tab-item ${activeTab === 'advance_predictions' ? 'active' : ''}`}
+                                        onClick={() => onTabChange('advance_predictions')}
+                                        style={{ fontWeight: 'bold', color: '#000000' }}>
+                                        Advance Predictions
+                                    </div>
+                                )}
                                 <div className={`tab-item ${activeTab === 'nadi' ? 'active' : ''}`}
                                     onClick={() => onTabChange('nadi')}
                                     style={{ fontWeight: 'bold', color: '#000000' }}>

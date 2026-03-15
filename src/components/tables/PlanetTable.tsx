@@ -1,12 +1,41 @@
 import React from 'react';
 import type { Planet, Ascendant } from '../../types/astrology';
+import { getCurrentDashaLords } from '../../services/api';
 
 interface PlanetTableProps {
     planets: Planet[];
     ascendant?: Ascendant;
+    dasha: any;
 }
 
-const PlanetTable: React.FC<PlanetTableProps> = ({ planets, ascendant }) => {
+const PlanetTable: React.FC<PlanetTableProps> = ({ planets, ascendant, dasha }) => {
+    // Robust dasha detection
+    const trueLords = getCurrentDashaLords(dasha.mahadasha_sequence);
+    const activeDasha = trueLords.dasha || dasha.current_dasha;
+    const activeBukthi = trueLords.bukthi || dasha.current_bukthi;
+    const activeAntara = trueLords.antara || dasha.current_antara;
+
+    const getRowStyle = (planetName: string) => {
+        const isDasha = planetName === activeDasha;
+        const isBukthi = planetName === activeBukthi;
+        const isAntara = planetName === activeAntara;
+
+        const activeRoles = [];
+        if (isDasha) activeRoles.push('#bfdbfe'); // Light Blue
+        if (isBukthi) activeRoles.push('#bbf7d0'); // Light Green
+        if (isAntara) activeRoles.push('#fde68a'); // Light Amber/Yellow
+
+        if (activeRoles.length === 0) return {};
+        
+        if (activeRoles.length === 1) {
+            return { backgroundColor: activeRoles[0] };
+        }
+        
+        const step = 100 / activeRoles.length;
+        const stops = activeRoles.map((color, i) => `${color} ${i * step}%, ${color} ${(i + 1) * step}%`);
+        return { backgroundImage: `linear-gradient(to right, ${stops.join(', ')})` };
+    };
+
     return (
         <div className="card" style={{
             width: '100%',
@@ -44,7 +73,7 @@ const PlanetTable: React.FC<PlanetTableProps> = ({ planets, ascendant }) => {
                             </tr>
                         )}
                         {planets.map((planet) => (
-                            <tr key={planet.planet}>
+                            <tr key={planet.planet} style={getRowStyle(planet.planet)}>
                                 <td style={{ fontWeight: '600', border: '1px solid #e2e8f0', padding: '8px' }}>
                                     {planet.planet}
                                     {planet.is_retrograde && <span style={{ color: '#ef4444', fontSize: '0.7rem', marginLeft: '2px' }}>(R)</span>}
@@ -66,6 +95,21 @@ const PlanetTable: React.FC<PlanetTableProps> = ({ planets, ascendant }) => {
                 <span><b>NL:</b> Nakshatra Lord</span>
                 <span><b>SB:</b> Sub Lord</span>
                 <span><b>SS:</b> Sub-Sub Lord</span>
+            </div>
+            {/* Added Legend for Highlighting */}
+            <div style={{ marginTop: '0.5rem', display: 'flex', gap: '8px', fontSize: '0.65rem', fontWeight: 600 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                   <div style={{ width: '8px', height: '8px', backgroundColor: '#bfdbfe' }}></div>
+                   <span>Dasha</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                   <div style={{ width: '8px', height: '8px', backgroundColor: '#bbf7d0' }}></div>
+                   <span>Bhukti</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                   <div style={{ width: '8px', height: '8px', backgroundColor: '#fde68a' }}></div>
+                   <span>Antara</span>
+                </div>
             </div>
         </div>
     );

@@ -530,10 +530,18 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
 
     // Determine header background based on highest priority type
     const getHeaderStyle = () => {
-        if (types.includes('Dasha')) return { background: '#1d4ed8', color: '#ffffff' };
-        if (types.includes('Bhukti')) return { background: '#15803d', color: '#ffffff' };
-        if (types.includes('Antara')) return { background: '#b45309', color: '#ffffff' };
-        return { background: '#f8fafc', color: '#1e3a8a' };
+        const themeMap = {
+            Dasha: '#1d4ed8',
+            Bhukti: '#15803d',
+            Antara: '#b45309'
+        };
+
+        if (types.length === 0) return { background: '#f8fafc', color: '#1e3a8a' };
+        if (types.length === 1) return { background: themeMap[types[0]], color: '#ffffff' };
+        
+        const step = 100 / types.length;
+        const stops = types.map((t, i) => `${themeMap[t]} ${i * step}%, ${themeMap[t]} ${(i + 1) * step}%`);
+        return { background: `linear-gradient(to right, ${stops.join(', ')})`, color: '#ffffff' };
     };
     const headerStyle = getHeaderStyle();
 

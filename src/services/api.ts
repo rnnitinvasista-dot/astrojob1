@@ -93,3 +93,100 @@ export const pingBackend = async () => {
         // Ignore background ping errors
     }
 };
+
+export const fetchAnalysisReport = async (area: string, nadiData: any[], dashaData: any): Promise<any> => {
+    const baseUrl = getApiUrl();
+    try {
+        const response = await axios.post(`${baseUrl}/analysis-report`, {
+            area,
+            nadi_data: nadiData,
+            dasha_data: dashaData
+        }, {
+            timeout: 120000
+        });
+        return response.data;
+    } catch (error) {
+        return { 
+            status: 'error', 
+            message: axios.isAxiosError(error) ? error.message : 'Failed to connect to AI' 
+        };
+    }
+};
+
+export const chatWithAI = async (query: string, nadiData: any[], dashaData: any, chatHistory: any[]): Promise<any> => {
+    const baseUrl = getApiUrl();
+    try {
+        const response = await axios.post(`${baseUrl}/chat-with-ai`, {
+            query,
+            nadi_data: nadiData,
+            dasha_data: dashaData,
+            chat_history: chatHistory
+        }, {
+            timeout: 120000
+        });
+        return response.data;
+    } catch (error) {
+        return { 
+            status: 'error', 
+            message: axios.isAxiosError(error) ? error.message : 'Failed to connect to AI' 
+        };
+    }
+};
+
+/**
+ * Robust utility to find the CURRENT active dasha lords from the full sequence.
+ * This ensures accuracy even if the initial API response 'current' markers are stale.
+ */
+export const getCurrentDashaLords = (mahadashaSequence: any[]) => {
+    const now = new Date();
+    
+    // Default to the provided markers if we can't find better ones
+    let lords = {
+        dasha: '',
+        bukthi: '',
+        antara: '',
+        pratyantar: '',
+        sookshma: ''
+    };
+
+    if (!mahadashaSequence) return lords;
+
+    // Find active Mahadasha (D)
+    const activeMD = mahadashaSequence.find(md => new Date(md.end_date) >= now);
+    if (!activeMD) return lords;
+    lords.dasha = activeMD.planet;
+
+    // Find active Bhukti (B)
+    if (activeMD.bukthis) {
+        const activeAD = activeMD.bukthis.find((ad: any) => new Date(ad.end_date) >= now);
+        if (activeAD) {
+            lords.bukthi = activeAD.planet;
+            
+            // Find active Antara (A)
+            if (activeAD.antaras) {
+                const activePD = activeAD.antaras.find((pd: any) => new Date(pd.end_date) >= now);
+                if (activePD) {
+                    lords.antara = activePD.planet;
+                    
+                    // Find active Pratyantar (P)
+                    if (activePD.pratyantars) {
+                        const activeSD = activePD.pratyantars.find((sd: any) => new Date(sd.end_date) >= now);
+                        if (activeSD) {
+                            lords.pratyantar = activeSD.planet;
+                            
+                            // Find active Sookshma (PR)
+                            if (activeSD.sookshmas) {
+                                const activePR = activeSD.sookshmas.find((pr: any) => new Date(pr.end_date) >= now);
+                                if (activePR) {
+                                    lords.sookshma = activePR.planet;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return lords;
+};

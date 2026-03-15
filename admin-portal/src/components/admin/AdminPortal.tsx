@@ -18,6 +18,9 @@ interface UserData {
     expiryDate: string;
     createdAt?: string;
     hasKPAccess?: boolean;
+    hasPowerPositionAccess?: boolean;
+    hasAnalysisAccess?: boolean;
+    hasAdvancePredictionsAccess?: boolean;
 }
 
 const AdminPortal: React.FC = () => {
@@ -126,6 +129,39 @@ const AdminPortal: React.FC = () => {
             });
         } catch (err) {
             console.error("Toggle KP access failed", err);
+        }
+    };
+
+    const togglePowerPositionAccess = async (uid: string, currentStatus: boolean) => {
+        const userRef = doc(db, 'users', uid);
+        try {
+            await updateDoc(userRef, {
+                hasPowerPositionAccess: !currentStatus
+            });
+        } catch (err) {
+            console.error("Toggle Power Position access failed", err);
+        }
+    };
+
+    const toggleAnalysisAccess = async (uid: string, currentStatus: boolean) => {
+        const userRef = doc(db, 'users', uid);
+        try {
+            await updateDoc(userRef, {
+                hasAnalysisAccess: !currentStatus
+            });
+        } catch (err) {
+            console.error("Toggle Analysis access failed", err);
+        }
+    };
+
+    const toggleAdvancePredictionsAccess = async (uid: string, currentStatus: boolean) => {
+        const userRef = doc(db, 'users', uid);
+        try {
+            await updateDoc(userRef, {
+                hasAdvancePredictionsAccess: !currentStatus
+            });
+        } catch (err) {
+            console.error("Toggle Advance Predictions access failed", err);
         }
     };
 
@@ -380,11 +416,58 @@ const AdminPortal: React.FC = () => {
                                             borderColor: user.hasKPAccess ? '#a7f3d0' : '#fecaca',
                                             borderRadius: '8px',
                                             cursor: 'pointer',
-                                            fontWeight: 700,
-                                            marginLeft: '0.5rem'
+                                            fontWeight: 700
                                         }}
                                     >
                                         {user.hasKPAccess ? 'Revoke KP' : 'Give KP Access'}
+                                    </button>
+                                    <button
+                                        onClick={() => togglePowerPositionAccess(user.uid, !!user.hasPowerPositionAccess)}
+                                        style={{
+                                            padding: '8px 14px',
+                                            fontSize: '0.8rem',
+                                            background: user.hasPowerPositionAccess ? '#ecfdf5' : '#fef2f2',
+                                            color: user.hasPowerPositionAccess ? '#059669' : '#dc2626',
+                                            border: '1.5px solid transparent',
+                                            borderColor: user.hasPowerPositionAccess ? '#a7f3d0' : '#fecaca',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            fontWeight: 700
+                                        }}
+                                    >
+                                        {user.hasPowerPositionAccess ? 'Power Pos: ON' : 'Power Pos: OFF'}
+                                    </button>
+                                    <button
+                                        onClick={() => toggleAnalysisAccess(user.uid, !!user.hasAnalysisAccess)}
+                                        style={{
+                                            padding: '8px 14px',
+                                            fontSize: '0.8rem',
+                                            background: user.hasAnalysisAccess ? '#ecfdf5' : '#fef2f2',
+                                            color: user.hasAnalysisAccess ? '#059669' : '#dc2626',
+                                            border: '1.5px solid transparent',
+                                            borderColor: user.hasAnalysisAccess ? '#a7f3d0' : '#fecaca',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            fontWeight: 700
+                                        }}
+                                    >
+                                        {user.hasAnalysisAccess ? 'Analysis: ON' : 'Analysis: OFF'}
+                                    </button>
+                                    <button
+                                        onClick={() => toggleAdvancePredictionsAccess(user.uid, !!user.hasAdvancePredictionsAccess)}
+                                        style={{
+                                            padding: '8px 14px',
+                                            fontSize: '0.8rem',
+                                            background: user.hasAdvancePredictionsAccess ? '#ecfdf5' : '#fef2f2',
+                                            color: user.hasAdvancePredictionsAccess ? '#059669' : '#dc2626',
+                                            border: '1.5px solid transparent',
+                                            borderColor: user.hasAdvancePredictionsAccess ? '#a7f3d0' : '#fecaca',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            fontWeight: 700
+                                        }}
+                                    >
+                                        {user.hasAdvancePredictionsAccess ? 'Advance: ON' : 'Advance: OFF'}
                                     </button>
                                     <button
                                         onClick={() => toggleAdmin(user.uid, user.role)}

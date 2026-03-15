@@ -19,6 +19,9 @@ interface PremiumSouthIndianChartProps {
     birthDetails?: any;
     chartMode?: 'Rashi' | 'Bhava';
     chartStyle?: 'South Indian' | 'North Indian';
+    janmaNakshatra?: string;
+    pada?: number;
+    rashi?: string;
 }
 
 const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
@@ -27,7 +30,10 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
     ascendant,
     birthDetails,
     chartMode = 'Rashi',
-    chartStyle: _chartStyle = 'South Indian'
+    chartStyle: _chartStyle = 'South Indian',
+    janmaNakshatra,
+    pada,
+    rashi
 }) => {
     const [selectedVarga, setSelectedVarga] = useState<string>('D1');
 
@@ -208,6 +214,9 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                                     </div>
                                     <div style={{ marginTop: '4px' }}>{formatDate(birthDetails?.date_of_birth)} {birthDetails?.time_of_birth}</div>
                                     <div>{birthDetails?.place || 'Unknown'}</div>
+                                    <div style={{ fontWeight: 900, color: '#3b82f6', marginTop: '4px', fontSize: '0.85rem' }}>
+                                        {rashi && `${rashi} Rashi`} {janmaNakshatra && `| ${janmaNakshatra}${pada ? '-' + pada : ''}`}
+                                    </div>
                                 </div>
                             );
                         }

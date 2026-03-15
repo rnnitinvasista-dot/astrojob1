@@ -11,6 +11,7 @@ interface BirthDetailsFormProps {
     isExpired?: boolean;
     days?: number | null;
     isAdmin?: boolean;
+    initialData?: BirthDetails;
 }
 
 interface LocationSuggestion {
@@ -32,7 +33,7 @@ const STANDARD_CITIES: Record<string, { lat: number, lon: number, name: string }
     'ahmedabad': { lat: 23.0225, lon: 72.5714, name: 'Ahmedabad, Gujarat, India' }
 };
 
-const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading, mode, isExpired }) => {
+const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading, mode, isExpired, initialData }) => {
     const isPrashna = mode === 'Prashna';
     const isNatalOrParashara = mode === 'Natal' || mode === 'Parashara';
     
@@ -64,6 +65,19 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
     const [selectedCountry, setSelectedCountry] = useState('in'); // Default to India
 
     React.useEffect(() => {
+        if (initialData) {
+            setFormData(initialData);
+            if (initialData.date_of_birth) {
+                const [y, m, d] = initialData.date_of_birth.split('-');
+                setBirthYear(y); setBirthMonth(m); setBirthDay(d);
+            }
+            if (initialData.time_of_birth) {
+                const [h, min, s] = initialData.time_of_birth.split(':');
+                setBirthHour(h); setBirthMin(min); setBirthSec(s || '00');
+            }
+            return;
+        }
+
         // Only auto-fill for Prashna mode
         if (mode === 'Prashna') {
             const now = new Date();
@@ -143,7 +157,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
             setBirthDay(''); setBirthMonth(''); setBirthYear('');
             setBirthHour(''); setBirthMin(''); setBirthSec('');
         }
-    }, [mode, isPrashna]);
+    }, [mode, isPrashna, initialData]);
 
     const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
     const [isSearching, setIsSearching] = useState(false);
