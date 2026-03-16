@@ -99,7 +99,7 @@ const PowerPositionTable: React.FC<PowerPositionTableProps> = ({ data, planets, 
     };
 
     return (
-        <div style={{ padding: '4px', backgroundColor: '#fff' }}>
+        <div style={{ padding: '8px', backgroundColor: 'var(--bg)', minHeight: '100vh' }}>
             {/* Legend with Dasha Info */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 800, flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
@@ -107,17 +107,26 @@ const PowerPositionTable: React.FC<PowerPositionTableProps> = ({ data, planets, 
                     <span>Good</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                    <div style={{ width: '10px', height: '10px', backgroundColor: '#2563eb' }}></div>
+                    <div style={{ width: '10px', height: '10px', backgroundColor: 'var(--primary)' }}></div>
                     <span>Medium</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                    <div style={{ width: '10px', height: '10px', backgroundColor: '#ef4444' }}></div>
+                    <div style={{ width: '10px', height: '10px', backgroundColor: '#000000' }}></div>
                     <span>Bad</span>
                 </div>
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  <span style={{ color: '#1d4ed8' }}>(D) Dasha</span>
-                  <span style={{ color: '#15803d' }}>(B) Bukthi</span>
-                  <span style={{ color: '#b45309' }}>(A) Antar</span>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: '10px', height: '10px', backgroundColor: '#ffd8d1' }}></div>
+                    <span style={{ color: '#000000' }}>(D) Dasha</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: '10px', height: '10px', backgroundColor: '#a2d5c6' }}></div>
+                    <span style={{ color: '#000000' }}>(B) Bukthi</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: '10px', height: '10px', backgroundColor: '#e9d5ff' }}></div>
+                    <span style={{ color: '#000000' }}>(A) Antar</span>
+                  </div>
                 </div>
             </div>
 
@@ -151,10 +160,10 @@ const PowerPositionTable: React.FC<PowerPositionTableProps> = ({ data, planets, 
                 <table style={{ width: '100%', borderCollapse: 'collapse', border: '2px solid #000' }}>
                     <thead>
                         <tr style={{ borderBottom: '2px solid #000' }}>
-                            <th style={{ padding: '4px', color: '#f59e0b', fontSize: '0.8rem', borderRight: '1.5px solid #ccc' }}>STRENGTH</th>
-                            <th style={{ padding: '4px', color: '#f59e0b', fontSize: '0.8rem', borderRight: '1.5px solid #ccc' }}>PL</th>
-                            <th style={{ padding: '4px', color: '#f59e0b', fontSize: '0.8rem', borderRight: '1.5px solid #ccc' }}>NL</th>
-                            <th style={{ padding: '4px', color: '#f59e0b', fontSize: '0.8rem' }}>SL</th>
+                            <th style={{ padding: '4px', color: '#000000', fontSize: '0.8rem', borderRight: '1.5px solid #ccc' }}>STRENGTH</th>
+                            <th style={{ padding: '4px', color: '#000000', fontSize: '0.8rem', borderRight: '1.5px solid #ccc' }}>PL</th>
+                            <th style={{ padding: '4px', color: '#000000', fontSize: '0.8rem', borderRight: '1.5px solid #ccc' }}>NL</th>
+                            <th style={{ padding: '4px', color: '#000000', fontSize: '0.8rem' }}>SL</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -175,9 +184,9 @@ const PowerPositionTable: React.FC<PowerPositionTableProps> = ({ data, planets, 
                             const isAntara = item.planet === activeAntara;
 
                             const activeRoles = [];
-                            if (isDasha) activeRoles.push('#bfdbfe'); // Darker Blue
-                            if (isBukthi) activeRoles.push('#bbf7d0'); // Darker Green
-                            if (isAntara) activeRoles.push('#fde68a'); // Darker Amber/Yellow
+                            if (isDasha) activeRoles.push('#ffd8d1');
+                            if (isBukthi) activeRoles.push('#a2d5c6');
+                            if (isAntara) activeRoles.push('#e9d5ff');
 
                             let rowBg = 'transparent';
                             if (activeRoles.length === 1) {
@@ -186,8 +195,8 @@ const PowerPositionTable: React.FC<PowerPositionTableProps> = ({ data, planets, 
                                 const step = 100 / activeRoles.length;
                                 const stops = activeRoles.map((color, i) => `${color} ${i * step}%, ${color} ${(i + 1) * step}%`);
                                 rowBg = `linear-gradient(to right, ${stops.join(', ')})`;
-                            } else if (idx % 2 !== 0) {
-                                rowBg = '#fafafa';
+                            } else {
+                                rowBg = 'var(--secondary-light)';
                             }
 
                             const plRetro = isPlanetRetrograde(item.planet);

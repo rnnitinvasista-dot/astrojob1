@@ -7,16 +7,16 @@ interface AspectsTableProps {
 
 const AspectsTable: React.FC<AspectsTableProps> = ({ aspects }) => {
     return (
-        <div className="card">
-            <h2 style={{ marginBottom: '1rem', color: '#6EB5FF' }}>Planetary Aspects</h2>
+        <div className="card" style={{ background: 'var(--secondary-light)', border: '3px solid #000000', borderRadius: '0' }}>
+            <h2 style={{ marginBottom: '1rem', color: 'var(--text)', fontWeight: 800 }}>Planetary Aspects</h2>
             <div className="table-container">
                 <table style={{ fontSize: '0.8125rem' }}>
                     <thead>
-                        <tr style={{ background: '#f8fafc' }}>
-                            <th style={{ textAlign: 'left' }}>Planet</th>
-                            <th style={{ textAlign: 'left' }}>Aspect</th>
-                            <th style={{ textAlign: 'left' }}>Target Planet</th>
-                            <th style={{ textAlign: 'right' }}>Distance</th>
+                        <tr style={{ background: 'var(--primary)' }}>
+                            <th style={{ textAlign: 'left', color: '#000000' }}>Planet</th>
+                            <th style={{ textAlign: 'left', color: '#000000' }}>Aspect</th>
+                            <th style={{ textAlign: 'left', color: '#000000' }}>Target Planet</th>
+                            <th style={{ textAlign: 'right', color: '#000000' }}>Distance</th>
                         </tr>
                     </thead>
                     <tbody>

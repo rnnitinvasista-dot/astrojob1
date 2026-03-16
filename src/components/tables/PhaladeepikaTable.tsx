@@ -398,21 +398,21 @@ const PhaladeepikaTable: React.FC<PhaladeepikaTableProps> = ({ planets, houseLor
             </div>
             {/* Header - Simplified & Cache-Busted */}
             <div style={{
-                background: '#ffffff',
+                background: 'var(--primary)',
                 padding: '1.25rem',
-                borderRadius: '20px',
-                border: '2px solid #f1f5f9',
+                borderRadius: '0',
+                border: '3px solid #000000',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '16px',
-                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
+                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
             }}>
                 <div style={{ background: '#fef3c7', padding: '12px', borderRadius: '14px' }}>
                   <Sparkles className="text-amber-600" size={28} />
                 </div>
                 <div>
-                  <h2 style={{ fontSize: '1.4rem', fontWeight: 900, margin: 0, color: '#0f172a' }}>Astrological Analysis</h2>
-                  <p style={{ fontSize: '0.9rem', color: '#64748b', margin: 0, fontWeight: 500 }}>Vedic principles of Lords, Aspects (Drishti), and Yogas.</p>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: 900, margin: 0, color: '#000000' }}>Astrological Analysis</h2>
+                  <p style={{ fontSize: '0.9rem', color: '#000000', margin: 0, fontWeight: 700 }}>Vedic principles of Lords, Aspects (Drishti), and Yogas.</p>
                 </div>
             </div>
 
@@ -427,7 +427,7 @@ const PhaladeepikaTable: React.FC<PhaladeepikaTableProps> = ({ planets, houseLor
               }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <Sparkles className="text-pink-600" size={24} />
-                      <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#9f1239', margin: 0 }}>Significant Conjunctions</h3>
+                      <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#000000', margin: 0 }}>Significant Conjunctions</h3>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
                     {conjunctions.map((cj, idx) => (
@@ -448,15 +448,15 @@ const PhaladeepikaTable: React.FC<PhaladeepikaTableProps> = ({ planets, houseLor
             {/* Yogas Detected */}
             {specialYogas.length > 0 && (
                 <div className="space-y-4" style={{ 
-                  border: '2px solid #3b82f6', 
-                  borderRadius: '16px', 
+                  border: '3px solid #000000', 
+                  borderRadius: '0', 
                   padding: '1.25rem', 
-                  background: '#f0f9ff',
-                  boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
+                  background: 'var(--secondary-light)',
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <Sparkles className="text-blue-600" size={22} />
-                        <h3 style={{ margin: 0, color: '#1e3a8a', fontSize: '1.2rem', fontWeight: 900 }}>Power Yogas Detected</h3>
+                        <h3 style={{ margin: 0, color: 'var(--text)', fontSize: '1.2rem', fontWeight: 900 }}>Power Yogas Detected</h3>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
                         {specialYogas.map((yoga, idx) => (

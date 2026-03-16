@@ -265,10 +265,10 @@ Follow the rules for ${localArea} report exactly. Summarize using ONLY the table
             
             {/* Area Selector */}
             <div style={{ 
-                background: '#f8fafc', 
+                background: 'var(--primary)', 
                 padding: '12px', 
-                borderRadius: '12px', 
-                border: '2px solid #1e3a8a',
+                borderRadius: '0', 
+                border: '3px solid #000000',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px'
@@ -302,39 +302,40 @@ Follow the rules for ${localArea} report exactly. Summarize using ONLY the table
                 overflow: 'hidden',
                 boxShadow: '4px 4px 0px #000'
             }}>
-                <div style={{ background: '#1e3a8a', padding: '12px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ background: 'var(--primary)', padding: '12px', color: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '3px solid #000000' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <FileText size={20} />
-                        <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase' }}>Precision Astro Report</h3>
+                        <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 900, textTransform: 'uppercase' }}>Precision Astro Report</h3>
                     </div>
                     {report && (
                         <button 
                             onClick={() => speak(report)}
-                            style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', fontWeight: 700 }}
+                            style={{ background: 'rgba(0,0,0,0.1)', border: 'none', color: '#000000', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', fontWeight: 800 }}
                         >
                             <Volume2 size={14} /> RE-PLAY
                         </button>
                     )}
                 </div>
-                <div style={{ padding: '1.5rem' }}>
+                <div style={{ padding: '1.5rem', background: 'var(--secondary-light)' }}>
                     {!report ? (
                         <div style={{ textAlign: 'center' }}>
-                            <p style={{ color: '#64748b', marginBottom: '1rem' }}>Get a detailed AI analysis based on your KP chart for {localArea}.</p>
+                            <p style={{ color: '#000000', marginBottom: '1rem', fontWeight: 600 }}>Get a detailed AI analysis based on your KP chart for {localArea}.</p>
                             <button 
                                 onClick={generateReport}
                                 disabled={isGeneratingReport}
                                 style={{
-                                    background: '#3b82f6',
-                                    color: 'white',
-                                    border: 'none',
+                                    background: 'var(--primary)',
+                                    color: '#000000',
+                                    border: '2px solid #000000',
                                     padding: '12px 24px',
-                                    borderRadius: '12px',
-                                    fontWeight: 700,
+                                    borderRadius: '8px',
+                                    fontWeight: 900,
                                     cursor: 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '8px',
-                                    margin: '0 auto'
+                                    margin: '0 auto',
+                                    boxShadow: '2px 2px 0px #000'
                                 }}
                             >
                                 {isGeneratingReport ? <RefreshCw size={18} className="animate-spin" /> : <Sparkles size={18} />}
@@ -374,10 +375,10 @@ Follow the rules for ${localArea} report exactly. Summarize using ONLY the table
                 height: '500px',
                 boxShadow: '4px 4px 0px #000'
             }}>
-                <div style={{ background: '#3b82f6', padding: '12px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ background: 'var(--primary)', padding: '12px', color: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '3px solid #000000' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <MessageSquare size={20} />
-                        <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase' }}>Astro Chat</h3>
+                        <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 900, textTransform: 'uppercase' }}>Astro Chat</h3>
                     </div>
                     <button 
                         onClick={() => {
@@ -391,15 +392,15 @@ Follow the rules for ${localArea} report exactly. Summarize using ONLY the table
                                 window.speechSynthesis.cancel();
                             }
                         }}
-                        style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '6px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                        style={{ background: 'rgba(0,0,0,0.1)', border: 'none', color: '#000000', padding: '6px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
                         title={isVoiceEnabled ? "Mute Assistant" : "Unmute Assistant"}
                     >
                         {isVoiceEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
-                        <span style={{ fontSize: '0.7rem', fontWeight: 800 }}>{isVoiceEnabled ? 'ON' : 'OFF'}</span>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 900 }}>{isVoiceEnabled ? 'ON' : 'OFF'}</span>
                     </button>
                 </div>
                 
-                <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem', background: 'var(--secondary-light)' }}>
                     {messages.length === 0 && (
                         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', textAlign: 'center' }}>
                             <Bot size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
@@ -430,11 +431,11 @@ Follow the rules for ${localArea} report exactly. Summarize using ONLY the table
                             <div style={{ 
                                 padding: '10px 14px', 
                                 borderRadius: '14px', 
-                                background: msg.role === 'user' ? '#3b82f6' : '#f1f5f9',
-                                color: msg.role === 'user' ? 'white' : '#1e293b',
-                                border: '1.5px solid #000',
+                                background: msg.role === 'user' ? 'var(--primary)' : 'white',
+                                color: '#000000',
+                                border: '2px solid #000',
                                 fontSize: '0.85rem',
-                                fontWeight: 500,
+                                fontWeight: 700,
                                 boxShadow: '2px 2px 0px #000',
                                 position: 'relative'
                             }}>

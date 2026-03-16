@@ -105,7 +105,7 @@ const TravelPredictionTable: React.FC<TravelPredictionTableProps> = ({ data, pla
         return (
             <div key={label} style={{ borderBottom: '1.5px solid #000', padding: '8px 12px' }}>
                 <div style={{ fontWeight: 800, fontSize: '0.8rem', color: '#000', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ color: '#1d4ed8' }}>{pName.substring(0, 2).toUpperCase()}</span>
+                    <span style={{ color: 'var(--primary)' }}>{pName.substring(0, 2).toUpperCase()}</span>
                     <span style={{ opacity: 0.7, fontSize: '0.65rem' }}>({label})</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -123,24 +123,28 @@ const TravelPredictionTable: React.FC<TravelPredictionTableProps> = ({ data, pla
     };
 
     const activeThemes = types.map(t => ({
-        Dasha:  { color: '#1d4ed8', label: 'Dasha' },
-        Bhukti: { color: '#15803d', label: 'Bukthi' },
-        Antara: { color: '#b45309', label: 'Antar Bhukthi' }
+        Dasha:  { color: '#ffd8d1', label: 'Dasha', text: '#000000' },
+        Bhukti: { color: '#a2d5c6', label: 'Bukthi', text: '#000000' },
+        Antara: { color: '#e9d5ff', label: 'Antar Bhukthi', text: '#000000' }
     }[t]));
 
-    const headerBg = types.includes('Dasha') ? '#1d4ed8' : types.includes('Bhukti') ? '#15803d' : types.includes('Antara') ? '#b45309' : '#1e3a8a';
 
     return (
-        <div style={{ background: '#fff', border: '3px solid #000', marginBottom: '0.75rem', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--secondary-light)', border: '3px solid #000', marginBottom: '0.75rem', overflow: 'hidden' }}>
             {/* Planet header */}
-            <div style={{ background: headerBg, padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #000' }}>
-                <h3 style={{ margin: 0, color: '#fff', fontWeight: 900, fontSize: '1rem' }}>
+            <div style={{ 
+                background: types.includes('Dasha') ? '#ffd8d1' : types.includes('Bhukti') ? '#a2d5c6' : types.includes('Antara') ? '#e9d5ff' : 'var(--primary)', 
+                padding: '10px 8px', 
+                textAlign: 'center', 
+                borderBottom: '2px solid #000' 
+            }}>
+                <h3 style={{ margin: 0, color: '#000000', fontWeight: 900, fontSize: '1rem' }}>
                     {planetData.planet.toUpperCase()}
                 </h3>
                 {activeThemes.length > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '4px' }}>
                         {activeThemes.map((t, i) => (
-                            <span key={i} style={{ color: '#fff', fontSize: '0.65rem', fontWeight: 800, opacity: 0.85, textTransform: 'uppercase' }}>{t?.label}</span>
+                            <span key={i} style={{ color: t?.text || '#000000', fontSize: '0.65rem', fontWeight: 800, opacity: 0.85, textTransform: 'uppercase' }}>{t?.label}</span>
                         ))}
                     </div>
                 )}

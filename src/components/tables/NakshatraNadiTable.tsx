@@ -41,12 +41,14 @@ const NakshatraNadiTable: React.FC<NakshatraNadiTableProps> = ({ data }) => {
             width: '100%',
             maxWidth: '100%',
             padding: '1rem 0.5rem',
-            borderTop: '5px solid #35a4f4'
+            borderTop: '5px solid #d4af37',
+            background: 'var(--secondary-light)',
+            border: '3px solid #000000'
         }}>
-            <h2 style={{ textAlign: 'center', color: '#1e3a8a', marginBottom: '1.5rem', fontWeight: 800 }}>
+            <h2 style={{ textAlign: 'center', color: 'var(--text)', marginBottom: '1.5rem', fontWeight: 800 }}>
                 Gold Nadi Combination
             </h2>
-            <div className="table-container" style={{ border: '1px solid #e2e8f0' }}>
+            <div className="table-container" style={{ border: 'none' }}>
                 <table style={{ borderCollapse: 'collapse', width: '100%' }}>
                     <thead>
                         <tr style={{ background: 'var(--secondary-light)', color: 'var(--secondary)' }}>

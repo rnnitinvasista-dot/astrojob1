@@ -38,7 +38,7 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
     const [selectedVarga, setSelectedVarga] = useState<string>('D1');
 
     const vargas = [
-        'D1', 'D2', 'D3', 'D4', 'D7', 'D9', 'D10', 'D12',
+        'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'D11', 'D12',
         'D16', 'D20', 'D24', 'D27', 'D30', 'D40', 'D45', 'D60'
     ];
 
@@ -53,7 +53,7 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
         "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
     ];
 
-    const currentVargaData = (selectedVarga === 'D1' || !vargaCharts) ? {
+    const currentVargaData = (selectedVarga === 'D1' || !vargaCharts?.[selectedVarga]) ? {
         planets: planets.map(p => ({ planet: p.planet, sign: p.sign, is_retrograde: p.is_retrograde, is_combust: p.is_combust, house_placed: p.house_placed })),
         ascendant: { sign: ascendant.sign }
     } : {
@@ -129,23 +129,24 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
     };
 
     return (
-        <div className="card" style={{ padding: '1rem', background: '#fff' }}>
+        <div className="card" style={{ padding: '1rem', background: 'var(--secondary-light)', border: '3px solid #000000' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h2 style={{ color: '#3b82f6', fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
+                <h2 style={{ color: 'var(--text)', fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
                     {chartMode === 'Bhava' ? 'KP Bhava Chalit Chart' : 'Divisional Chart'}
                 </h2>
                 {chartMode === 'Rashi' && (
                     <div style={{
                         display: 'flex',
                         gap: '4px',
-                        background: '#e2e8f0',
+                        background: 'var(--primary-light)',
                         padding: '4px',
                         borderRadius: '8px',
                         overflowX: 'auto',
                         maxWidth: '220px',
                         msOverflowStyle: 'none',
                         scrollbarWidth: 'none',
-                        WebkitOverflowScrolling: 'touch'
+                        WebkitOverflowScrolling: 'touch',
+                        border: '1px solid #ddd'
                     }}>
                         {vargas.map(v => (
                             <button
@@ -159,9 +160,9 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                                     fontWeight: 700,
                                     cursor: 'pointer',
                                     transition: 'all 0.2s',
-                                    background: selectedVarga === v ? '#fff' : 'transparent',
-                                    color: selectedVarga === v ? '#3b82f6' : '#64748b',
-                                    boxShadow: selectedVarga === v ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                                    background: selectedVarga === v ? 'var(--primary)' : 'transparent',
+                                    color: selectedVarga === v ? '#000000' : 'var(--text-muted)',
+                                    boxShadow: selectedVarga === v ? '0 2px 4px rgba(0,0,0,0.2)' : 'none',
                                     flexShrink: 0
                                 }}
                             >
@@ -194,7 +195,7 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                                 <div key={i} style={{
                                     gridRow: '2 / 4',
                                     gridColumn: '2 / 4',
-                                    background: '#fff',
+                                    background: 'var(--secondary-light)',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
@@ -214,7 +215,7 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                                     </div>
                                     <div style={{ marginTop: '4px' }}>{formatDate(birthDetails?.date_of_birth)} {birthDetails?.time_of_birth}</div>
                                     <div>{birthDetails?.place || 'Unknown'}</div>
-                                    <div style={{ fontWeight: 900, color: '#3b82f6', marginTop: '4px', fontSize: '0.85rem' }}>
+                                    <div style={{ fontWeight: 900, color: 'var(--primary)', marginTop: '4px', fontSize: '0.85rem' }}>
                                         {rashi && `${rashi} Rashi`} {janmaNakshatra && `| ${janmaNakshatra}${pada ? '-' + pada : ''}`}
                                     </div>
                                 </div>
@@ -245,7 +246,7 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
 
                     return (
                         <div key={i} style={{
-                            background: '#fff',
+                            background: 'var(--secondary-light)',
                             padding: '4px',
                             display: 'flex',
                             flexDirection: 'column',

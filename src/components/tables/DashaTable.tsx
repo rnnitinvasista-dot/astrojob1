@@ -84,13 +84,14 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%', maxWidth: '100%' }}>
             <div className="card" style={{
-                borderLeft: '4px solid #35a4f4',
-                borderTop: '5px solid #35a4f4',
+                borderLeft: '4px solid var(--primary)',
+                borderTop: '5px solid var(--primary)',
                 width: '100%',
                 maxWidth: '100%',
-                padding: '1rem 0.5rem'
+                padding: '1rem 0.5rem',
+                background: 'var(--secondary-light)'
             }}>
-                <h2 style={{ marginBottom: '1rem', color: '#1e3a8a', fontSize: '1.1rem', fontWeight: 700 }}>Dasha Summary</h2>
+                <h2 style={{ marginBottom: '1rem', color: 'var(--text)', fontSize: '1.1rem', fontWeight: 700 }}>Dasha Summary</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
                     <div>
                         <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Balance</label>
@@ -110,10 +111,12 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                 overflow: 'hidden',
                 width: '100%',
                 maxWidth: '100%',
-                borderTop: '5px solid #35a4f4'
+                borderTop: '5px solid var(--primary)',
+                background: 'var(--secondary-light)',
+                border: '3px solid #000000'
             }}>
-                <div style={{ padding: '1.25rem', borderBottom: '1px solid #e2e8f0', background: 'white' }}>
-                    <h2 style={{ color: '#1e3a8a', fontSize: '1.1rem', fontWeight: 700 }}>Vimshottari Dasha Sequence</h2>
+                <div style={{ padding: '1.25rem', borderBottom: '3px solid #000000', background: 'var(--primary)' }}>
+                    <h2 style={{ color: '#000000', fontSize: '1.1rem', fontWeight: 800 }}>Vimshottari Dasha Sequence</h2>
                 </div>
                 <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
@@ -130,15 +133,15 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                                         onClick={() => toggleMD(mdIdx)}
                                         style={{
                                             cursor: 'pointer',
-                                            background: md.planet === activeD ? '#1d4ed8' : 'white',
-                                            color: md.planet === activeD ? 'white' : 'inherit'
+                                            background: md.planet === activeD ? '#ffd8d1' : 'transparent',
+                                            color: '#000000'
                                         }}
                                     >
                                         <td style={{ padding: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #e2e8f0' }}>
                                             {expandedMD === mdIdx ? <ChevronDown size={16} color={md.planet === activeD ? 'white' : 'currentColor'} /> : <ChevronRight size={16} color={md.planet === activeD ? 'white' : 'currentColor'} />}
                                             {md.planet} (D)
                                         </td>
-                                        <td style={{ padding: '1rem', color: md.planet === activeD ? 'rgba(255,255,255,0.8)' : '#64748b', border: '1px solid #e2e8f0' }}>{formatDate(md.end_date)}</td>
+                                        <td style={{ padding: '1rem', color: md.planet === activeD ? '#000000' : '#64748b', border: '1px solid #e2e8f0' }}>{formatDate(md.end_date)}</td>
                                     </tr>
 
                                     {/* Bukthis (AD) */}
@@ -147,16 +150,16 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                                             <tr
                                                 onClick={(e) => { e.stopPropagation(); toggleAD(mdIdx, adIdx); }}
                                                 style={{
-                                                    background: (md.planet === activeD && ad.planet === activeB) ? '#15803d' : (expandedAD === `${mdIdx}-${adIdx}` ? '#eff6ff' : '#fafafa'),
-                                                    color: (md.planet === activeD && ad.planet === activeB) ? 'white' : 'inherit',
+                                                    background: (md.planet === activeD && ad.planet === activeB) ? '#a2d5c6' : (expandedAD === `${mdIdx}-${adIdx}` ? 'var(--primary-light)' : 'transparent'),
+                                                    color: '#000000',
                                                     cursor: 'pointer'
                                                 }}
                                             >
-                                                <td style={{ padding: '0.75rem 1rem 0.75rem 2.5rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', color: (md.planet === activeD && ad.planet === activeB) ? 'white' : '#475569', border: '1px solid #e2e8f0' }}>
+                                                <td style={{ padding: '0.75rem 1rem 0.75rem 2.5rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', color: '#000000', border: '1px solid #e2e8f0' }}>
                                                     {expandedAD === `${mdIdx}-${adIdx}` ? <ChevronDown size={14} color={(md.planet === activeD && ad.planet === activeB) ? 'white' : 'currentColor'} /> : <ChevronRight size={14} color={(md.planet === activeD && ad.planet === activeB) ? 'white' : 'currentColor'} />}
                                                     {ad.planet} (B)
                                                 </td>
-                                                <td style={{ padding: '0.75rem 1rem', fontSize: '0.8rem', color: (md.planet === activeD && ad.planet === activeB) ? 'rgba(255,255,255,0.8)' : '#94a3b8', border: '1px solid #e2e8f0' }}>{formatDate(ad.end_date)}</td>
+                                                <td style={{ padding: '0.75rem 1rem', fontSize: '0.8rem', color: '#000000', border: '1px solid #e2e8f0' }}>{formatDate(ad.end_date)}</td>
                                             </tr>
 
                                             {/* Antaras (PD) */}
@@ -165,8 +168,8 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                                                     <tr
                                                         onClick={(e) => { e.stopPropagation(); togglePD(mdIdx, adIdx, pdIdx); }}
                                                         style={{
-                                                            background: (md.planet === activeD && ad.planet === activeB && pd.planet === activeA) ? '#b45309' : (expandedPD === `${mdIdx}-${adIdx}-${pdIdx}` ? '#fef3c7' : '#ffffff'),
-                                                            color: (md.planet === activeD && ad.planet === activeB && pd.planet === activeA) ? 'white' : 'inherit',
+                                                            background: (md.planet === activeD && ad.planet === activeB && pd.planet === activeA) ? '#e9d5ff' : (expandedPD === `${mdIdx}-${adIdx}-${pdIdx}` ? '#ffd8d1' : 'var(--secondary-light)'),
+                                                            color: '#000000',
                                                             cursor: 'pointer'
                                                         }}
                                                     >
@@ -174,7 +177,7 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                                                             {expandedPD === `${mdIdx}-${adIdx}-${pdIdx}` ? <ChevronDown size={12} color={(md.planet === activeD && ad.planet === activeB && pd.planet === activeA) ? 'white' : 'currentColor'} /> : <ChevronRight size={12} color={(md.planet === activeD && ad.planet === activeB && pd.planet === activeA) ? 'white' : 'currentColor'} />}
                                                             {pd.planet} (A)
                                                         </td>
-                                                        <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', color: (md.planet === activeD && ad.planet === activeB && pd.planet === activeA) ? 'rgba(255,255,255,0.8)' : '#cbd5e1', border: '1px solid #e2e8f0' }}>{formatDate(pd.end_date)}</td>
+                                                        <td style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', color: '#000000', border: '1px solid #e2e8f0' }}>{formatDate(pd.end_date)}</td>
                                                     </tr>
 
                                                     {/* Pratyantars (SD) */}

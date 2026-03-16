@@ -45,23 +45,24 @@ const LoginPage: React.FC = () => {
                     <div style={{
                         width: '80px',
                         height: '80px',
-                        background: '#3b82f6',
+                        background: 'var(--primary)',
                         borderRadius: '20px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         margin: '0 auto 1.5rem',
-                        boxShadow: '0 10px 15px -3px rgba(59, 130, 246, 0.3)'
+                        boxShadow: '0 10px 15px -3px rgba(212, 175, 55, 0.3)',
+                        border: '2px solid #000000'
                     }}>
-                        <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '20px' }} />
+                        <img src="/app_logo.jpg" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '18px' }} />
                     </div>
-                    <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#1e3a8a', margin: 0 }}>Welcome Back</h2>
-                    <p style={{ color: '#64748b', marginTop: '0.5rem' }}>Please enter your credentials to login</p>
+                    <h2 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text)', margin: 0, textTransform: 'uppercase' }}>Welcome Back</h2>
+                    <p style={{ color: '#000000', marginTop: '0.5rem', fontWeight: 600 }}>Please enter your credentials to login</p>
                 </div>
 
                 <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     <div>
-                        <label style={{ display: 'block', color: '#1e3a8a', fontWeight: 700, fontSize: '0.9rem', marginBottom: '8px' }}>
+                        <label style={{ display: 'block', color: '#000000', fontWeight: 800, fontSize: '0.9rem', marginBottom: '8px', textTransform: 'uppercase' }}>
                             Email Address
                         </label>
                         <div style={{ position: 'relative' }}>
@@ -76,21 +77,22 @@ const LoginPage: React.FC = () => {
                                 style={{
                                     width: '100%',
                                     padding: '0.8rem 1rem 0.8rem 2.8rem',
-                                    borderRadius: '12px',
-                                    border: '1.5px solid #e2e8f0',
+                                    borderRadius: '0',
+                                    border: '3px solid #000000',
                                     fontSize: '1rem',
-                                    transition: 'border-color 0.2s',
-                                    outline: 'none'
+                                    transition: 'background 0.2s',
+                                    outline: 'none',
+                                    background: 'white'
                                 }}
-                                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                                onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+                                onFocus={(e) => e.target.style.background = 'var(--secondary-light)'}
+                                onBlur={(e) => e.target.style.background = 'white'}
                                 required
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label style={{ display: 'block', color: '#1e3a8a', fontWeight: 700, fontSize: '0.9rem', marginBottom: '8px' }}>
+                        <label style={{ display: 'block', color: '#000000', fontWeight: 800, fontSize: '0.9rem', marginBottom: '8px', textTransform: 'uppercase' }}>
                             Password
                         </label>
                         <div style={{ position: 'relative' }}>
@@ -105,14 +107,15 @@ const LoginPage: React.FC = () => {
                                 style={{
                                     width: '100%',
                                     padding: '0.8rem 1rem 0.8rem 2.8rem',
-                                    borderRadius: '12px',
-                                    border: '1.5px solid #e2e8f0',
+                                    borderRadius: '0',
+                                    border: '3px solid #000000',
                                     fontSize: '1rem',
-                                    transition: 'border-color 0.2s',
-                                    outline: 'none'
+                                    transition: 'background 0.2s',
+                                    outline: 'none',
+                                    background: 'white'
                                 }}
-                                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                                onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+                                onFocus={(e) => e.target.style.background = 'var(--secondary-light)'}
+                                onBlur={(e) => e.target.style.background = 'white'}
                                 required
                             />
                         </div>
@@ -127,13 +130,13 @@ const LoginPage: React.FC = () => {
                                 gap: '0.5rem',
                                 cursor: 'pointer',
                                 fontSize: '0.9rem',
-                                color: '#1e3a8a',
-                                fontWeight: 600,
+                                color: '#000000',
+                                fontWeight: 800,
                                 userSelect: 'none'
                             }}
                         >
                             {rememberMe ? (
-                                <CheckSquare size={18} color="#3b82f6" />
+                                <CheckSquare size={18} color="var(--primary)" />
                             ) : (
                                 <Square size={18} color="#94a3b8" />
                             )}
@@ -165,9 +168,10 @@ const LoginPage: React.FC = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: '0.5rem',
-                            background: '#3b82f6',
-                            color: 'white',
-                            borderColor: '#3b82f6'
+                            background: 'var(--primary)',
+                            color: 'var(--text)',
+                            borderColor: '#000000',
+                            width: '100%'
                         }}
                     >
                         {loading ? <Loader2 className="animate-spin" size={20} /> : 'Login to Continue'}

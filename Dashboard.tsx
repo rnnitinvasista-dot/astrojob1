@@ -88,9 +88,27 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, isAdmin })
                             boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
                             border: '4px solid white',
                             transition: 'all 0.3s ease',
-                            transform: 'scale(1)'
+                            transform: 'scale(1)',
+                            overflow: 'hidden'
                         }}>
-                            {React.cloneElement(item.icon as React.ReactElement<any>, { size: 28 })}
+                            <img 
+                                src={item.id === 'gns' ? 'kp_prediction_icon.jpg' : 
+                                     item.id === 'parashara' ? 'parashara_icon.jpg' : 
+                                     'prashana_icon.jpg'} 
+                                alt={item.label}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover'
+                                }}
+                                onError={(e) => {
+                                    // Fallback for different environments
+                                    const target = e.target as HTMLImageElement;
+                                    if (!target.src.startsWith('/')) {
+                                        target.src = '/' + target.src;
+                                    }
+                                }}
+                            />
                         </div>
                         <span style={{
                             fontSize: '0.75rem',

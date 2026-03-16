@@ -204,12 +204,13 @@ const App = () => {
             {/* Chart Mode Toggle */}
             <div style={{
               display: 'flex',
-              background: '#f1f5f9',
+              background: 'var(--primary-light)',
               padding: '4px',
               borderRadius: '12px',
               gap: '4px',
               width: 'fit-content',
-              margin: '0 auto'
+              margin: '0 auto',
+              border: '2px solid #000000'
             }}>
               <button
                 onClick={() => {
@@ -222,8 +223,8 @@ const App = () => {
                   padding: '8px 16px',
                   borderRadius: '0',
                   border: 'none',
-                  background: chartMode === 'Rashi' ? '#3b82f6' : 'transparent',
-                  color: chartMode === 'Rashi' ? 'white' : '#64748b',
+                  background: chartMode === 'Rashi' ? 'var(--primary)' : 'transparent',
+                  color: chartMode === 'Rashi' ? '#000000' : 'var(--text-muted)',
                   fontWeight: 'bold',
                   fontSize: '0.8rem',
                   cursor: 'pointer',
@@ -245,8 +246,8 @@ const App = () => {
                   padding: '8px 16px',
                   borderRadius: '0',
                   border: 'none',
-                  background: chartMode === 'Bhava' ? '#3b82f6' : 'transparent',
-                  color: chartMode === 'Bhava' ? 'white' : '#64748b',
+                  background: chartMode === 'Bhava' ? 'var(--primary)' : 'transparent',
+                  color: chartMode === 'Bhava' ? '#000000' : 'var(--text-muted)',
                   fontWeight: 'bold',
                   fontSize: '0.8rem',
                   cursor: 'pointer',
@@ -278,10 +279,10 @@ const App = () => {
               style={{
                 width: '100%',
                 padding: '12px',
-                background: '#eff6ff',
+                background: 'var(--primary)',
                 border: '3px solid #000000',
                 borderRadius: '0',
-                color: '#1e3a8a',
+                color: '#000000',
                 fontWeight: 700,
                 fontSize: '0.9rem',
                 display: 'flex',
@@ -313,11 +314,11 @@ const App = () => {
       case 'predictions':
         return (
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
-            <div style={{ padding: '8px', margin: '1rem 0', background: '#eff6ff', borderRadius: '0', border: 'none' }}>
+            <div style={{ padding: '8px', margin: '1rem 0', background: 'var(--primary-light)', borderRadius: '0', border: 'none' }}>
               <select
                 value={selectedArea}
                 onChange={(e) => setSelectedArea(e.target.value)}
-                style={{ width: '100%', padding: '12px', borderRadius: '0', border: '2px solid #1e3a8a', background: 'white', fontWeight: 'bold', color: '#1e3a8a' }}
+                style={{ width: '100%', padding: '12px', borderRadius: '0', border: '2px solid #000000', background: 'white', fontWeight: 'bold', color: 'var(--text)' }}
               >
                 <option>Job</option>
                 <option>Business</option>
@@ -362,11 +363,11 @@ const App = () => {
         }
         return (
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
-            <div style={{ padding: '8px', margin: '1rem 0', background: '#eff6ff', borderRadius: '0', border: 'none' }}>
+            <div style={{ padding: '8px', margin: '1rem 0', background: 'var(--primary-light)', borderRadius: '0', border: 'none' }}>
               <select
                 value={selectedArea}
                 onChange={(e) => setSelectedArea(e.target.value)}
-                style={{ width: '100%', padding: '12px', borderRadius: '0', border: '2px solid #1e3a8a', background: 'white', fontWeight: 'bold', color: '#1e3a8a' }}
+                style={{ width: '100%', padding: '12px', borderRadius: '0', border: '2px solid #000000', background: 'white', fontWeight: 'bold', color: 'var(--text)' }}
               >
                 <option>Job</option>
                 <option>Business</option>
@@ -591,8 +592,8 @@ const App = () => {
 
 
           {loading && (
-            <div style={{ padding: '2rem', textAlign: 'center', color: '#1d4ed8', fontWeight: 600 }}>
-              <div style={{ width: '40px', height: '40px', border: '4px solid #f3f3f3', borderTop: '4px solid #3498db', borderRadius: '50%', animation: 'spin 2s linear infinite', margin: '0 auto 1rem' }}></div>
+            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--primary)', fontWeight: 600 }}>
+              <div style={{ width: '40px', height: '40px', border: '4px solid #f3f3f3', borderTop: '4px solid var(--primary)', borderRadius: '50%', animation: 'spin 2s linear infinite', margin: '0 auto 1rem' }}></div>
               Generating Precision Kundli...
               <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
             </div>
@@ -627,7 +628,7 @@ const App = () => {
           padding: '20px'
         }}>
           <div style={{
-            background: 'white',
+            background: 'var(--secondary-light)',
             padding: '2rem',
             borderRadius: '20px',
             maxWidth: '400px',
@@ -668,9 +669,9 @@ const App = () => {
               style={{
                 marginTop: '1.5rem',
                 padding: '10px 24px',
-                background: '#ef4444',
-                color: 'white',
-                border: 'none',
+                background: 'var(--primary)',
+                color: '#000000',
+                border: '2px solid #000000',
                 borderRadius: '10px',
                 fontWeight: 800,
                 cursor: 'pointer'

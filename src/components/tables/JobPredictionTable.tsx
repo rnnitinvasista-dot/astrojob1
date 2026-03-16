@@ -523,25 +523,25 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
     const successInfo = getSuccessInfo(successCode);
 
     const activeThemes = types.map(t => ({
-        Dasha: { color: '#1d4ed8', text: '#ffffff', label: 'Dasha' },
-        Bhukti: { color: '#15803d', text: '#ffffff', label: 'Bukthi' },
-        Antara: { color: '#b45309', text: '#ffffff', label: 'Antar Bhukthi' }
+        Dasha: { color: '#ffd8d1', text: '#000000', label: 'Dasha' },
+        Bhukti: { color: '#a2d5c6', text: '#000000', label: 'Bukthi' },
+        Antara: { color: '#e9d5ff', text: '#000000', label: 'Antar Bhukthi' }
     }[t]));
 
     // Determine header background based on highest priority type
     const getHeaderStyle = () => {
         const themeMap = {
-            Dasha: '#1d4ed8',
-            Bhukti: '#15803d',
-            Antara: '#b45309'
+            Dasha: '#ffd8d1',
+            Bhukti: '#a2d5c6',
+            Antara: '#e9d5ff'
         };
 
         if (types.length === 0) return { background: '#f8fafc', color: '#1e3a8a' };
-        if (types.length === 1) return { background: themeMap[types[0]], color: '#ffffff' };
+        if (types.length === 1) return { background: themeMap[types[0]], color: '#000000' };
         
         const step = 100 / types.length;
         const stops = types.map((t, i) => `${themeMap[t]} ${i * step}%, ${themeMap[t]} ${(i + 1) * step}%`);
-        return { background: `linear-gradient(to right, ${stops.join(', ')})`, color: '#ffffff' };
+        return { background: `linear-gradient(to right, ${stops.join(', ')})`, color: '#000000' };
     };
     const headerStyle = getHeaderStyle();
 
@@ -567,7 +567,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
 
     return (
         <div style={{
-            background: '#ffffff',
+            background: 'var(--secondary-light)',
             borderRadius: '0',
             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
             marginBottom: '1.5rem',
@@ -607,13 +607,13 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                             <div style={{ background: '#f0fdf4', padding: '6px', borderRadius: '6px', border: '1px solid #dcfce7' }}>
                                 <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#15803d', marginBottom: '4px', textTransform: 'uppercase' }}>
-                                    {isTravel ? "ABROAD / AWAY" : isProperty ? "PURCHASE" : "GOOD"}
+                                    {isTravel ? "ABROAD / AWAY" : isProperty ? "PURCHASE" : "AUSPICIOUS"}
                                 </div>
                                 {row.bif.renderCell(row.bif.good, false)}
                             </div>
                             <div style={{ background: '#fef2f2', padding: '6px', borderRadius: '6px', border: '1px solid #fee2e2' }}>
                                 <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#b91c1c', marginBottom: '4px', textTransform: 'uppercase' }}>
-                                    {isTravel ? "HOME" : isProperty ? "SALE" : "BAD"}
+                                    {isTravel ? "HOME" : isProperty ? "SALE" : "INAUSPICIOUS"}
                                 </div>
                                 {row.bif.renderCell(row.bif.bad, true)}
                             </div>

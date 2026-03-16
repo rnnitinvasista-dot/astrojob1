@@ -45,19 +45,19 @@ const HouseTable: React.FC<HouseTableProps> = ({ houses, planets }) => {
     };
 
     return (
-        <div className="card">
-            <h2 style={{ marginBottom: '1rem', color: '#6EB5FF' }}>KP Houses (Cusps)</h2>
-            <div className="table-container" style={{ border: '1px solid #e2e8f0' }}>
+        <div className="card" style={{ background: 'var(--secondary-light)', border: '3px solid #000000', borderRadius: '0' }}>
+            <h2 style={{ marginBottom: '1rem', color: 'var(--text)', fontWeight: 800 }}>KP Houses (Cusps)</h2>
+            <div className="table-container" style={{ border: '2px solid #000000' }}>
                 <table style={{ fontSize: '0.8125rem', borderCollapse: 'collapse', width: '100%' }}>
                     <thead>
                         <tr>
-                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>Hos</th>
-                            <th style={{ width: '35%', border: '1px solid #e2e8f0', padding: '8px' }}>Significations</th>
-                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>Degree</th>
-                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>SL</th>
-                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>NL</th>
-                            <th style={{ border: '1px solid #e2e8f0', padding: '8px', backgroundColor: '#fff7ed' }}>SB</th>
-                            <th style={{ border: '1px solid #e2e8f0', padding: '8px' }}>SS</th>
+                            <th style={{ border: '1px solid #000000', padding: '8px', color: 'var(--text)' }}>Hos</th>
+                            <th style={{ width: '35%', border: '1px solid #000000', padding: '8px', color: 'var(--text)' }}>Significations</th>
+                            <th style={{ border: '1px solid #000000', padding: '8px', color: 'var(--text)' }}>Degree</th>
+                            <th style={{ border: '1px solid #000000', padding: '8px', color: 'var(--text)' }}>SL</th>
+                            <th style={{ border: '1px solid #000000', padding: '8px', color: 'var(--text)' }}>NL</th>
+                            <th style={{ border: '1px solid #000000', padding: '8px', backgroundColor: 'var(--primary)', color: '#000000' }}>SB</th>
+                            <th style={{ border: '1px solid #000000', padding: '8px', color: 'var(--text)' }}>SS</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -68,10 +68,10 @@ const HouseTable: React.FC<HouseTableProps> = ({ houses, planets }) => {
                                     {houseDescriptions[house.house_number]}
                                 </td>
                                 <td style={{ border: '1px solid #e2e8f0', padding: '8px' }}>{house.cusp_degree_dms}</td>
-                                <td style={{ border: '1px solid #e2e8f0', padding: '8px' }}>{renderLord(house.sign_lord, '#6366f1')}</td>
-                                <td style={{ border: '1px solid #e2e8f0', padding: '8px' }}>{renderLord(house.star_lord, '#3b82f6')}</td>
-                                <td style={{ border: '1px solid #e2e8f0', padding: '8px', backgroundColor: '#fff7ed' }}>{renderLord(house.sub_lord, '#10b981')}</td>
-                                <td style={{ border: '1px solid #e2e8f0', padding: '8px' }}>{renderLord(house.sub_sub_lord, '#ec4899')}</td>
+                                <td style={{ border: '1px solid #000000', padding: '8px' }}>{renderLord(house.sign_lord, '#1e293b')}</td>
+                                <td style={{ border: '1px solid #000000', padding: '8px' }}>{renderLord(house.star_lord, '#1e293b')}</td>
+                                <td style={{ border: '1px solid #000000', padding: '8px', backgroundColor: 'var(--primary-light)' }}>{renderLord(house.sub_lord, '#000000')}</td>
+                                <td style={{ border: '1px solid #000000', padding: '8px' }}>{renderLord(house.sub_sub_lord, '#1e293b')}</td>
                             </tr>
                         ))}
                     </tbody>

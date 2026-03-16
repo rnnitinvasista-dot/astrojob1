@@ -252,23 +252,26 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
     };
 
     return (
-        <div className="safe-padding-top" style={{ background: '#ffffff', minHeight: '100vh', padding: '0 1rem 2rem' }}>
-            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.75rem', margin: '1rem 0 0', fontWeight: 800, color: '#1e3a8a' }}>
-                    {isPrashna ? 'KP Prashna Kundli' : (mode === 'Parashara' ? 'Parashara Kundli' : 'KP Prediction')}
-                </h2>
-                <div style={{ height: '3px', background: '#3b82f6', width: '60px', margin: '0.75rem auto', borderRadius: '2px' }}></div>
-            </div>
-
-            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="safe-padding-top" style={{ background: 'var(--bg)', minHeight: '100vh', padding: '0 1rem 2rem' }}>
+            <div style={{ 
+                width: '100%', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: '1rem',
+                border: '3px solid #000000',
+                padding: '1.5rem',
+                borderRadius: '16px',
+                background: 'var(--secondary-light)',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
+            }}>
                 {isNatalOrParashara && (
                     <div className="parchment-card" style={{ padding: '0', display: 'flex', marginBottom: '1.5rem', overflow: 'hidden' }}>
                         <button
                             onClick={() => setActiveTab('RECENTS')}
                             style={{
                                 flex: 1, padding: '1rem', border: 'none',
-                                background: activeTab === 'RECENTS' ? 'white' : '#f1f5f9',
-                                color: activeTab === 'RECENTS' ? '#3b82f6' : '#64748b',
+                                background: activeTab === 'RECENTS' ? 'white' : 'var(--primary-light)',
+                                color: activeTab === 'RECENTS' ? 'var(--primary)' : 'var(--text-muted)',
                                 fontWeight: 'bold', cursor: 'pointer'
                             }}
                         >
@@ -278,8 +281,8 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                             onClick={() => setActiveTab('NEW')}
                             style={{
                                 flex: 1, padding: '1rem', border: 'none',
-                                background: activeTab === 'NEW' ? '#3b82f6' : '#f1f5f9',
-                                color: activeTab === 'NEW' ? 'white' : '#64748b',
+                                background: activeTab === 'NEW' ? 'var(--primary)' : 'var(--primary-light)',
+                                color: activeTab === 'NEW' ? 'white' : 'var(--text-muted)',
                                 fontWeight: 'bold', cursor: 'pointer'
                             }}
                         >
@@ -320,7 +323,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                                                 <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
                                                     {item.date_of_birth} | {item.time_of_birth}
                                                 </div>
-                                                <div style={{ fontSize: '0.75rem', color: '#3b82f6', marginTop: '4px' }}>{item.place}</div>
+                                                <div style={{ fontSize: '0.75rem', color: 'var(--primary)', marginTop: '4px' }}>{item.place}</div>
                                             </div>
                                             <Search size={18} color="#cbd5e1" />
                                         </div>
@@ -409,7 +412,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                         ) : (
                             <div className="parchment-card">
                                 <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Ayanamsa:</label>
-                                <div style={{ padding: '0.6rem', border: '1.5px solid #cbd5e1', background: '#f8fafc', color: '#1e3a8a', fontWeight: 600, fontSize: '0.9rem' }}>
+                                <div style={{ padding: '0.6rem', border: '1.5px solid #cbd5e1', background: 'var(--primary-light)', color: 'var(--text)', fontWeight: 600, fontSize: '0.9rem' }}>
                                     KP New (Krishnamurti)
                                 </div>
                             </div>
@@ -420,8 +423,9 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                             className="scroll-button"
                             disabled={isLoading || isExpired}
                             style={{
-                                color: isExpired ? '#94a3b8' : '#1e3a8a',
-                                borderColor: isExpired ? '#e2e8f0' : '#3b82f6',
+                                color: isExpired ? '#94a3b8' : 'var(--text)',
+                                background: isExpired ? '#e2e8f0' : 'var(--primary)',
+                                borderColor: isExpired ? '#e2e8f0' : '#000000',
                                 cursor: isExpired ? 'not-allowed' : 'pointer'
                             }}
                         >
@@ -487,7 +491,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                                 {isSearching && <li style={{ padding: '1rem', color: '#64748b' }}>Searching...</li>}
                                 {suggestions.map((s, i) => (
                                     <li key={i} className="result-item" onClick={() => handleSelectLocation(s)}>
-                                        <MapPin size={18} color="#3b82f6" />
+                                        <MapPin size={18} color="var(--primary)" />
                                         <div>
                                             <div style={{ fontWeight: 800, color: '#1e3a8a' }}>{s.display_name.split(',')[0]}</div>
                                             <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{s.display_name.split(',').slice(1).join(',')}</div>

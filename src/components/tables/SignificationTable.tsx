@@ -7,16 +7,16 @@ interface SignificationTableProps {
 
 const SignificationTable: React.FC<SignificationTableProps> = ({ significations }) => {
     return (
-        <div className="card" style={{ borderTop: '4px solid var(--primary)' }}>
-            <h2 style={{ marginBottom: '1.5rem', color: 'var(--primary)', fontSize: '1.25rem', fontWeight: 800, textAlign: 'center' }}>
+        <div className="card" style={{ borderTop: '4px solid var(--primary)', background: 'var(--secondary-light)', border: '3px solid #000000', borderRadius: '0' }}>
+            <h2 style={{ marginBottom: '1.5rem', color: 'var(--text)', fontSize: '1.25rem', fontWeight: 800, textAlign: 'center' }}>
                 Planet Significators (Grades A-D)
             </h2>
-            <div className="table-container" style={{ border: '1px solid #e2e8f0' }}>
+            <div className="table-container" style={{ border: '2px solid #000000' }}>
                 <table style={{ fontSize: '0.85rem', borderCollapse: 'collapse', width: '100%' }}>
                     <thead>
-                        <tr style={{ background: 'var(--secondary-light)', color: 'var(--secondary)' }}>
-                            <th style={{ textAlign: 'left', padding: '12px', border: '1px solid #e2e8f0' }}>Planet</th>
-                            <th style={{ textAlign: 'center', padding: '8px', border: '1px solid #e2e8f0' }}>Signified Houses</th>
+                        <tr style={{ background: 'var(--primary)', color: '#000000' }}>
+                            <th style={{ textAlign: 'left', padding: '12px', border: '1px solid #000000' }}>Planet</th>
+                            <th style={{ textAlign: 'center', padding: '8px', border: '1px solid #000000' }}>Signified Houses</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -44,15 +44,15 @@ const SignificationTable: React.FC<SignificationTableProps> = ({ significations 
 
                             return (
                                 <tr key={sig.planet}>
-                                    <td style={{ fontWeight: '800', color: 'var(--primary)', padding: '12px', border: '1px solid #e2e8f0' }}>
+                                    <td style={{ fontWeight: '800', color: 'var(--primary)', padding: '12px', border: '1px solid #000000' }}>
                                         {sig.planet}
                                         {sig.agent && (
-                                            <div style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 400 }}>
+                                            <div style={{ fontSize: '0.65rem', color: '#000', fontWeight: 600 }}>
                                                 Rep: {sig.agent}
                                             </div>
                                         )}
                                     </td>
-                                    <td style={{ textAlign: 'center', padding: '8px', fontSize: '0.9rem', fontWeight: 700, color: 'var(--secondary)', border: '1px solid #e2e8f0' }}>
+                                    <td style={{ textAlign: 'center', padding: '8px', fontSize: '0.9rem', fontWeight: 800, color: 'var(--text)', border: '1px solid #000000' }}>
                                         {allHouses.length > 0 ? allHouses.join(', ') : '-'}
                                     </td>
                                 </tr>

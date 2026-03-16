@@ -23,7 +23,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, isAdmin })
             id: 'gns',
             label: 'KP Prediction',
             icon: <TreeDeciduous size={32} color="#fff" />,
-            color: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+            color: 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)',
             mode: 'Natal',
             requiresKP: true
         },
@@ -31,7 +31,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, isAdmin })
             id: 'prashna',
             label: 'KP Prashna Kundli',
             icon: <HelpCircle size={32} color="#fff" />,
-            color: 'linear-gradient(135deg, #1e40af 0%, #172554 100%)',
+            color: 'linear-gradient(135deg, #b8860b 0%, #8b4513 100%)',
             mode: 'Prashna',
             requiresKP: true
         }
@@ -49,7 +49,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, isAdmin })
         <div style={{
             flex: 1,
             padding: '2rem 1.5rem',
-            background: '#ffffff',
+            background: 'var(--bg)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -85,17 +85,34 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, isAdmin })
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
-                            border: '4px solid white',
+                            boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+                            border: '4px solid #000000',
                             transition: 'all 0.3s ease',
-                            transform: 'scale(1)'
+                            transform: 'scale(1)',
+                            overflow: 'hidden'
                         }}>
-                            {React.cloneElement(item.icon as React.ReactElement<any>, { size: 28 })}
+                            <img 
+                                src={item.id === 'gns' ? '/kp_prediction_icon.jpg' : 
+                                     item.id === 'parashara' ? '/parashara_icon.jpg' : 
+                                     '/prashana_icon.jpg'} 
+                                alt={item.label}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover'
+                                }}
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    if (!target.src.includes('http') && !target.src.startsWith('/')) {
+                                        target.src = '/' + target.src;
+                                    }
+                                }}
+                            />
                         </div>
                         <span style={{
                             fontSize: '0.75rem',
                             fontWeight: '700',
-                            color: '#1e3a8a',
+                            color: 'var(--text)',
                             textAlign: 'center'
                         }}>{item.label}</span>
                     </div>
@@ -118,15 +135,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, isAdmin })
                     padding: '20px'
                 }}>
                     <div style={{
-                        background: 'white',
+                        background: 'var(--secondary-light)',
                         padding: '2rem',
-                        borderRadius: '20px',
+                        borderRadius: '0',
                         maxWidth: '400px',
                         width: '100%',
                         textAlign: 'center',
                         position: 'relative',
-                        boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)',
-                        border: '3px solid #ef4444'
+                        boxShadow: '10px 10px 0px #000',
+                        border: '4px solid #000000'
                     }}>
                         <button 
                             onClick={() => setShowPopup(false)}

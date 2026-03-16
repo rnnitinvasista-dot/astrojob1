@@ -21,9 +21,9 @@ const PlanetTable: React.FC<PlanetTableProps> = ({ planets, ascendant, dasha }) 
         const isAntara = planetName === activeAntara;
 
         const activeRoles = [];
-        if (isDasha) activeRoles.push('#bfdbfe'); // Light Blue
-        if (isBukthi) activeRoles.push('#bbf7d0'); // Light Green
-        if (isAntara) activeRoles.push('#fde68a'); // Light Amber/Yellow
+        if (isDasha) activeRoles.push('#ffd8d1'); 
+        if (isBukthi) activeRoles.push('#a2d5c6'); 
+        if (isAntara) activeRoles.push('#e9d5ff'); 
 
         if (activeRoles.length === 0) return {};
         
@@ -41,10 +41,12 @@ const PlanetTable: React.FC<PlanetTableProps> = ({ planets, ascendant, dasha }) 
             width: '100%',
             maxWidth: '100%',
             padding: '1rem 0.5rem',
-            borderTop: '5px solid #35a4f4'
+            borderTop: '5px solid #d4af37',
+            background: 'var(--secondary-light)',
+            border: '3px solid #000000'
         }}>
-            <h2 style={{ marginBottom: '1rem', color: '#1e3a8a' }}>KP Planets</h2>
-            <div className="table-container" style={{ border: '1px solid #e2e8f0' }}>
+            <h2 style={{ marginBottom: '1rem', color: 'var(--text)' }}>KP Planets</h2>
+            <div className="table-container" style={{ border: 'none' }}>
                 <table style={{ fontSize: '0.8125rem', borderCollapse: 'collapse', width: '100%' }}>
                     <thead>
                         <tr>
@@ -97,17 +99,17 @@ const PlanetTable: React.FC<PlanetTableProps> = ({ planets, ascendant, dasha }) 
                 <span><b>SS:</b> Sub-Sub Lord</span>
             </div>
             {/* Added Legend for Highlighting */}
-            <div style={{ marginTop: '0.5rem', display: 'flex', gap: '8px', fontSize: '0.65rem', fontWeight: 600 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                   <div style={{ width: '8px', height: '8px', backgroundColor: '#bfdbfe' }}></div>
+            <div style={{ marginTop: '0.5rem', display: 'flex', gap: '12px', fontSize: '0.65rem', fontWeight: 700 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                   <div style={{ width: '10px', height: '10px', backgroundColor: '#ffd8d1' }}></div>
                    <span>Dasha</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                   <div style={{ width: '8px', height: '8px', backgroundColor: '#bbf7d0' }}></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                   <div style={{ width: '10px', height: '10px', backgroundColor: '#a2d5c6' }}></div>
                    <span>Bhukti</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                   <div style={{ width: '8px', height: '8px', backgroundColor: '#fde68a' }}></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                   <div style={{ width: '10px', height: '10px', backgroundColor: '#e9d5ff' }}></div>
                    <span>Antara</span>
                 </div>
             </div>

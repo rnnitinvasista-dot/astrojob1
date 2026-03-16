@@ -29,19 +29,22 @@ const PlanetaryStatusTable: React.FC<PlanetaryStatusTableProps> = ({ status }) =
             width: '100%',
             maxWidth: '100%',
             padding: '1rem 0.5rem',
-            borderTop: '5px solid #8b5cf6',
-            marginTop: '1rem'
+            borderTop: '5px solid var(--primary)',
+            marginTop: '1rem',
+            background: 'var(--secondary-light)',
+            border: '3px solid #000000',
+            borderRadius: '0'
         }}>
-            <h2 style={{ marginBottom: '1rem', color: '#1e3a8a' }}>Planetary Status</h2>
+            <h2 style={{ marginBottom: '1rem', color: 'var(--text)', fontWeight: 800 }}>Planetary Status</h2>
             <div className="table-container">
                 <table style={{ fontSize: '0.8125rem' }}>
                     <thead>
-                        <tr>
-                            <th>Planet</th>
-                            <th>Movement</th>
-                            <th>Combust</th>
-                            <th>NL</th>
-                            <th>Status</th>
+                        <tr style={{ background: 'var(--primary)' }}>
+                            <th style={{ color: '#000000' }}>Planet</th>
+                            <th style={{ color: '#000000' }}>Movement</th>
+                            <th style={{ color: '#000000' }}>Combust</th>
+                            <th style={{ color: '#000000' }}>NL</th>
+                            <th style={{ color: '#000000' }}>Status</th>
                         </tr>
                     </thead>
                     <tbody>

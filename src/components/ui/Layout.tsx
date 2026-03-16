@@ -40,20 +40,21 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
             display: 'flex',
             flexDirection: 'column',
             minHeight: '100vh',
-            background: '#ffffff',
+            background: 'var(--bg)',
             position: 'relative'
         }}>
             {/* New Header Bar */}
             <header style={{
-                background: '#35a4f4',
+                background: 'var(--header-bg)',
                 padding: 'calc(env(safe-area-inset-top, 20px) + 3.5rem) 1.5rem 1rem', // Little more down
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 color: 'white',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                 zIndex: 1000,
-                position: 'relative'
+                position: 'relative',
+                borderBottom: '1px solid rgba(0,0,0,0.1)'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     {/* Left side: Hamburger Menu */}
@@ -117,7 +118,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                                 background: 'white',
                                 marginLeft: '4px'
                             }}>
-                                <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                <img src="/app_logo.jpg" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                             </div>
 
                             {/* Middle: Text */}
@@ -253,25 +254,25 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                             text-transform: uppercase;
                         }
                         .tab-item.active {
-                            color: #35a4f4;
-                            border-bottom-color: #35a4f4;
-                            background: #eff6ff;
+                            color: #d4af37;
+                            border-bottom-color: #d4af37;
+                            background: rgba(212, 175, 55, 0.1);
                         }
                     `}</style>
                         <div className={`tab-item ${activeTab === 'planets' ? 'active' : ''}`}
                             onClick={() => onTabChange('planets')}
-                            style={{ fontWeight: 'bold', color: '#000000' }}>
+                            style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
                             Chart
                         </div>
                         <div className={`tab-item ${activeTab === 'dasha' ? 'active' : ''}`}
                             onClick={() => onTabChange('dasha')}
-                            style={{ fontWeight: 'bold', color: '#000000' }}>
+                            style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
                             Dasha
                         </div>
                         {chartMode === 'Rashi' && (
                             <div className={`tab-item ${activeTab === 'phala' ? 'active' : ''}`}
                                 onClick={() => onTabChange('phala')}
-                                style={{ fontWeight: 'bold', color: '#000000' }}>
+                                style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
                                 PHALA/RESULT
                             </div>
                         )}
@@ -279,38 +280,38 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                             <>
                                 <div className={`tab-item ${activeTab === 'houses' ? 'active' : ''}`}
                                     onClick={() => onTabChange('houses')}
-                                    style={{ fontWeight: 'bold', color: '#000000' }}>
+                                    style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
                                     House Signification
                                 </div>
                                 {hasPowerPositionAccess && (
                                     <div className={`tab-item ${activeTab === 'power_position' ? 'active' : ''}`}
                                         onClick={() => onTabChange('power_position')}
-                                        style={{ fontWeight: 'bold', color: '#000000' }}>
+                                        style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
                                         Remedies
                                     </div>
                                 )}
                                 <div className={`tab-item ${activeTab === 'predictions' ? 'active' : ''}`}
                                     onClick={() => onTabChange('predictions')}
-                                    style={{ fontWeight: 'bold', color: '#000000' }}>
+                                    style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
                                     Predictions
                                 </div>
                                 {hasAnalysisAccess && (
                                     <div className={`tab-item ${activeTab === 'analysis' ? 'active' : ''}`}
                                         onClick={() => onTabChange('analysis')}
-                                        style={{ fontWeight: 'bold', color: '#000000' }}>
+                                        style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
                                         Analysis
                                     </div>
                                 )}
                                 {hasAdvancePredictionsAccess && (
                                     <div className={`tab-item ${activeTab === 'advance_predictions' ? 'active' : ''}`}
                                         onClick={() => onTabChange('advance_predictions')}
-                                        style={{ fontWeight: 'bold', color: '#000000' }}>
+                                        style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
                                         Advance Predictions
                                     </div>
                                 )}
                                 <div className={`tab-item ${activeTab === 'nadi' ? 'active' : ''}`}
                                     onClick={() => onTabChange('nadi')}
-                                    style={{ fontWeight: 'bold', color: '#000000' }}>
+                                    style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
                                     House Occupation
                                 </div>
                             </>
