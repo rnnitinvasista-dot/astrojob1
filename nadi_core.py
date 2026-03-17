@@ -693,13 +693,20 @@ class NadiEngine:
 
         # Dual House Ownership Mapping:
         # 1. Traditional (for Rahu/Ketu agents - as expected in commit 184c1c4)
-        house_owners_trad = {}
+        house_owners_trad = {i: [] for i in range(1, 13)}
         signs_list = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
-        asc_sn_kp, _, _, _, _, _, _, _ = self.get_kp_lords(cusps[0])
-        asc_idx_kp = signs_list.index(asc_sn_kp)
-        for i in range(12):
-            curr_sign = signs_list[(asc_idx_kp + i) % 12]
-            house_owners_trad[i+1] = self.SIGN_RULERS[curr_sign]
+        for sign_idx in range(12):
+            sign_name = signs_list[sign_idx]
+            sign_lord = self.SIGN_RULERS[sign_name]
+            # Find which house this sign center belongs to in the KP system
+            sign_center = (sign_idx * 30.0 + 15.0) % 360.0
+            target_h = 1
+            for i in range(12):
+                c_curr, c_next = cusps[i], cusps[(i+1)%12]
+                if (c_next < c_curr and (sign_center >= c_curr or sign_center < c_next)) or (c_curr <= sign_center < c_next):
+                    target_h = i + 1
+                    break
+            house_owners_trad[target_h].append(sign_lord)
 
         # 2. KP Based (for other planets)
         house_owners_kp = {}
@@ -860,7 +867,13 @@ class NadiEngine:
         sigs = [{"house": int(p_data["house_placed"]), "is_placed": True}]
         h_seen = {int(p_data["house_placed"])}
         for h, owner in house_owners.items():
-            if owner == p_name and h not in h_seen:
+            is_match = False
+            if isinstance(owner, list):
+                if p_name in owner: is_match = True
+            else:
+                if owner == p_name: is_match = True
+                
+            if is_match and h not in h_seen:
                 sigs.append({"house": h, "is_placed": False})
                 h_seen.add(h)
         if p_name in ["Rahu", "Ketu"]:
