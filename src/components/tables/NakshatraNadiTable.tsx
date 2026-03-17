@@ -18,7 +18,7 @@ const HouseList: React.FC<{ houses: HouseDetail[], color: string }> = ({ houses,
                     height: '24px',
                     border: h.is_placed ? `2px solid ${color}` : 'none',
                     background: h.is_placed ? `${color}15` : 'transparent',
-                    borderRadius: '50%',
+                    borderRadius: '4px',
                     padding: h.is_placed ? '0' : '0 1px',
                     fontWeight: 800,
                     color: h.is_placed ? color : 'inherit',
@@ -46,7 +46,7 @@ const NakshatraNadiTable: React.FC<NakshatraNadiTableProps> = ({ data }) => {
             border: '3px solid #000000'
         }}>
             <h2 style={{ textAlign: 'center', color: 'var(--text)', marginBottom: '1.5rem', fontWeight: 800 }}>
-                Gold Nadi Combination
+                KP Combination
             </h2>
             <div className="table-container" style={{ border: 'none' }}>
                 <table style={{ borderCollapse: 'collapse', width: '100%' }}>
@@ -82,7 +82,7 @@ const NakshatraNadiTable: React.FC<NakshatraNadiTableProps> = ({ data }) => {
                 </table>
             </div>
             <div style={{ marginTop: '1rem', fontSize: '0.75rem', color: '#64748b', textAlign: 'center' }}>
-                * Circled numbers indicate the house where the planet is actually placed.
+                * Boxed numbers indicate the house where the planet is actually placed.
             </div>
         </div>
     );

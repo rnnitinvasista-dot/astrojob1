@@ -473,7 +473,6 @@ class NadiEngine:
                 dt = datetime.datetime.fromisoformat(dt_str)
             except:
                 return {"status": "error", "message": f"Invalid Date Format: {dt_str}."}
-
         birth_dt_loc = tz.localize(dt)
         utc_dt = birth_dt_loc.astimezone(pytz.UTC)
         jd = swe.julday(utc_dt.year, utc_dt.month, utc_dt.day, utc_dt.hour + utc_dt.minute/60 + utc_dt.second/3600)
