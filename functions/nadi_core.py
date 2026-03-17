@@ -604,9 +604,9 @@ class NadiEngine:
             nak_nadi_res.append({
                 "planet": p_name, "nakshatra_name": nak, "is_retrograde": p["is_retrograde"], "is_combust": p["is_combust"],
                 "pl_signified": self.get_eff_sigs_detailed(p_name, planet_res_map_kp, h_owners_gold),
-                "star_lord": sl_n, "nl_signified": self.get_eff_sigs_detailed(sl_n, planet_res_map_kp, house_owners_kp),
-                "sub_lord": sub_n, "sl_signified": self.get_eff_sigs_detailed(sub_n, planet_res_map_kp, house_owners_kp),
-                "planet_lord": pl_n, "pl_lord_signified": self.get_eff_sigs_detailed(pl_n, planet_res_map_kp, house_owners_kp)
+                "star_lord": sl_n, "nl_signified": self.get_eff_sigs_detailed(sl_n, planet_res_map_kp, house_owners_trad if sl_n in ["Rahu", "Ketu"] else house_owners_kp),
+                "sub_lord": sub_n, "sl_signified": self.get_eff_sigs_detailed(sub_n, planet_res_map_kp, house_owners_trad if sub_n in ["Rahu", "Ketu"] else house_owners_kp),
+                "planet_lord": pl_n, "pl_lord_signified": self.get_eff_sigs_detailed(pl_n, planet_res_map_kp, house_owners_trad if pl_n in ["Rahu", "Ketu"] else house_owners_kp)
             })
             
         moon_lon_lh = next(p["lon"] for p in planets_raw_lahiri if p["planet"] == "Moon")
