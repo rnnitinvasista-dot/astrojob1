@@ -104,15 +104,15 @@ const PowerPositionTable: React.FC<PowerPositionTableProps> = ({ data, planets, 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '8px', fontSize: '0.7rem', fontWeight: 800, flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
                     <div style={{ width: '10px', height: '10px', backgroundColor: '#16a34a' }}></div>
-                    <span>Good</span>
+                    <span style={{ color: '#16a34a' }}>Good</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                    <div style={{ width: '10px', height: '10px', backgroundColor: 'var(--primary)' }}></div>
-                    <span>Medium</span>
+                    <div style={{ width: '10px', height: '10px', backgroundColor: '#2563eb' }}></div>
+                    <span style={{ color: '#2563eb' }}>Medium</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                    <div style={{ width: '10px', height: '10px', backgroundColor: '#000000' }}></div>
-                    <span>Bad</span>
+                    <div style={{ width: '10px', height: '10px', backgroundColor: '#ef4444' }}></div>
+                    <span style={{ color: '#ef4444' }}>Bad</span>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>

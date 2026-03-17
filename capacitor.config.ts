@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.kpastro.app',
-  appName: 'KP Astrology',
+  appName: 'AnantJyotish',
   webDir: 'dist'
 };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, ArrowLeft, ExternalLink, Menu, LogOut } from 'lucide-react';
+import { Clock, ArrowLeft, Menu, LogOut, Shield } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface LayoutProps {
@@ -16,9 +16,10 @@ interface LayoutProps {
     chartStyle?: 'South Indian' | 'North Indian';
     onChartStyleChange?: (style: 'South Indian' | 'North Indian') => void;
     title?: string;
+    onAdminToggle?: () => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showTabs, onBack, isAdmin, expiryDate, onLogout, currentView, chartMode, chartStyle: _chartStyle, onChartStyleChange: _onChartStyleChange, title }) => {
+const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showTabs, onBack, isAdmin, expiryDate, onLogout, currentView, chartMode, chartStyle: _chartStyle, onChartStyleChange: _onChartStyleChange, title, onAdminToggle }) => {
     const { currentUser, userData } = useAuth();
     const [showMenu, setShowMenu] = React.useState(false);
 
@@ -173,30 +174,33 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                             <ArrowLeft size={24} color="white" />
                         </button>
                     )}
-
-                    {isAdmin && (
-                        <button
-                            onClick={() => window.open('https://astrojob-admin-f0918.web.app', '_blank')}
-                            style={{
-                                background: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                padding: '6px 12px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                color: '#35a4f4',
-                                fontSize: '0.8rem',
-                                fontWeight: 700,
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                            }}
-                        >
-                            <ExternalLink size={14} /> Admin
-                        </button>
-                    )}
                 </div>
             </header>
+
+            {isAdmin && onAdminToggle && (
+                <button
+                    onClick={onAdminToggle}
+                    style={{
+                        position: 'fixed',
+                        bottom: '24px',
+                        right: '24px',
+                        width: '60px',
+                        height: '60px',
+                        borderRadius: '30px',
+                        background: 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)',
+                        border: '4px solid #000',
+                        color: '#000',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 8px 16px rgba(0,0,0,0.3)',
+                        zIndex: 9999,
+                        cursor: 'pointer'
+                    }}
+                >
+                    <Shield size={28} />
+                </button>
+            )}
 
 
             {!isAdmin && days !== null && days <= 30 && (

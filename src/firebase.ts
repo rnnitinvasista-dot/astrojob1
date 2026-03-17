@@ -18,5 +18,5 @@ const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-export { app, analytics, auth, db };
+export { firebaseConfig, app, analytics, auth, db };
 export default app;

@@ -17,6 +17,7 @@ import LoginPage from './components/auth/LoginPage';
 import { AlertCircle, Lock, X } from 'lucide-react';
 import PhaladeepikaTable from './components/tables/PhaladeepikaTable';
 import AIBotContent from './components/AIBotContent';
+import AdminPortal from './components/admin/AdminPortal';
 import { App as CapApp } from '@capacitor/app';
 
 // Types
@@ -60,7 +61,7 @@ const sortPlanetsByNadi = <T,>(planets: T[], getName: (p: T) => string): T[] => 
 };
 
 const App = () => {
-  const [view, setView] = useState<'dashboard' | 'form' | 'result'>('dashboard');
+  const [view, setView] = useState<'dashboard' | 'form' | 'result' | 'admin'>('dashboard');
   const [mode, setMode] = useState<'Natal' | 'Prashna' | 'Parashara'>('Natal');
   const [kundliData, setKundliData] = useState<KundliResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -94,8 +95,14 @@ const App = () => {
     const setupBackListener = async () => {
       backListener = await CapApp.addListener('backButton', () => {
         if (view === 'result') {
-          setView('form');
+          if (activeTab !== 'planets') {
+            setActiveTab('planets');
+          } else {
+            setView('form');
+          }
         } else if (view === 'form') {
+          setView('dashboard');
+        } else if (view === 'admin') {
           setView('dashboard');
         } else if (view === 'dashboard') {
           CapApp.exitApp();
@@ -108,7 +115,7 @@ const App = () => {
     return () => {
       if (backListener) backListener.remove();
     };
-  }, [view]);
+  }, [view, activeTab]);
 
   // Wakeup Ping for Render
   useState(() => {
@@ -533,10 +540,13 @@ const App = () => {
           setView('form');
         } else if (view === 'form') {
           setView('dashboard');
+        } else if (view === 'admin') {
+          setView('dashboard');
         } else {
           setView('dashboard');
         }
       }}
+      onAdminToggle={() => setView(view === 'admin' ? 'dashboard' : 'admin')}
     >
       <style>{pulseStyle}</style>
       <div style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', overflowX: 'hidden', padding: 0 }}>
@@ -597,6 +607,10 @@ const App = () => {
               Generating Precision Kundli...
               <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
             </div>
+          )}
+
+          {view === 'admin' && (
+            <AdminPortal onBack={() => setView('dashboard')} />
           )}
 
           {view === 'result' && kundliData && !loading && (

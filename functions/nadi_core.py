@@ -438,13 +438,14 @@ class NadiEngine:
                     
             diff_deg = (node_lon - p_lon + 360.0) % 360.0
             is_aspecting = False
-            if abs(diff_deg - 180) <= 12: is_aspecting = True
+            # Standard opposition/aspect within 14 degrees
+            if abs(diff_deg - 180) <= 14: is_aspecting = True
             elif p_name == "Mars":
-                if (abs(diff_deg - 90) <= 12) or (abs(diff_deg - 210) <= 12): is_aspecting = True
+                if (abs(diff_deg - 90) <= 14) or (abs(diff_deg - 210) <= 14): is_aspecting = True
             elif p_name == "Jupiter":
-                if (abs(diff_deg - 120) <= 12) or (abs(diff_deg - 240) <= 12): is_aspecting = True
+                if (abs(diff_deg - 120) <= 14) or (abs(diff_deg - 240) <= 14): is_aspecting = True
             elif p_name == "Saturn":
-                if (abs(diff_deg - 60) <= 12) or (abs(diff_deg - 270) <= 12): is_aspecting = True
+                if (abs(diff_deg - 60) <= 14) or (abs(diff_deg - 270) <= 14): is_aspecting = True
             
             if is_aspecting:
                 agents.append({'type': 'Aspect', 'planet': p_name})
@@ -496,29 +497,16 @@ class NadiEngine:
             cusps = [(c - ayan_kp) % 360 for c in cusps_trop]
             ascmc = [(a - ayan_kp) % 360 for a in ascmc_trop]
 
-        # Dual House Ownership Mapping:
-        # 1. Traditional (for Rahu/Ketu agents)
-        house_owners_trad = {i: [] for i in range(1, 13)}
-        signs_list = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
-        for sign_idx in range(12):
-            sign_name = signs_list[sign_idx]
-            sign_lord = self.SIGN_RULERS[sign_name]
-            # Find which house this sign center belongs to in the KP system
-            sign_center = (sign_idx * 30.0 + 15.0) % 360.0
-            target_h = 1
-            for i in range(12):
-                c_curr, c_next = cusps[i], cusps[(i+1)%12]
-                if (c_next < c_curr and (sign_center >= c_curr or sign_center < c_next)) or (c_curr <= sign_center < c_next):
-                    target_h = i + 1
-                    break
-            house_owners_trad[target_h].append(sign_lord)
-
-        # 2. KP Based (for other planets)
-        house_owners_kp = {}
+        # Dual House Ownership Mapping (Traditional/KP parity)
+        planet_ownership_kp = {p: [] for p in self.PLANETS.keys()}
         for i in range(12):
             lon_val = cusps[i]
             _, sl, _, _, _, _, _, _ = self.get_kp_lords(lon_val)
-            house_owners_kp[i+1] = sl
+            if sl in planet_ownership_kp and (i+1) not in planet_ownership_kp[sl]:
+                planet_ownership_kp[sl].append(i+1)
+        
+        # planet_ownership_trad is now a copy of KP for consistent rule application
+        planet_ownership_trad = {p: list(v) for p, v in planet_ownership_kp.items()}
         
         planets_raw_kp = []
         planets_raw_lahiri = []
@@ -595,7 +583,8 @@ class NadiEngine:
             p_name = p["planet"]
             # Rahu/Ketu use Traditional House Owners for their agents
             # Other planets use KP House Owners
-            sigs = self.get_node_significators(p_name, planet_res_map_kp, house_owners_trad) if p_name in ["Rahu", "Ketu"] else self.calculate_kp_significators_4level(p_name, planet_res_map_kp, house_owners_kp)
+            p_own = planet_ownership_trad if p_name in ["Rahu", "Ketu"] else planet_ownership_kp
+            sigs = self.get_node_significators(p_name, planet_res_map_kp, p_own) if p_name in ["Rahu", "Ketu"] else self.calculate_kp_significators_4level(p_name, planet_res_map_kp, p_own)
             total = sorted(list(set(sigs["L1"] + sigs["L2"] + sigs["L3"] + sigs["L4"])))
             significations_res.append({"planet": p_name, "levels": sigs, "total": total, "agent": sigs.get("agent", None)})
         
@@ -610,10 +599,10 @@ class NadiEngine:
             
             nak_nadi_res.append({
                 "planet": p_name, "nakshatra_name": nak, "is_retrograde": p["is_retrograde"], "is_combust": p["is_combust"],
-                "pl_signified": self.get_eff_sigs_detailed(p_name, planet_res_map_kp, h_owners_gold),
-                "star_lord": sl_n, "nl_signified": self.get_eff_sigs_detailed(sl_n, planet_res_map_kp, house_owners_trad if sl_n in ["Rahu", "Ketu"] else house_owners_kp),
-                "sub_lord": sub_n, "sl_signified": self.get_eff_sigs_detailed(sub_n, planet_res_map_kp, house_owners_trad if sub_n in ["Rahu", "Ketu"] else house_owners_kp),
-                "planet_lord": pl_n, "pl_lord_signified": self.get_eff_sigs_detailed(pl_n, planet_res_map_kp, house_owners_trad if pl_n in ["Rahu", "Ketu"] else house_owners_kp)
+                "pl_signified": self.get_eff_sigs_detailed(p_name, planet_res_map_kp, planet_ownership_trad if p_name in ["Rahu", "Ketu"] else planet_ownership_kp),
+                "star_lord": sl_n, "nl_signified": self.get_eff_sigs_detailed(sl_n, planet_res_map_kp, planet_ownership_trad if sl_n in ["Rahu", "Ketu"] else planet_ownership_kp),
+                "sub_lord": sub_n, "sl_signified": self.get_eff_sigs_detailed(sub_n, planet_res_map_kp, planet_ownership_trad if sub_n in ["Rahu", "Ketu"] else planet_ownership_kp),
+                "planet_lord": pl_n, "pl_lord_signified": self.get_eff_sigs_detailed(pl_n, planet_res_map_kp, planet_ownership_trad if pl_n in ["Rahu", "Ketu"] else planet_ownership_kp)
             })
             
         moon_lon_lh = next(p["lon"] for p in planets_raw_lahiri if p["planet"] == "Moon")
@@ -658,21 +647,17 @@ class NadiEngine:
             f_res.append(r)
         return f_res
 
-    def get_eff_sigs_detailed(self, p_name, planet_map, house_owners):
+    def get_eff_sigs_detailed(self, p_name, planet_map, planet_ownership):
         if p_name not in planet_map: return []
         p_data = planet_map[p_name]
         sigs = [{"house": int(p_data["house_placed"]), "is_placed": True}]
         h_seen = {int(p_data["house_placed"])}
-        for h, owner in house_owners.items():
-            is_match = False
-            if isinstance(owner, list):
-                if p_name in owner: is_match = True
-            else:
-                if owner == p_name: is_match = True
-                
-            if is_match and h not in h_seen:
+        
+        for h in planet_ownership.get(p_name, []):
+            if h not in h_seen:
                 sigs.append({"house": h, "is_placed": False})
                 h_seen.add(h)
+                
         if p_name in ["Rahu", "Ketu"]:
             for agent in self.get_node_agents(p_name, p_data, list(planet_map.values())):
                 a_name = agent['planet']
@@ -681,20 +666,20 @@ class NadiEngine:
                     if a_occ not in h_seen:
                         sigs.append({"house": a_occ, "is_placed": False})
                         h_seen.add(a_occ)
-                    for h, o in house_owners.items():
-                        if o == a_name and h not in h_seen:
+                    for h in planet_ownership.get(a_name, []):
+                        if h not in h_seen:
                             sigs.append({"house": h, "is_placed": False})
                             h_seen.add(h)
         return sorted(sigs, key=lambda x: x["house"])
 
-    def calculate_kp_significators_4level(self, p_name, planet_map, house_owners):
+    def calculate_kp_significators_4level(self, p_name, planet_map, planet_ownership):
         if p_name not in planet_map: return {"L1":[], "L2":[], "L3":[], "L4":[], "is_self_strength": False}
         p_data = planet_map[p_name]
         sl_data = planet_map.get(p_data["star_lord"])
         l1 = [int(sl_data["house_placed"])] if sl_data else []
         l2 = [int(p_data["house_placed"])]
-        l3 = sorted([int(h) for h, o in house_owners.items() if o == p_data["star_lord"]])
-        l4 = sorted([int(h) for h, o in house_owners.items() if o == p_name])
+        l3 = sorted([int(h) for h in planet_ownership.get(p_data["star_lord"], [])])
+        l4 = sorted([int(h) for h in planet_ownership.get(p_name, [])])
         self_s = not any(p["star_lord"] == p_name for p in planet_map.values())
         return {"L1": l2, "L2": l1, "L3": l4, "L4": l3, "is_self_strength": True} if self_s else {"L1": l1, "L2": l2, "L3": l3, "L4": l4, "is_self_strength": False}
 
