@@ -270,6 +270,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                                 {[
                                     { id: 'd2', label: 'D2 Wealth' },
                                     { id: 'd4', label: 'D4 Property' },
+                                    { id: 'd5', label: 'D5 Spiritual' },
                                     { id: 'd6', label: 'D6 Disease' },
                                     { id: 'd7', label: 'D7 Child Birth' },
                                     { id: 'd8', label: 'D8 Longevity' },

@@ -150,6 +150,45 @@ export const calculateD4Result = (vargaPlanets: any[], vargaAsc: any, natalPlane
     return results;
 };
 
+// D5 (Panchamsha) Logic
+export const calculateD5Result = (vargaPlanets: any[], vargaAsc: any, natalPlanets: Planet[]): VargaResult[] => {
+    const ascSign = vargaAsc.sign;
+    const ascSignNatal = natalPlanets.find(p => p.planet === 'Ascendant')?.sign || 'Aries';
+    const lagnadipathi = SIGN_RULERS[ascSignNatal];
+
+    const results: VargaResult[] = [];
+    
+    // Lagnadipathi
+    const lpV = vargaPlanets.find(p => p.planet === lagnadipathi);
+    if (lpV) {
+        const h = getHouse(lpV.sign, ascSign);
+        let grade: Grade = 'B';
+        if ([1, 5, 9, 10, 11].includes(h)) grade = 'A+';
+        else if ([4, 7].includes(h)) grade = 'A';
+        results.push({ field: "Personal Power / Fame", planet: lagnadipathi, grade, result: `Success and recognition rank: ${grade}` });
+    }
+
+    // Sun (Power)
+    const sunV = vargaPlanets.find(p => p.planet === 'Sun');
+    if (sunV) {
+        const h = getHouse(sunV.sign, ascSign);
+        let grade: Grade = 'B';
+        if ([1, 5, 9, 10].includes(h)) grade = 'EXCELLENT';
+        results.push({ field: "Authority & Command", planet: "Sun", grade, result: `Status or Government support level: ${grade}` });
+    }
+
+    // Jupiter (Wisdom/Spiritual)
+    const jupiterV = vargaPlanets.find(p => p.planet === 'Jupiter');
+    if (jupiterV) {
+        const h = getHouse(jupiterV.sign, ascSign);
+        let grade: Grade = 'B';
+        if ([1, 5, 9].includes(h)) grade = 'A++';
+        results.push({ field: "Spiritual Merit / Wisdom", planet: "Jupiter", grade, result: `Learning and spiritual inclination: ${grade}` });
+    }
+
+    return results;
+};
+
 // D6 (Disease) Logic
 export const calculateD6Result = (vargaPlanets: any[], vargaAsc: any, natalPlanets: Planet[]): VargaResult[] => {
     const ascSignNatal = natalPlanets.find(p => p.planet === 'Ascendant')?.sign || 'Aries';
@@ -355,18 +394,7 @@ export const calculateD11Result = (vargaPlanets: any[], vargaAsc: any, natalPlan
     }
 
     if (lpV) {
-        const h = getHouse(lpV.sign, vargaAsc.sign);
-        let grade: Grade = 'LOW';
-        if ([1, 5, 9, 11].includes(h)) grade = 'A+';
-        else if ([4, 7, 10].includes(h)) grade = 'A';
-        else grade = 'MEDIUM';
-
-        results.push({
-            field: "Self-Effort Gains (Lagnadipathi)",
-            planet: lagnadipathi,
-            grade,
-            result: `Self wealth and savings status: ${grade}. Focus on personal skills to increase income.`
-        });
+        // Removed as per user request
     }
 
     return results;

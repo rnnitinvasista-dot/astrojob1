@@ -2,7 +2,7 @@ import React from 'react';
 
 import PremiumSouthIndianChart from '../charts/PremiumSouthIndianChart';
 import { 
-    calculateD2Result, calculateD4Result, calculateD6Result, calculateD7Result, 
+    calculateD2Result, calculateD4Result, calculateD5Result, calculateD6Result, calculateD7Result, 
     calculateD8Result, calculateD10Result, calculateD11Result, calculateD12Result
 } from '../../utils/dChartPredictions';
 import type { VargaResult } from '../../utils/dChartPredictions';
@@ -29,6 +29,7 @@ const DChartResultTable: React.FC<DChartResultTableProps> = ({ vargaName, kundli
     switch (vargaName) {
         case 'D2': results = calculateD2Result(vargaData.planets, vargaData.ascendant); break;
         case 'D4': results = calculateD4Result(vargaData.planets, vargaData.ascendant, natalPlanets); break;
+        case 'D5': results = calculateD5Result(vargaData.planets, vargaData.ascendant, natalPlanets); break;
         case 'D6': results = calculateD6Result(vargaData.planets, vargaData.ascendant, natalPlanets); break;
         case 'D7': results = calculateD7Result(vargaData.planets, vargaData.ascendant, natalPlanets); break;
         case 'D8': results = calculateD8Result(vargaData.planets, vargaData.ascendant, natalPlanets); break;

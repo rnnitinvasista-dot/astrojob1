@@ -135,6 +135,13 @@ class NadiEngine:
         elif d_val == 4: # Chaturthamsha
             part = int(deg_in_sign / 7.5)
             return (sign_idx + (part * 3)) % 12
+        elif d_val == 5: # Panchamsha
+            part = int(deg_in_sign / 6.0)
+            if sign_idx % 2 == 0: # Odd
+                rulers = [0, 10, 8, 2, 6] # Aries, Aquarius, Sag, Gemini, Libra
+            else: # Even
+                rulers = [1, 5, 11, 9, 7] # Taurus, Virgo, Pisces, Capricorn, Scorpio
+            return rulers[min(part, 4)]
         elif d_val == 6: # Shasthamsa
             part = int(deg_in_sign / 5.0)
             if sign_idx % 2 == 0: return (sign_idx + part) % 12 # Odd starts from sign
