@@ -23,6 +23,7 @@ interface UserData {
     hasPowerPositionAccess?: boolean;
     hasAnalysisAccess?: boolean;
     hasAdvancePredictionsAccess?: boolean;
+    hasAdvV1Access?: boolean;
 }
 
 interface AdminPortalProps {
@@ -274,6 +275,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onBack }) => {
                                         <button onClick={() => togglePermission(user.uid, 'hasPowerPositionAccess', !!user.hasPowerPositionAccess)} style={{ padding: '8px 10px', fontSize: '0.75rem', background: user.hasPowerPositionAccess ? '#dcfce7' : '#fee2e2', color: '#000', border: '2px solid #000', borderRadius: '8px', cursor: 'pointer', fontWeight: 800, flex: 1 }}>POWER: {user.hasPowerPositionAccess ? 'ON' : 'OFF'}</button>
                                         <button onClick={() => togglePermission(user.uid, 'hasAnalysisAccess', !!user.hasAnalysisAccess)} style={{ padding: '8px 10px', fontSize: '0.75rem', background: user.hasAnalysisAccess ? '#dcfce7' : '#fee2e2', color: '#000', border: '2px solid #000', borderRadius: '8px', cursor: 'pointer', fontWeight: 800, flex: 1 }}>AI: {user.hasAnalysisAccess ? 'ON' : 'OFF'}</button>
                                         <button onClick={() => togglePermission(user.uid, 'hasAdvancePredictionsAccess', !!user.hasAdvancePredictionsAccess)} style={{ padding: '8px 10px', fontSize: '0.75rem', background: user.hasAdvancePredictionsAccess ? '#dcfce7' : '#fee2e2', color: '#000', border: '2px solid #000', borderRadius: '8px', cursor: 'pointer', fontWeight: 800, flex: 1 }}>ADV: {user.hasAdvancePredictionsAccess ? 'ON' : 'OFF'}</button>
+                                        <button onClick={() => togglePermission(user.uid, 'hasAdvV1Access', !!user.hasAdvV1Access)} style={{ padding: '8px 10px', fontSize: '0.75rem', background: user.hasAdvV1Access ? '#dcfce7' : '#fee2e2', color: '#000', border: '2px solid #000', borderRadius: '8px', cursor: 'pointer', fontWeight: 800, flex: 1 }}>V1: {user.hasAdvV1Access ? 'ON' : 'OFF'}</button>
                                     </div>
                                     <button
                                         onClick={() => toggleAdmin(user.uid, user.role)}

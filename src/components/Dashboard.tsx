@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TreeDeciduous, HelpCircle, Scroll, X } from 'lucide-react';
 
 interface DashboardProps {
-    onSelect: (mode: 'Natal' | 'Prashna' | 'Parashara') => void;
+    onSelect: (mode: 'Natal' | 'Prashna' | 'Parashara' | 'BNN' | 'Yearly') => void;
     hasKPAccess?: boolean;
     isAdmin?: boolean;
 }
@@ -20,6 +20,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, isAdmin })
             requiresKP: false
         },
         {
+            id: 'bnn',
+            label: 'Bhrighu Nandi Nadi',
+            icon: <Scroll size={32} color="#fff" />,
+            color: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
+            mode: 'BNN',
+            requiresKP: false
+        },
+        {
             id: 'gns',
             label: 'KP Prediction',
             icon: <TreeDeciduous size={32} color="#fff" />,
@@ -33,6 +41,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, isAdmin })
             icon: <HelpCircle size={32} color="#fff" />,
             color: 'linear-gradient(135deg, #b8860b 0%, #8b4513 100%)',
             mode: 'Prashna',
+            requiresKP: true
+        },
+        {
+            id: 'yearly',
+            label: 'Yearly Prediction',
+            icon: <Scroll size={32} color="#fff" />,
+            color: 'linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%)',
+            mode: 'Yearly',
             requiresKP: true
         }
     ];
@@ -60,7 +76,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, isAdmin })
         }}>
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
+                gridTemplateColumns: 'repeat(2, 1fr)',
                 gap: '1.5rem',
                 width: '100%',
                 maxWidth: '400px'
@@ -94,6 +110,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, isAdmin })
                             <img 
                                 src={item.id === 'gns' ? '/kp_prediction_icon.jpg' : 
                                      item.id === 'parashara' ? '/parashara_icon.jpg' : 
+                                     item.id === 'yearly' ? '/yearly_prediction_icon.png' :
                                      '/prashana_icon.jpg'} 
                                 alt={item.label}
                                 style={{

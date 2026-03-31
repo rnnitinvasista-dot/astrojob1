@@ -4,9 +4,13 @@ import type { NakshatraNadiItem, Planet } from '../../types/astrology';
 interface JobPredictionTableProps {
     data: NakshatraNadiItem[];
     planets: Planet[];
-    types: ('Dasha' | 'Bhukti' | 'Antara')[];
+    types: ('Dasha' | 'Bhukti' | 'Antara' | 'Cusp')[];
     planetName: string;
     selectedArea: string;
+    customLabel?: string;
+    isTransitMode?: boolean;
+    loadingTransit?: boolean;
+    onTransitToggle?: (active: boolean) => void;
 }
 
 const JOB_PROFESSION_MAP: Record<number, string> = {
@@ -373,7 +377,17 @@ const getBifurcation = (houseSet: Set<number>, area: string) => {
     };
 };
 
-const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, types, planetName, selectedArea }) => {
+const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ 
+    data, 
+    planets, 
+    types, 
+    planetName, 
+    selectedArea, 
+    customLabel,
+    isTransitMode = false,
+    loadingTransit = false,
+    onTransitToggle
+}) => {
     const isEducation = selectedArea === 'Education';
     const isMarriage = selectedArea === 'Marriage';
     const isChildBirth = selectedArea === 'Child Birth';
@@ -525,7 +539,8 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
     const activeThemes = types.map(t => ({
         Dasha: { color: '#ffd8d1', text: '#000000', label: 'Dasha' },
         Bhukti: { color: '#a2d5c6', text: '#000000', label: 'Bukthi' },
-        Antara: { color: '#e9d5ff', text: '#000000', label: 'Antar Bhukthi' }
+        Antara: { color: '#e9d5ff', text: '#000000', label: 'Antar Bhukthi' },
+        Cusp: { color: '#FFD700', text: '#000000', label: 'Cusp' }
     }[t]));
 
     // Determine header background based on highest priority type
@@ -533,7 +548,8 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
         const themeMap = {
             Dasha: '#ffd8d1',
             Bhukti: '#a2d5c6',
-            Antara: '#e9d5ff'
+            Antara: '#e9d5ff',
+            Cusp: '#FFD700'
         };
 
         if (types.length === 0) return { background: '#f8fafc', color: '#1e3a8a' };
@@ -545,15 +561,34 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
     };
     const headerStyle = getHeaderStyle();
 
-    const nlProfessionText = React.useMemo(() =>
-        shuffleText((isEducation ? EDU_PROFESSION_MAP : isMarriage ? MARRIAGE_RESULT_MAP : isChildBirth ? CHILD_BIRTH_RESULT_MAP : isHealth ? HEALTH_RESULT_MAP : JOB_PROFESSION_MAP)[nlHit]),
-        [nlHit, selectedArea]
-    );
+    const isForeignStudies = React.useMemo(() => {
+        if (!isEducation) return false;
+        const has9And12 = allHousesSet.has(9) && allHousesSet.has(12);
+        const hasSupport = [3, 4, 5, 7, 8].some(h => allHousesSet.has(h));
+        return has9And12 && hasSupport;
+    }, [allHousesSet, isEducation]);
 
-    const slProfessionText = React.useMemo(() =>
-        shuffleText((isEducation ? EDU_PROFESSION_MAP : isMarriage ? MARRIAGE_RESULT_MAP : isChildBirth ? CHILD_BIRTH_RESULT_MAP : isHealth ? HEALTH_RESULT_MAP : JOB_PROFESSION_MAP)[slHit]),
-        [slHit, selectedArea]
-    );
+    const isJobAndBusiness = !isEducation && !isMarriage && !isChildBirth && !isHealth && !isTravel && !isProperty;
+
+    const nlProfessionText = React.useMemo(() => {
+        let text = shuffleText((isEducation ? EDU_PROFESSION_MAP : isMarriage ? MARRIAGE_RESULT_MAP : isChildBirth ? CHILD_BIRTH_RESULT_MAP : isHealth ? HEALTH_RESULT_MAP : JOB_PROFESSION_MAP)[nlHit]);
+        if (isForeignStudies) text += ", Foreign Studies (ACCA, MBA, PMP, CPA, CFA, CMA US, FRM, International Certification)";
+        if (isJobAndBusiness) {
+            if ([3, 5, 8].includes(nlHit)) text += ", Film line";
+            if ([8, 12].includes(nlHit)) text += ", Spirituality";
+        }
+        return text;
+    }, [nlHit, isForeignStudies, isJobAndBusiness]);
+
+    const slProfessionText = React.useMemo(() => {
+        let text = shuffleText((isEducation ? EDU_PROFESSION_MAP : isMarriage ? MARRIAGE_RESULT_MAP : isChildBirth ? CHILD_BIRTH_RESULT_MAP : isHealth ? HEALTH_RESULT_MAP : JOB_PROFESSION_MAP)[slHit]);
+        if (isForeignStudies) text += ", Foreign Studies (ACCA, MBA, PMP, CPA, CFA, CMA US, FRM, International Certification)";
+        if (isJobAndBusiness) {
+            if ([3, 5, 8].includes(slHit)) text += ", Film line";
+            if ([8, 12].includes(slHit)) text += ", Spirituality";
+        }
+        return text;
+    }, [slHit, isForeignStudies, isJobAndBusiness]);
 
     const jobNoteText = React.useMemo(() => {
         if (!isEducation && !isMarriage && !isChildBirth && !isHealth) {
@@ -578,14 +613,85 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
             margin: '0 0 0.75rem',
             border: '3px solid #000000',
         }}>
-            <div style={{ background: headerStyle.background, padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #000000' }}>
-                <h3 style={{ margin: 0, color: headerStyle.color, fontWeight: 900, fontSize: '1rem', letterSpacing: '0.5px' }}>
-                    {planetData.planet.toUpperCase()}
-                </h3>
+            <div style={{ 
+                background: headerStyle.background, 
+                padding: '10px 12px', 
+                borderBottom: '2px solid #000000' 
+            }}>
+                <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                }}>
+                    <h3 style={{ margin: 0, color: headerStyle.color, fontWeight: 900, fontSize: '0.9rem', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                        {planetName} - {selectedArea} {customLabel && <span style={{ fontSize: '0.7rem', opacity: 0.9, marginLeft: '8px', padding: '2px 6px', background: 'rgba(255,255,255,0.2)', borderRadius: '4px' }}>{customLabel}</span>}
+                        {isTransitMode && <span style={{ color: '#3b82f6', marginLeft: '8px', fontSize: '0.7rem' }}>(TRANSIT)</span>}
+                    </h3>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 800, color: isTransitMode ? '#3b82f6' : '#64748b' }}>
+                            TRANSIT
+                        </span>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onTransitToggle?.(!isTransitMode);
+                            }}
+                            disabled={loadingTransit}
+                            style={{
+                                width: '32px',
+                                height: '16px',
+                                borderRadius: '8px',
+                                background: isTransitMode ? '#3b82f6' : '#e2e8f0',
+                                border: '1.5px solid #000000',
+                                position: 'relative',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                transition: 'all 0.3s ease',
+                                padding: '1px'
+                            }}
+                        >
+                            <div style={{
+                                width: '10px',
+                                height: '10px',
+                                borderRadius: '50%',
+                                background: 'white',
+                                border: '1px solid #000000',
+                                transition: 'all 0.3s ease',
+                                transform: isTransitMode ? 'translateX(14px)' : 'translateX(0px)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
+                                {loadingTransit && (
+                                    <div style={{
+                                        width: '6px',
+                                        height: '6px',
+                                        border: '1px solid #3b82f6',
+                                        borderTopColor: 'transparent',
+                                        borderRadius: '50%',
+                                        animation: 'spin 0.8s linear infinite'
+                                    }} />
+                                )}
+                            </div>
+                        </button>
+                    </div>
+                </div>
                 {activeThemes.length > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '4px' }}>
                         {activeThemes.map((t, idx) => (
-                            <span key={idx} style={{ color: t?.text, fontSize: '0.65rem', fontWeight: 800, opacity: 0.8, textTransform: 'uppercase' }}>
+                            <span key={idx} style={{ 
+                                background: t?.color,
+                                color: t?.text, 
+                                fontSize: '0.6rem', 
+                                fontWeight: 900, 
+                                padding: '2px 8px',
+                                borderRadius: '10px',
+                                boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                                textTransform: 'uppercase',
+                                border: '1px solid rgba(0,0,0,0.1)'
+                            }}>
                                 {t?.label}
                             </span>
                         ))}
@@ -831,16 +937,31 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
                 )}
                 
                 {!isHealth && !isTravel && !isProperty && (
-                    <div onClick={() => setIsExpanded(!isExpanded)} style={{ padding: '10px', textAlign: 'center', cursor: 'pointer', background: '#ffffff', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', borderBottom: '1.5px solid #000000' }}>
+                    <div 
+                        onClick={() => {
+                            if (!isTransitMode) setIsExpanded(!isExpanded);
+                        }} 
+                        style={{ 
+                            padding: '10px', 
+                            textAlign: 'center', 
+                            cursor: isTransitMode ? 'default' : 'pointer', 
+                            background: '#ffffff', 
+                            display: 'flex', 
+                            justifyContent: 'center', 
+                            alignItems: 'center', 
+                            gap: '6px', 
+                            borderBottom: '1.5px solid #000000' 
+                        }}
+                    >
                         <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>SUCCESS RATE</div>
                         <span style={{ color: successInfo.color, fontWeight: 900, fontSize: '0.9rem', letterSpacing: '1px' }}>
                             {successInfo.label.toUpperCase()}
                         </span>
-                        <span style={{ fontSize: '0.75rem', color: '#000000', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }}>▼</span>
+                        {!isTransitMode && <span style={{ fontSize: '0.75rem', color: '#000000', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }}>▼</span>}
                     </div>
                 )}
 
-                {isHealth && (
+                {isHealth && !isTransitMode && (
                     <div style={{ borderBottom: '1.5px solid #000000', background: '#f8fafc' }}>
                         <div style={{ display: 'flex', borderBottom: '1px solid #000000' }}>
                             <div 
@@ -879,7 +1000,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
                                     )}
                                     {nlHit !== -1 && (
                                         <div style={{ display: 'flex', gap: '6px' }}>
-                                            <span style={{ fontWeight: 900, color: '#000000', minWidth: '40px' }}>NL:</span>
+                                            <span style={{ fontWeight: 900, color: '#000000', minWidth: '40px' }}>NL (40%):</span>
                                             <span>{shuffleText(HEALTH_DISEASE_MAP[planetData.star_lord.toUpperCase()] || "General health issues")}</span>
                                         </div>
                                     )}
@@ -887,11 +1008,11 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
                                     <div style={{ height: '1px', background: '#e2e8f0', margin: '4px 0' }} />
                                     
                                     <div style={{ display: 'flex', gap: '8px', fontSize: '0.85rem' }}>
-                                        <span style={{ fontWeight: 900, color: '#35a4f4' }}>NL:</span>
+                                        <span style={{ fontWeight: 900, color: '#35a4f4' }}>NL (40%):</span>
                                         <span style={{ color: '#334155' }}>{nlProfessionText}</span>
                                     </div>
                                     <div style={{ display: 'flex', gap: '8px', fontSize: '0.85rem' }}>
-                                        <span style={{ fontWeight: 900, color: '#35a4f4' }}>SL:</span>
+                                        <span style={{ fontWeight: 900, color: '#35a4f4' }}>SL (60%):</span>
                                         <span style={{ color: '#334155' }}>{slProfessionText}</span>
                                     </div>
                                 </div>
@@ -963,7 +1084,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
                     </div>
                 )}
 
-                {isMarriage && (
+                {isMarriage && !isTransitMode && (
                     <div style={{ borderBottom: '1.5px solid #000000', padding: '12px', background: '#f8fafc' }}>
                         <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#1e3a8a', marginBottom: '8px', textTransform: 'uppercase', textAlign: 'center' }}>
                             IMPORTANT NOTES
@@ -1014,7 +1135,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
                     </div>
                 )}
 
-                {isExpanded && !isChildBirth && !isHealth && (
+                {isExpanded && !isTransitMode && !isChildBirth && !isHealth && (
                     <div style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
                         <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0' }}>
                             <div 
@@ -1046,11 +1167,11 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({ data, planets, 
                             <div style={{ padding: '16px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     <div style={{ display: 'flex', gap: '8px', fontSize: '0.85rem' }}>
-                                        <span style={{ fontWeight: 900, color: '#35a4f4' }}>NL:</span>
+                                        <span style={{ fontWeight: 900, color: '#35a4f4' }}>NL{(selectedArea !== 'Travel' && selectedArea !== 'Property & Vehicle' && selectedArea !== 'Child Birth') ? ' (40%)' : ''}:</span>
                                         <span style={{ color: '#334155' }}>{nlProfessionText}</span>
                                     </div>
                                     <div style={{ display: 'flex', gap: '8px', fontSize: '0.85rem' }}>
-                                        <span style={{ fontWeight: 900, color: '#35a4f4' }}>SL:</span>
+                                        <span style={{ fontWeight: 900, color: '#35a4f4' }}>SL{(selectedArea !== 'Travel' && selectedArea !== 'Property & Vehicle' && selectedArea !== 'Child Birth') ? ' (60%)' : ''}:</span>
                                         <span style={{ color: '#334155' }}>{slProfessionText}</span>
                                     </div>
                                     

@@ -26,11 +26,13 @@ html {
   font-size: 16px;
   width: 100%;
   height: 100%;
+  /* Fluid typography: 14px on small screens to 18px on large screens */
+  font-size: clamp(14px, 1.2vw + 12px, 18px);
 }
 
 @media (max-width: 480px) {
   html {
-    font-size: 14px;
+    font-size: clamp(13px, 3vw + 10px, 15px);
   }
 }
 
@@ -218,7 +220,8 @@ tr:nth-child(even) {
   gap: 0.5rem;
   cursor: pointer;
   font-weight: 500;
-  font-size: 0.9375rem;
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 .radio-item input[type="radio"] {

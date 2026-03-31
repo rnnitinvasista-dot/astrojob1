@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, Sparkles, RefreshCw, MessageSquare, FileText, Volume2, VolumeX } from 'lucide-react';
+import { Send, Bot, User, Sparkles, MessageSquare, Volume2, VolumeX } from 'lucide-react';
 import { streamWithAI } from '../services/openRouterApi';
 import { getCurrentDashaLords } from '../services/api';
-import { calculateReportData } from '../utils/reportUtils';
 
 interface AIBotContentProps {
     kundliData: any;
@@ -13,8 +12,6 @@ const AIBotContent: React.FC<AIBotContentProps> = ({ kundliData, selectedArea: i
     const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
-    const [report, setReport] = useState<string | null>(null);
-    const [isGeneratingReport, setIsGeneratingReport] = useState(false);
     const [localArea, setLocalArea] = useState(initialArea);
     const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
     const chatEndRef = useRef<HTMLDivElement>(null);
@@ -118,9 +115,9 @@ KETU: Horse Gram, Thu, 6:00-7:00 AM`;
 - IF DATA IS LOADED: You HAVE the birth chart. DO NOT ask for birth details. Use the 'DATA CONTEXT' provided below.
 
 ### CORE PRINCIPLES:
-1. Planet Lord (PL): Indicates the event area.
-2. Nakshatra Lord (NL): Drives the event.
-3. Sub Lord (SL): DETERMINES THE FINAL QUALITY OF THE RESULT.
+1. Planet Lord (PL): Indicates the event area (20% Weightage).
+2. Nakshatra Lord (NL): Drives the event (40% Weightage - for all areas except Travel, Property, and Child Birth).
+3. Sub Lord (SL): DETERMINES THE FINAL QUALITY OF THE RESULT (60% Weightage - for all areas except Travel, Property, and Child Birth).
 Hierarchy: Sub Lord (SL) > Nakshatra Lord (NL) > Planet Lord (PL).
 
 ### STYLE & LANGUAGE:
@@ -206,59 +203,6 @@ ${mahadashaSeq}
         }
     };
 
-    const generateReport = async () => {
-        setIsGeneratingReport(true);
-        try {
-            const systemPromptContent = generateSystemPrompt();
-            
-            // Calculate specific table data for the current Dasha planet
-            const trueLords = getCurrentDashaLords(kundliData.dasha.mahadasha_sequence);
-            const activeDasha = trueLords.dasha || kundliData.dasha.current_dasha;
-            
-            const reportData = calculateReportData(activeDasha, localArea, kundliData.nakshatra_nadi, kundliData.planets);
-            
-            const tableDataContext = reportData ? `
-### DASH PLANET TABLE DATA FOR ${activeDasha} IN ${localArea}:
-- PL: ${reportData.pl}
-- NL: ${reportData.nl}
-- SL: ${reportData.sl}
-- Good Houses: ${reportData.goodHouses.join(', ')}
-- Bad Houses: ${reportData.badHouses.join(', ')}
-- Final Combination: ${reportData.combination}
-- Indication Value: ${reportData.indicationValue}
-- Expense/Loss Indication: ${reportData.expenseValue || 'N/A'}
-- Success Rate: ${reportData.successRate}
-- Detailed Findings: ${reportData.detailedFindings}
-- Reasoning from Data: ${reportData.reasoning || 'N/A'}
-- Notes: ${reportData.notes || 'None'}
-- Remedies: ${reportData.remedies.length > 0 ? reportData.remedies.join('; ') : 'None'}
-` : 'NO TABLE DATA AVAILABLE';
-
-            const dashaPeriod = kundliData.dasha.mahadasha_sequence.find((d: any) => d.planet === activeDasha);
-            const dashaPeriodInfo = dashaPeriod && dashaPeriod.start && dashaPeriod.end ? 
-                `Dasha Period: ${dashaPeriod.start.split(' ')[0]} to ${dashaPeriod.end.split(' ')[0]}` : '';
-
-            const prompt = [
-                { role: 'system' as const, content: systemPromptContent },
-                { role: 'user', content: `Generate a high-precision Astro Report for ${localArea}. 
-                
-Current Dasha: ${activeDasha}
-${dashaPeriodInfo}
-
-${tableDataContext}
-
-Follow the rules for ${localArea} report exactly. Summarize using ONLY the table data provided above.` }
-            ];
-            const response = await streamWithAI(prompt);
-            const cleanResponse = response.replace(/\*/g, '').trim();
-            setReport(cleanResponse);
-            speak(`Your ${localArea} report is ready.`);
-        } catch (error: any) {
-            setReport("Error: " + (error.message || "Failed to generate report. Please check your connection."));
-        } finally {
-            setIsGeneratingReport(false);
-        }
-    };
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '10px', animation: 'fadeIn 0.5s ease' }}>
@@ -294,76 +238,6 @@ Follow the rules for ${localArea} report exactly. Summarize using ONLY the table
                 </select>
             </div>
 
-            {/* Report Section */}
-            <div style={{ 
-                background: 'white', 
-                borderRadius: '16px', 
-                border: '3px solid #000', 
-                overflow: 'hidden',
-                boxShadow: '4px 4px 0px #000'
-            }}>
-                <div style={{ background: 'var(--primary)', padding: '12px', color: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '3px solid #000000' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <FileText size={20} />
-                        <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 900, textTransform: 'uppercase' }}>Precision Astro Report</h3>
-                    </div>
-                    {report && (
-                        <button 
-                            onClick={() => speak(report)}
-                            style={{ background: 'rgba(0,0,0,0.1)', border: 'none', color: '#000000', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', fontWeight: 800 }}
-                        >
-                            <Volume2 size={14} /> RE-PLAY
-                        </button>
-                    )}
-                </div>
-                <div style={{ padding: '1.5rem', background: 'var(--secondary-light)' }}>
-                    {!report ? (
-                        <div style={{ textAlign: 'center' }}>
-                            <p style={{ color: '#000000', marginBottom: '1rem', fontWeight: 600 }}>Get a detailed AI analysis based on your KP chart for {localArea}.</p>
-                            <button 
-                                onClick={generateReport}
-                                disabled={isGeneratingReport}
-                                style={{
-                                    background: 'var(--primary)',
-                                    color: '#000000',
-                                    border: '2px solid #000000',
-                                    padding: '12px 24px',
-                                    borderRadius: '8px',
-                                    fontWeight: 900,
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    margin: '0 auto',
-                                    boxShadow: '2px 2px 0px #000'
-                                }}
-                            >
-                                {isGeneratingReport ? <RefreshCw size={18} className="animate-spin" /> : <Sparkles size={18} />}
-                                {isGeneratingReport ? 'Analyzing Chart...' : 'Generate Astro Report'}
-                            </button>
-                        </div>
-                    ) : (
-                        <div style={{ position: 'relative' }}>
-                            <div style={{ 
-                                whiteSpace: 'pre-wrap', 
-                                fontSize: '0.9rem', 
-                                color: '#1e293b',
-                                lineHeight: '1.6',
-                                maxHeight: '300px',
-                                overflowY: 'auto'
-                            }}>
-                                {report}
-                            </div>
-                            <button 
-                                onClick={() => setReport(null)}
-                                style={{ marginTop: '1rem', fontSize: '0.75rem', color: '#1e3a8a', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}
-                            >
-                                Re-generate Report
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </div>
 
             {/* Chat Section */}
             <div style={{ 

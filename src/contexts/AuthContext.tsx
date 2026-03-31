@@ -14,6 +14,7 @@ interface UserMetadata {
     hasPowerPositionAccess?: boolean;
     hasAnalysisAccess?: boolean;
     hasAdvancePredictionsAccess?: boolean;
+    hasAdvV1Access?: boolean;
 }
 
 interface AuthContextType {
@@ -73,7 +74,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             hasKPAccess: isMasterAdmin ? true : false,
                             hasPowerPositionAccess: isMasterAdmin ? true : false,
                             hasAnalysisAccess: isMasterAdmin ? true : false,
-                            hasAdvancePredictionsAccess: isMasterAdmin ? true : false
+                            hasAdvancePredictionsAccess: isMasterAdmin ? true : false,
+                            hasAdvV1Access: isMasterAdmin ? true : false
                         };
                         setDoc(userDocRef, {
                             ...defaultData,

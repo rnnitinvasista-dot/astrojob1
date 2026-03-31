@@ -8,7 +8,11 @@ interface PlanetTableProps {
     dasha: any;
 }
 
-const PlanetTable: React.FC<PlanetTableProps> = ({ planets, ascendant, dasha }) => {
+const PlanetTable: React.FC<PlanetTableProps> = ({ 
+    planets, 
+    ascendant, 
+    dasha
+}) => {
     // Robust dasha detection
     const trueLords = getCurrentDashaLords(dasha.mahadasha_sequence);
     const activeDasha = trueLords.dasha || dasha.current_dasha;
@@ -45,7 +49,10 @@ const PlanetTable: React.FC<PlanetTableProps> = ({ planets, ascendant, dasha }) 
             background: 'var(--secondary-light)',
             border: '3px solid #000000'
         }}>
-            <h2 style={{ marginBottom: '1rem', color: 'var(--text)' }}>KP Planets</h2>
+            <div style={{ marginBottom: '1rem' }}>
+                <h2 style={{ margin: 0, color: 'var(--text)' }}>KP Planets</h2>
+            </div>
+            
             <div className="table-container" style={{ border: 'none' }}>
                 <table style={{ fontSize: '0.8125rem', borderCollapse: 'collapse', width: '100%' }}>
                     <thead>

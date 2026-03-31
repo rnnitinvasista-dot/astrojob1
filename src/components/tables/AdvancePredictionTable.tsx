@@ -4,12 +4,26 @@ import type { NakshatraNadiItem, Planet } from '../../types/astrology';
 interface AdvancePredictionTableProps {
     data: NakshatraNadiItem[];
     planets: Planet[];
-    types: ('Dasha' | 'Bhukti' | 'Antara')[];
+    types: ('Dasha' | 'Bhukti' | 'Antara' | 'Cusp')[];
     planetName: string;
     selectedArea: string;
+    customLabel?: string;
+    isTransitMode?: boolean;
+    loadingTransit?: boolean;
+    onTransitToggle?: (active: boolean) => void;
 }
 
-const AdvancePredictionTable: React.FC<AdvancePredictionTableProps> = ({ data, planets, types, planetName, selectedArea }) => {
+const AdvancePredictionTable: React.FC<AdvancePredictionTableProps> = ({ 
+    data, 
+    planets, 
+    types, 
+    planetName, 
+    selectedArea, 
+    customLabel,
+    isTransitMode = false,
+    loadingTransit = false,
+    onTransitToggle
+}) => {
     const planetData = data.find(p => p.planet === planetName) || data[0];
     if (!planetData) return <div>No data available</div>;
 
@@ -18,11 +32,15 @@ const AdvancePredictionTable: React.FC<AdvancePredictionTableProps> = ({ data, p
 
     const plHit = placementMap[planetData.planet.toUpperCase()];
     const nlHit = placementMap[planetData.star_lord.toUpperCase()];
-    const slHit = placementMap[planetData.sub_lord.toUpperCase()];
+    
+    // NLS Logic: Look for Nakshatra Lord's Sub Lord
+    const nlData = data.find(p => p.planet === planetData.star_lord);
+    const nlsSubLord = nlData?.sub_lord || planetData.sub_lord;
+    const nlsHit = placementMap[nlsSubLord.toUpperCase()];
 
     const plHouses = planetData.pl_signified.map(h => h.house);
     const nlHouses = planetData.nl_signified.map(h => h.house);
-    const slHouses = planetData.sl_signified.map(h => h.house);
+    const nlsHouses = nlData ? nlData.sl_signified.map(h => h.house) : planetData.sl_signified.map(h => h.house);
 
     const getHouseColor = (h: number, area: string) => {
         if (area === 'Education') {
@@ -79,14 +97,16 @@ const AdvancePredictionTable: React.FC<AdvancePredictionTableProps> = ({ data, p
     const activeThemes = types.map(t => ({
         Dasha: { color: '#ffd8d1', text: '#000000', label: 'Dasha' },
         Bhukti: { color: '#a2d5c6', text: '#000000', label: 'Bukthi' },
-        Antara: { color: '#e9d5ff', text: '#000000', label: 'Antar Bhukthi' }
+        Antara: { color: '#e9d5ff', text: '#000000', label: 'Antar Bhukthi' },
+        Cusp: { color: '#FFD700', text: '#000000', label: 'Cusp' }
     }[t]));
 
     const getHeaderStyle = () => {
         const themeMap = {
             Dasha: '#ffd8d1',
             Bhukti: '#a2d5c6',
-            Antara: '#e9d5ff'
+            Antara: '#e9d5ff',
+            Cusp: '#FFD700'
         };
 
         if (types.length === 0) return { background: '#f8fafc', color: '#1e3a8a' };
@@ -111,14 +131,85 @@ const AdvancePredictionTable: React.FC<AdvancePredictionTableProps> = ({ data, p
             margin: '0 0 0.75rem',
             border: '3px solid #000000',
         }}>
-            <div style={{ background: headerStyle.background, padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #000000' }}>
-                <h3 style={{ margin: 0, color: headerStyle.color, fontWeight: 900, fontSize: '1rem', letterSpacing: '0.5px' }}>
-                    {planetData.planet.toUpperCase()}
-                </h3>
+            <div style={{ 
+                background: headerStyle.background, 
+                padding: '10px 12px', 
+                borderBottom: '2px solid #000000' 
+            }}>
+                <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                }}>
+                    <h3 style={{ margin: 0, color: headerStyle.color, fontWeight: 900, fontSize: '0.9rem', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                        {planetName.toUpperCase()} - {selectedArea.toUpperCase()} {customLabel && <span style={{ fontSize: '0.7rem', opacity: 0.9, marginLeft: '8px', padding: '2px 6px', background: 'rgba(255,255,255,0.2)', borderRadius: '4px' }}>{customLabel}</span>}
+                        {isTransitMode && <span style={{ color: '#3b82f6', marginLeft: '8px', fontSize: '0.7rem' }}>(TRANSIT)</span>}
+                    </h3>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 800, color: isTransitMode ? '#3b82f6' : '#64748b' }}>
+                            TRANSIT
+                        </span>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onTransitToggle?.(!isTransitMode);
+                            }}
+                            disabled={loadingTransit}
+                            style={{
+                                width: '32px',
+                                height: '16px',
+                                borderRadius: '8px',
+                                background: isTransitMode ? '#3b82f6' : '#e2e8f0',
+                                border: '1.5px solid #000000',
+                                position: 'relative',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                transition: 'all 0.3s ease',
+                                padding: '1px'
+                            }}
+                        >
+                            <div style={{
+                                width: '10px',
+                                height: '10px',
+                                borderRadius: '50%',
+                                background: 'white',
+                                border: '1px solid #000000',
+                                transition: 'all 0.3s ease',
+                                transform: isTransitMode ? 'translateX(14px)' : 'translateX(0px)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
+                                {loadingTransit && (
+                                    <div style={{
+                                        width: '6px',
+                                        height: '6px',
+                                        border: '1px solid #3b82f6',
+                                        borderTopColor: 'transparent',
+                                        borderRadius: '50%',
+                                        animation: 'spin 0.8s linear infinite'
+                                    }} />
+                                )}
+                            </div>
+                        </button>
+                    </div>
+                </div>
                 {activeThemes.length > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '4px' }}>
                         {activeThemes.map((t, idx) => (
-                            <span key={idx} style={{ color: t?.text, fontSize: '0.65rem', fontWeight: 800, opacity: 0.8, textTransform: 'uppercase' }}>
+                            <span key={idx} style={{ 
+                                background: t?.color,
+                                color: t?.text, 
+                                fontSize: '0.6rem', 
+                                fontWeight: 900, 
+                                padding: '2px 8px',
+                                borderRadius: '10px',
+                                boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                                textTransform: 'uppercase',
+                                border: '1px solid rgba(0,0,0,0.1)'
+                            }}>
                                 {t?.label}
                             </span>
                         ))}
@@ -130,7 +221,7 @@ const AdvancePredictionTable: React.FC<AdvancePredictionTableProps> = ({ data, p
                 {[
                     { label: 'PL', p: planetData.planet, h: plHit, sigs: plHouses },
                     { label: 'NL', p: planetData.star_lord, h: nlHit, sigs: nlHouses },
-                    { label: 'SL', p: planetData.sub_lord, h: slHit, sigs: slHouses }
+                    { label: 'NLS', p: nlsSubLord, h: nlsHit, sigs: nlsHouses }
                 ].map((row) => {
                     const bifurcation = renderHouses(row.sigs, row.h);
                     return (

@@ -22,6 +22,7 @@ interface PremiumSouthIndianChartProps {
     janmaNakshatra?: string;
     pada?: number;
     rashi?: string;
+    forceVarga?: string;
 }
 
 const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
@@ -33,9 +34,15 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
     chartStyle: _chartStyle = 'South Indian',
     janmaNakshatra,
     pada,
-    rashi
+    rashi,
+    forceVarga
 }) => {
-    const [selectedVarga, setSelectedVarga] = useState<string>('D1');
+    const [selectedVarga, setSelectedVarga] = useState<string>(forceVarga || 'D1');
+
+    // Sync state if prop changes
+    React.useEffect(() => {
+        if (forceVarga) setSelectedVarga(forceVarga);
+    }, [forceVarga]);
 
     const vargas = [
         'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'D11', 'D12',
@@ -132,9 +139,9 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
         <div className="card" style={{ padding: '1rem', background: 'var(--secondary-light)', border: '3px solid #000000' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <h2 style={{ color: 'var(--text)', fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
-                    {chartMode === 'Bhava' ? 'KP Bhava Chalit Chart' : 'Divisional Chart'}
+                    {chartMode === 'Bhava' ? 'KP Bhava Chalit Chart' : (forceVarga ? `${forceVarga} Chart` : 'Divisional Chart')}
                 </h2>
-                {chartMode === 'Rashi' && (
+                {(chartMode === 'Rashi' && !forceVarga) && (
                     <div style={{
                         display: 'flex',
                         gap: '4px',

@@ -6,7 +6,7 @@ import type { BirthDetails } from '../types/astrology';
 interface BirthDetailsFormProps {
     onSubmit: (details: BirthDetails) => void;
     isLoading: boolean;
-    mode: 'Natal' | 'Prashna' | 'Parashara';
+    mode: 'Natal' | 'Prashna' | 'Parashara' | 'BNN' | 'Yearly';
     onBack?: () => void;
     isExpired?: boolean;
     days?: number | null;
@@ -35,7 +35,7 @@ const STANDARD_CITIES: Record<string, { lat: number, lon: number, name: string }
 
 const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading, mode, isExpired, initialData }) => {
     const isPrashna = mode === 'Prashna';
-    const isNatalOrParashara = mode === 'Natal' || mode === 'Parashara';
+    const isNatalOrParashara = mode === 'Natal' || mode === 'Parashara' || mode === 'BNN' || mode === 'Yearly';
     
     const [activeTab, setActiveTab] = useState<'NEW' | 'RECENTS'>('NEW');
     const [showLocationModal, setShowLocationModal] = useState(false);

@@ -442,7 +442,9 @@ export function calculateReportData(planetName: string, area: string, nakshatraN
         indicationValue: indication,
         expenseValue: expenseIndication,
         successRate: getSuccessLabel(successCode),
-        detailedFindings: `NL: ${nlFindings}\nSL: ${slFindings}`,
+        detailedFindings: (area !== 'Travel' && area !== 'Property & Vehicle' && area !== 'Child Birth') 
+            ? `NL (40%): ${nlFindings}\nSL (60%): ${slFindings}`
+            : `NL: ${nlFindings}\nSL: ${slFindings}`,
         reasoning: reason,
         remedies: remedies,
         notes: (area === 'Job' && (successCode.startsWith('B') || successCode.startsWith('VB'))) ? "Good in Medicine, Abroad, Software, any Business without investments, Astrology, Technology" : ""
