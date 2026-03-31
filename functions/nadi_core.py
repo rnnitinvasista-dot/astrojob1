@@ -135,10 +135,22 @@ class NadiEngine:
         elif d_val == 4: # Chaturthamsha
             part = int(deg_in_sign / 7.5)
             return (sign_idx + (part * 3)) % 12
+        elif d_val == 6: # Shasthamsa
+            part = int(deg_in_sign / 5.0)
+            if sign_idx % 2 == 0: return (sign_idx + part) % 12 # Odd starts from sign
+            else: return (sign_idx + 6 + part) % 12 # Even starts from 7th
         elif d_val == 7: # Saptamsha
             part = int(deg_in_sign / (30.0 / 7.0))
             if sign_idx % 2 == 0: return (sign_idx + part) % 12 # Odd start from sign
             else: return (sign_idx + 6 + part) % 12 # Even start from 7th
+        elif d_val == 8: # Ashtamsha
+            part = int(deg_in_sign / 3.75)
+            # Fiery start Aries(0), Earthy start Sag(8), Airy start Leo(4), Watery start Aries(0)
+            if sign_idx in [0, 4, 8]: start_idx = 0
+            elif sign_idx in [1, 5, 9]: start_idx = 8
+            elif sign_idx in [2, 6, 10]: start_idx = 4
+            else: start_idx = 0
+            return (start_idx + part) % 12
         elif d_val == 9: # Navamsha
             part = int(deg_in_sign / (30.0 / 9.0))
             if sign_idx in [0, 4, 8]: start_idx = 0 # Fiery start Aries
@@ -150,6 +162,13 @@ class NadiEngine:
             part = int(deg_in_sign / 3.0)
             if sign_idx % 2 == 0: return (sign_idx + part) % 12
             else: return (sign_idx + 8 + part) % 12
+        elif d_val == 11: # Ekadashamsha (Rudramsha)
+            part = int(deg_in_sign / (30.0 / 11.0))
+            # New Rule: Movable (+0), Fixed (+8), Dual (+4)
+            if sign_idx in [0, 3, 6, 9]: start_idx = sign_idx
+            elif sign_idx in [1, 4, 7, 10]: start_idx = (sign_idx + 8) % 12
+            else: start_idx = (sign_idx + 4) % 12
+            return (start_idx + part) % 12
         elif d_val == 12: # Dwadashamsha
             part = int(deg_in_sign / 2.5)
             return (sign_idx + part) % 12
@@ -607,7 +626,7 @@ class NadiEngine:
         moon_lon_lh = next(p["lon"] for p in planets_raw_lahiri if p["planet"] == "Moon")
         dasha_data = self.calculate_dasha(planets_raw_lahiri, birth_dt_loc, moon_lon_lahiri=moon_lon_lh)
         varga_charts = {}
-        for v_name, d_val in {"D1": 1, "D9": 9, "D10": 10}.items():
+        for v_name, d_val in {"D1": 1, "D2": 2, "D4": 4, "D6": 6, "D7": 7, "D8": 8, "D9": 9, "D10": 10, "D11": 11, "D12": 12}.items():
             vp = []
             for p_dict in planets_raw_lahiri:
                 v_s = self.get_varga_sign(p_dict["lon"], d_val)

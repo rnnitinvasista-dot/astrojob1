@@ -17,9 +17,10 @@ interface LayoutProps {
     onChartStyleChange?: (style: 'South Indian' | 'North Indian') => void;
     title?: string;
     onAdminToggle?: () => void;
+    mode?: string;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showTabs, onBack, isAdmin, expiryDate, onLogout, currentView, chartMode, chartStyle: _chartStyle, onChartStyleChange: _onChartStyleChange, title, onAdminToggle }) => {
+const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showTabs, onBack, isAdmin, expiryDate, onLogout, currentView, chartMode, chartStyle: _chartStyle, onChartStyleChange: _onChartStyleChange, title, onAdminToggle, mode }) => {
     const { currentUser, userData } = useAuth();
     const [showMenu, setShowMenu] = React.useState(false);
 
@@ -27,6 +28,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
     const hasPowerPositionAccess = isAdmin || userData?.hasPowerPositionAccess;
     const hasAnalysisAccess = isAdmin || userData?.hasAnalysisAccess;
     const hasAdvancePredictionsAccess = isAdmin || userData?.hasAdvancePredictionsAccess;
+    const hasAdvV1Access = isAdmin || userData?.hasAdvV1Access;
 
     const getDaysRemaining = () => {
         if (!expiryDate) return null;
@@ -119,7 +121,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                                 background: 'white',
                                 marginLeft: '4px'
                             }}>
-                                <img src="/app_logo.jpg" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                             </div>
 
                             {/* Middle: Text */}
@@ -263,61 +265,96 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                             background: rgba(212, 175, 55, 0.1);
                         }
                     `}</style>
-                        <div className={`tab-item ${activeTab === 'planets' ? 'active' : ''}`}
-                            onClick={() => onTabChange('planets')}
-                            style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
-                            Chart
-                        </div>
-                        <div className={`tab-item ${activeTab === 'dasha' ? 'active' : ''}`}
-                            onClick={() => onTabChange('dasha')}
-                            style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
-                            Dasha
-                        </div>
-                        {chartMode === 'Rashi' && (
-                            <div className={`tab-item ${activeTab === 'phala' ? 'active' : ''}`}
-                                onClick={() => onTabChange('phala')}
-                                style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
-                                PHALA/RESULT
-                            </div>
-                        )}
-                        {chartMode !== 'Rashi' && (
+                        {mode === 'Parashara' ? (
                             <>
-                                <div className={`tab-item ${activeTab === 'houses' ? 'active' : ''}`}
-                                    onClick={() => onTabChange('houses')}
-                                    style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
-                                    House Signification
-                                </div>
-                                {hasPowerPositionAccess && (
-                                    <div className={`tab-item ${activeTab === 'power_position' ? 'active' : ''}`}
-                                        onClick={() => onTabChange('power_position')}
+                                {[
+                                    { id: 'd2', label: 'D2 Wealth' },
+                                    { id: 'd4', label: 'D4 Property' },
+                                    { id: 'd6', label: 'D6 Disease' },
+                                    { id: 'd7', label: 'D7 Child Birth' },
+                                    { id: 'd8', label: 'D8 Longevity' },
+                                    { id: 'd10', label: 'D10 Career' },
+                                    { id: 'd11', label: 'D11 Inflow' },
+                                    { id: 'd12', label: 'D12 Parents' }
+                                ].map(v => (
+                                    <div key={v.id} className={`tab-item ${activeTab === v.id ? 'active' : ''}`}
+                                        onClick={() => onTabChange(v.id)}
                                         style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
-                                        Remedies
+                                        {v.label}
+                                    </div>
+                                ))}
+                            </>
+                        ) : (
+                            <>
+                                <div className={`tab-item ${activeTab === 'planets' ? 'active' : ''}`}
+                                    onClick={() => onTabChange('planets')}
+                                    style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                    Chart
+                                </div>
+                                <div className={`tab-item ${activeTab === 'dasha' ? 'active' : ''}`}
+                                    onClick={() => onTabChange('dasha')}
+                                    style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                    Dasha
+                                </div>
+                                {chartMode === 'Rashi' && (
+                                    <div className={`tab-item ${activeTab === 'phala' ? 'active' : ''}`}
+                                        onClick={() => onTabChange('phala')}
+                                        style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                        PHALA/RESULT
                                     </div>
                                 )}
-                                <div className={`tab-item ${activeTab === 'predictions' ? 'active' : ''}`}
-                                    onClick={() => onTabChange('predictions')}
-                                    style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
-                                    Predictions
-                                </div>
-                                {hasAnalysisAccess && (
-                                    <div className={`tab-item ${activeTab === 'analysis' ? 'active' : ''}`}
-                                        onClick={() => onTabChange('analysis')}
-                                        style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
-                                        Analysis
-                                    </div>
+                                {chartMode !== 'Rashi' && (
+                                    <>
+                                        <div className={`tab-item ${activeTab === 'predictions' ? 'active' : ''}`}
+                                            onClick={() => onTabChange('predictions')}
+                                            style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                            Predictions
+                                        </div>
+                                        <div className={`tab-item ${activeTab === 'houses' ? 'active' : ''}`}
+                                            onClick={() => onTabChange('houses')}
+                                            style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                            House Signification
+                                        </div>
+                                        {hasPowerPositionAccess && (
+                                            <div className={`tab-item ${activeTab === 'power_position' ? 'active' : ''}`}
+                                                onClick={() => onTabChange('power_position')}
+                                                style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                                Remedies
+                                            </div>
+                                        )}
+                                        {hasAdvV1Access && (
+                                            <div className={`tab-item ${activeTab === 'adv_v1' ? 'active' : ''}`}
+                                                onClick={() => onTabChange('adv_v1')}
+                                                style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                                Adv V1
+                                            </div>
+                                        )}
+                                        {hasAnalysisAccess && (
+                                            <div className={`tab-item ${activeTab === 'analysis' ? 'active' : ''}`}
+                                                onClick={() => onTabChange('analysis')}
+                                                style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                                Analysis
+                                            </div>
+                                        )}
+                                        {hasAdvancePredictionsAccess && (
+                                            <div className={`tab-item ${activeTab === 'advance_predictions' ? 'active' : ''}`}
+                                                onClick={() => onTabChange('advance_predictions')}
+                                                style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                                Advance Predictions
+                                            </div>
+                                        )}
+                                        <div className={`tab-item ${activeTab === 'nadi' ? 'active' : ''}`}
+                                            onClick={() => onTabChange('nadi')}
+                                            style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                            KP Combination
+                                        </div>
+                                        <div className={`tab-item ${activeTab === 'yearly' ? 'active' : ''}`}
+                                            onClick={() => onTabChange('yearly')}
+                                            style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                            Yearly
+                                        </div>
+                                    </>
                                 )}
-                                {hasAdvancePredictionsAccess && (
-                                    <div className={`tab-item ${activeTab === 'advance_predictions' ? 'active' : ''}`}
-                                        onClick={() => onTabChange('advance_predictions')}
-                                        style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
-                                        Advance Predictions
-                                    </div>
-                                )}
-                                <div className={`tab-item ${activeTab === 'nadi' ? 'active' : ''}`}
-                                    onClick={() => onTabChange('nadi')}
-                                    style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
-                                    KP Combination
-                                </div>
                             </>
                         )}
                     </nav>
