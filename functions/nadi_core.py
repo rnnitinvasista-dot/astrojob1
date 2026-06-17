@@ -464,9 +464,9 @@ class NadiEngine:
                     
             diff_deg = (node_lon - p_lon + 360.0) % 360.0
             is_aspecting = False
-            # Standard opposition/aspect within 14 degrees
-            if abs(diff_deg - 180) <= 14: is_aspecting = True
-            elif p_name == "Mars":
+            # Standard opposition/aspect (180°) is not considered for nodes to avoid agent leakage
+            # if abs(diff_deg - 180) <= 14: is_aspecting = True
+            if p_name == "Mars":
                 if (abs(diff_deg - 90) <= 14) or (abs(diff_deg - 210) <= 14): is_aspecting = True
             elif p_name == "Jupiter":
                 if (abs(diff_deg - 120) <= 14) or (abs(diff_deg - 240) <= 14): is_aspecting = True
@@ -619,8 +619,7 @@ class NadiEngine:
             p_lon_kp = p_map_kp[p_name]["lon"]
             nak, sl_n, sub_n, pl_n, nadi, s_idx, p_idx = self.get_nadi_triple_combination(p_lon_kp)
             
-            # Gold Nadi Table significators
-            h_owners_gold = house_owners_trad if p_name in ["Rahu", "Ketu"] else house_owners_kp
+
             
             nak_nadi_res.append({
                 "planet": p_name, "nakshatra_name": nak, "is_retrograde": p["is_retrograde"], "is_combust": p["is_combust"],
