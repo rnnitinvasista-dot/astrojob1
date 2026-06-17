@@ -440,11 +440,11 @@ class NadiEngine:
             is_aspecting = False
             if abs(diff_deg - 180) <= 12.0: is_aspecting = True
             elif p_name == "Mars":
-                if (abs(diff_deg - 90) <= 12.0) or (abs(diff_deg - 210) <= 12.0): is_aspecting = True
+                if (abs(diff_deg - 90) <= 6.0) or (abs(diff_deg - 210) <= 6.0): is_aspecting = True
             elif p_name == "Jupiter":
-                if (abs(diff_deg - 120) <= 12.0) or (abs(diff_deg - 240) <= 12.0): is_aspecting = True
+                if (abs(diff_deg - 120) <= 6.0) or (abs(diff_deg - 240) <= 6.0): is_aspecting = True
             elif p_name == "Saturn":
-                if (abs(diff_deg - 60) <= 12.0) or (abs(diff_deg - 270) <= 12.0): is_aspecting = True
+                if (abs(diff_deg - 60) <= 6.0) or (abs(diff_deg - 270) <= 6.0): is_aspecting = True
             
             if is_aspecting:
                 agents.append({'type': 'Aspect', 'planet': p_name})
