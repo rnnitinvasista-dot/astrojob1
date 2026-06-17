@@ -24,6 +24,10 @@ interface UserData {
     hasAnalysisAccess?: boolean;
     hasAdvancePredictionsAccess?: boolean;
     hasAdvV1Access?: boolean;
+    hasBNNAccess?: boolean;
+    hasYearlyAccess?: boolean;
+    hasNumerologyAccess?: boolean;
+    hasMatchmakingAccess?: boolean;
 }
 
 interface AdminPortalProps {
@@ -276,6 +280,10 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onBack }) => {
                                         <button onClick={() => togglePermission(user.uid, 'hasAnalysisAccess', !!user.hasAnalysisAccess)} style={{ padding: '8px 10px', fontSize: '0.75rem', background: user.hasAnalysisAccess ? '#dcfce7' : '#fee2e2', color: '#000', border: '2px solid #000', borderRadius: '8px', cursor: 'pointer', fontWeight: 800, flex: 1 }}>AI: {user.hasAnalysisAccess ? 'ON' : 'OFF'}</button>
                                         <button onClick={() => togglePermission(user.uid, 'hasAdvancePredictionsAccess', !!user.hasAdvancePredictionsAccess)} style={{ padding: '8px 10px', fontSize: '0.75rem', background: user.hasAdvancePredictionsAccess ? '#dcfce7' : '#fee2e2', color: '#000', border: '2px solid #000', borderRadius: '8px', cursor: 'pointer', fontWeight: 800, flex: 1 }}>ADV: {user.hasAdvancePredictionsAccess ? 'ON' : 'OFF'}</button>
                                         <button onClick={() => togglePermission(user.uid, 'hasAdvV1Access', !!user.hasAdvV1Access)} style={{ padding: '8px 10px', fontSize: '0.75rem', background: user.hasAdvV1Access ? '#dcfce7' : '#fee2e2', color: '#000', border: '2px solid #000', borderRadius: '8px', cursor: 'pointer', fontWeight: 800, flex: 1 }}>V1: {user.hasAdvV1Access ? 'ON' : 'OFF'}</button>
+                                        <button onClick={() => togglePermission(user.uid, 'hasBNNAccess', !!user.hasBNNAccess)} style={{ padding: '8px 10px', fontSize: '0.75rem', background: user.hasBNNAccess ? '#dcfce7' : '#fee2e2', color: '#000', border: '2px solid #000', borderRadius: '8px', cursor: 'pointer', fontWeight: 800, flex: 1 }}>BNN: {user.hasBNNAccess ? 'ON' : 'OFF'}</button>
+                                        <button onClick={() => togglePermission(user.uid, 'hasYearlyAccess', !!user.hasYearlyAccess)} style={{ padding: '8px 10px', fontSize: '0.75rem', background: user.hasYearlyAccess ? '#dcfce7' : '#fee2e2', color: '#000', border: '2px solid #000', borderRadius: '8px', cursor: 'pointer', fontWeight: 800, flex: 1 }}>YR: {user.hasYearlyAccess ? 'ON' : 'OFF'}</button>
+                                        <button onClick={() => togglePermission(user.uid, 'hasNumerologyAccess', !!user.hasNumerologyAccess)} style={{ padding: '8px 10px', fontSize: '0.75rem', background: user.hasNumerologyAccess ? '#dcfce7' : '#fee2e2', color: '#000', border: '2px solid #000', borderRadius: '8px', cursor: 'pointer', fontWeight: 800, flex: 1 }}>NUM: {user.hasNumerologyAccess ? 'ON' : 'OFF'}</button>
+                                        <button onClick={() => togglePermission(user.uid, 'hasMatchmakingAccess', !!user.hasMatchmakingAccess)} style={{ padding: '8px 10px', fontSize: '0.75rem', background: user.hasMatchmakingAccess ? '#dcfce7' : '#fee2e2', color: '#000', border: '2px solid #000', borderRadius: '8px', cursor: 'pointer', fontWeight: 800, flex: 1 }}>MATCH: {user.hasMatchmakingAccess ? 'ON' : 'OFF'}</button>
                                     </div>
                                     <button
                                         onClick={() => toggleAdmin(user.uid, user.role)}

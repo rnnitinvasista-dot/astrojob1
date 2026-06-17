@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Planet, Ascendant } from '../../types/astrology';
 
 interface VargaPlanet {
@@ -23,6 +23,7 @@ interface PremiumSouthIndianChartProps {
     pada?: number;
     rashi?: string;
     forceVarga?: string;
+    onVargaChange?: (varga: string) => void;
 }
 
 const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
@@ -35,18 +36,18 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
     janmaNakshatra,
     pada,
     rashi,
-    forceVarga
+    forceVarga,
+    onVargaChange
 }) => {
     const [selectedVarga, setSelectedVarga] = useState<string>(forceVarga || 'D1');
 
     // Sync state if prop changes
-    React.useEffect(() => {
+    useEffect(() => {
         if (forceVarga) setSelectedVarga(forceVarga);
     }, [forceVarga]);
 
     const vargas = [
-        'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'D11', 'D12',
-        'D16', 'D20', 'D24', 'D27', 'D30', 'D40', 'D45', 'D60'
+        'D1', 'D2', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'D11', 'D12'
     ];
 
     const signCoords: Record<string, { r: number, c: number }> = {
@@ -71,7 +72,7 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
     const getPlanetsInBox = (sign: string) => {
         const items: any[] = [];
 
-        if (chartMode === 'Bhava') {
+        if (chartMode === 'Bhava' && selectedVarga === 'D1') {
             const ascSignIdx = signList.indexOf(ascendant.sign);
             const currentSignIdx = signList.indexOf(sign);
             let houseNum = (currentSignIdx - ascSignIdx + 12) % 12 + 1;
@@ -95,59 +96,34 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
         return items;
     };
 
-    const getPlanetColor = (planetName: string) => {
-        const colorsUpper: Record<string, string> = {
-            "SU": "#dc2626", // Red
-            "MO": "#2563eb", // Blue
-            "MA": "#b91c1c", // Dark Red
-            "ME": "#15803d", // Green
-            "JU": "#d97706", // Orange/Yellow
-            "VE": "#db2777", // Pink
-            "SA": "#000000", // Black
-            "RA": "#4a044e", // Dark Purple
-            "KE": "#5b21b6", // Violet
-        };
-        return colorsUpper[planetName] || "#1e293b";
-    };
-
-    const calculateAge = (dob: string): string => {
+    const calculateAge = (dob: string) => {
         if (!dob) return '';
-        const birthDate = new Date(dob);
-        const today = new Date();
-        let years = today.getFullYear() - birthDate.getFullYear();
-        let months = today.getMonth() - birthDate.getMonth();
-        let days = today.getDate() - birthDate.getDate();
-
-        if (days < 0) {
-            months--;
-            days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
-        }
-        if (months < 0) {
-            years--;
-            months += 12;
-        }
-        return `${years}Y ${months}M`;
+        const birth = new Date(dob);
+        const now = new Date();
+        let age = now.getFullYear() - birth.getFullYear();
+        const m = now.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) age--;
+        return `${age}Y ${now.getMonth() + 1}M`;
     };
 
-    const formatDate = (dateStr: string) => {
-        if (!dateStr) return '';
-        const [y, m, d] = dateStr.split('-');
-        return `${d}/${m}/${y}`;
+    const formatDate = (date: string) => {
+        if (!date) return '';
+        return new Date(date).toLocaleDateString('en-GB');
     };
 
     return (
-        <div className="card" style={{ padding: '1rem', background: 'var(--secondary-light)', border: '3px solid #000000' }}>
+        <div style={{ background: '#FDFCF8', padding: '1rem', borderRadius: '12px', border: '3px solid #000', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '500px', margin: '0 auto', flexShrink: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h2 style={{ color: 'var(--text)', fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
-                    {chartMode === 'Bhava' ? 'KP Bhava Chalit Chart' : (forceVarga ? `${forceVarga} Chart` : 'Divisional Chart')}
-                </h2>
-                {(chartMode === 'Rashi' && !forceVarga) && (
-                    <div style={{
-                        display: 'flex',
-                        gap: '4px',
-                        background: 'var(--primary-light)',
-                        padding: '4px',
-                        borderRadius: '8px',
+                <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '1rem', textTransform: 'uppercase' }}>
+                    {chartMode === 'Bhava' ? 'KP BHAVA CHART' : `${selectedVarga} CHART`}
+                </div>
+                {chartMode !== 'Bhava' && (
+                    <div style={{ 
+                        display: 'flex', 
+                        gap: '4px', 
+                        padding: '4px', 
+                        background: '#f1f5f9', 
+                        borderRadius: '8px', 
                         overflowX: 'auto',
                         maxWidth: '220px',
                         msOverflowStyle: 'none',
@@ -158,7 +134,10 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                         {vargas.map(v => (
                             <button
                                 key={v}
-                                onClick={() => setSelectedVarga(v)}
+                                onClick={() => {
+                                    setSelectedVarga(v);
+                                    if (onVargaChange) onVargaChange(v);
+                                }}
                                 style={{
                                     padding: '4px 8px',
                                     border: 'none',
@@ -188,14 +167,15 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                 background: '#000',
                 border: '2px solid #000',
                 aspectRatio: '1/1',
-                maxWidth: '400px',
-                margin: '0 auto'
+                width: '100%',
+                maxWidth: '450px',
+                margin: '0 auto',
+                flexShrink: 0
             }}>
                 {Array.from({ length: 16 }).map((_, i) => {
                     const r = Math.floor(i / 4);
                     const c = i % 4;
 
-                    // Middle 4 squares
                     if (r > 0 && r < 3 && c > 0 && c < 3) {
                         if (r === 1 && c === 1) {
                             return (
@@ -208,21 +188,20 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     textAlign: 'center',
-                                    fontSize: '0.75rem',
+                                    fontSize: '0.65rem',
                                     color: '#334155',
                                     padding: '4px',
                                     lineHeight: '1.4'
                                 }}>
-                                    <div style={{ fontWeight: 800, fontSize: '1rem', color: '#1e293b', marginBottom: '4px' }}>
-                                        {chartMode === 'Bhava' ? 'KP Bhava' : selectedVarga}
+                                    <div style={{ fontWeight: 800, fontSize: '1rem', color: '#1e293b', marginBottom: '2px' }}>
+                                        {chartMode === 'Bhava' ? 'KP' : selectedVarga}
                                     </div>
                                     <div style={{ fontWeight: 700 }}>{birthDetails?.name || 'Native'}</div>
-                                    <div style={{ fontSize: '0.7rem' }}>
+                                    <div style={{ fontSize: '0.6rem' }}>
                                         {birthDetails?.date_of_birth && `(${calculateAge(birthDetails.date_of_birth)})`}
                                     </div>
-                                    <div style={{ marginTop: '4px' }}>{formatDate(birthDetails?.date_of_birth)} {birthDetails?.time_of_birth}</div>
-                                    <div>{birthDetails?.place || 'Unknown'}</div>
-                                    <div style={{ fontWeight: 900, color: 'var(--primary)', marginTop: '4px', fontSize: '0.85rem' }}>
+                                    <div style={{ marginTop: '2px' }}>{formatDate(birthDetails?.date_of_birth)} {birthDetails?.time_of_birth}</div>
+                                    <div style={{ fontWeight: 900, color: 'var(--primary)', marginTop: '2px' }}>
                                         {rashi && `${rashi} Rashi`} {janmaNakshatra && `| ${janmaNakshatra}${pada ? '-' + pada : ''}`}
                                     </div>
                                 </div>
@@ -236,15 +215,12 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
 
                     let boxLabel = sign?.slice(0, 3).toUpperCase() || '';
                     if (sign) {
-                        // Calculate house relative to Lagna for BOTH modes
-                        const lagnaSign = chartMode === 'Bhava' ? ascendant.sign : currentVargaData.ascendant.sign;
+                        const lagnaSign = (chartMode === 'Bhava' && selectedVarga === 'D1') ? ascendant.sign : currentVargaData.ascendant.sign;
                         const ascSignIdx = signList.indexOf(lagnaSign);
                         const currentSignIdx = signList.indexOf(sign);
                         let houseNum = (currentSignIdx - ascSignIdx + 12) % 12 + 1;
 
-                        // In Bhava mode, we ONLY show H1, H2, etc. (per previous fix)
-                        // In Rashi mode, we want BOTH: "ARI (H1)"
-                        if (chartMode === 'Bhava') {
+                        if (chartMode === 'Bhava' && selectedVarga === 'D1') {
                             boxLabel = `H${houseNum}`;
                         } else {
                             boxLabel = `${sign.slice(0, 3).toUpperCase()} (H${houseNum})`;
@@ -252,44 +228,31 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                     }
 
                     return (
-                        <div key={i} style={{
-                            background: 'var(--secondary-light)',
-                            padding: '4px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            position: 'relative',
-                            minHeight: '60px'
-                        }}>
-                            {sign && (
-                                <>
-                                    <span style={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 600 }}>{boxLabel}</span>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2px', justifyContent: 'center', marginTop: '4px' }}>
-                                        {signPlanets.map((p, pi) => (
-                                            <span key={pi} style={{
-                                                fontSize: '0.8rem',
-                                                fontWeight: 800,
-                                                color: p.isAsc ? '#ea580c' : getPlanetColor(p.name),
-                                                padding: '1px 2px',
-                                                borderRadius: '2px'
-                                            }}>
-                                                {p.name}
-                                                {p.isRetro && <span style={{ color: 'red', marginLeft: '1px' }}>*</span>}
-                                                {p.isCombust && <span style={{ color: '#8b5cf6', marginLeft: '1px', fontSize: '0.6rem' }}>(c)</span>}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
+                        <div key={i} style={{ background: '#fff', padding: '4px', position: 'relative', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                            <div style={{ fontSize: '0.55rem', fontWeight: 800, color: '#64748b', marginBottom: '2px', textTransform: 'uppercase' }}>
+                                {boxLabel}
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2px', alignItems: 'flex-start', contentVisibility: 'auto' }}>
+                                {signPlanets.map((p, idx) => (
+                                    <span key={idx} style={{
+                                        fontSize: '0.75rem',
+                                        fontWeight: 900,
+                                        color: p.isAsc ? '#d97706' : (p.isRetro ? '#7c3aed' : (p.isCombust ? '#b91c1c' : '#1e40af')),
+                                        display: 'flex',
+                                        alignItems: 'center'
+                                    }}>
+                                        {p.name}{p.isRetro ? '*' : ''}{p.isCombust ? '(c)' : ''}
+                                    </span>
+                                ))}
+                            </div>
                         </div>
                     );
                 })}
             </div>
-
-            <div style={{ marginTop: '10px', fontSize: '0.75rem', color: '#64748b', fontWeight: 500, display: 'flex', gap: '15px', justifyContent: 'center' }}>
-                <span><span style={{ color: '#0284c7', fontWeight: 800 }}>Lagna</span> = Ascendant</span>
-                <span><span style={{ color: 'red' }}>*</span> = Retrograde</span>
-                <span><span style={{ color: '#8b5cf6' }}>(c)</span> = Combust</span>
+            <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'center', gap: '1rem', fontSize: '0.65rem', fontWeight: 700, color: '#64748b', borderTop: '1px solid #eee', paddingTop: '0.5rem' }}>
+                <span style={{ color: '#d97706' }}>Lagna = Ascendant</span>
+                <span style={{ color: '#7c3aed' }}>* = Retrograde</span>
+                <span style={{ color: '#b91c1c' }}>(c) = Combust</span>
             </div>
         </div>
     );

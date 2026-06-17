@@ -6,7 +6,7 @@ import type { BirthDetails } from '../types/astrology';
 interface BirthDetailsFormProps {
     onSubmit: (details: BirthDetails) => void;
     isLoading: boolean;
-    mode: 'Natal' | 'Prashna' | 'Parashara' | 'BNN' | 'Yearly';
+    mode: 'Natal' | 'Prashna' | 'Parashara' | 'BNN' | 'Yearly' | 'Numerology' | 'MatchMaking';
     onBack?: () => void;
     isExpired?: boolean;
     days?: number | null;
@@ -49,6 +49,13 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
     const [birthHour, setBirthHour] = useState('');
     const [birthMin, setBirthMin] = useState('');
     const [birthSec, setBirthSec] = useState('');
+
+    const dayRef = useRef<HTMLInputElement>(null);
+    const monthRef = useRef<HTMLInputElement>(null);
+    const yearRef = useRef<HTMLInputElement>(null);
+    const hourRef = useRef<HTMLInputElement>(null);
+    const minRef = useRef<HTMLInputElement>(null);
+    const secRef = useRef<HTMLInputElement>(null);
 
     const [formData, setFormData] = useState<BirthDetails>({
         name: '',
@@ -234,6 +241,20 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
         setShowLocationModal(false);
     };
 
+    const handleInputChange = (
+        value: string, 
+        setter: (val: string) => void, 
+        maxLength: number, 
+        nextRef?: React.RefObject<HTMLInputElement | null>
+    ) => {
+        // Only allow numbers
+        const cleaned = value.replace(/[^0-9]/g, '');
+        setter(cleaned);
+        if (cleaned.length === maxLength && nextRef?.current) {
+            nextRef.current.focus();
+        }
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const d = birthDay.padStart(2, '0');
@@ -341,6 +362,12 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                                     placeholder="Enter Name"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            dayRef.current?.focus();
+                                        }
+                                    }}
                                     required
                                     style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
                                 />
@@ -350,22 +377,76 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                         <div className="parchment-card">
                             <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Date: * (DD/MM/YYYY)</label>
                             <div className="input-segmented">
-                                <input className="segmented-field" style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} type="text" placeholder="DD" maxLength={2} value={birthDay} onChange={(e) => setBirthDay(e.target.value)} />
+                                <input 
+                                    ref={dayRef}
+                                    className="segmented-field" 
+                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} 
+                                    type="text" 
+                                    placeholder="DD" 
+                                    maxLength={2} 
+                                    value={birthDay} 
+                                    onChange={(e) => handleInputChange(e.target.value, setBirthDay, 2, monthRef)} 
+                                />
                                 <span style={{ color: 'black', fontWeight: 800 }}>/</span>
-                                <input className="segmented-field" style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} type="text" placeholder="MM" maxLength={2} value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} />
+                                <input 
+                                    ref={monthRef}
+                                    className="segmented-field" 
+                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} 
+                                    type="text" 
+                                    placeholder="MM" 
+                                    maxLength={2} 
+                                    value={birthMonth} 
+                                    onChange={(e) => handleInputChange(e.target.value, setBirthMonth, 2, yearRef)} 
+                                />
                                 <span style={{ color: 'black', fontWeight: 800 }}>/</span>
-                                <input className="segmented-field" style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} type="text" placeholder="YYYY" maxLength={4} value={birthYear} onChange={(e) => setBirthYear(e.target.value)} />
+                                <input 
+                                    ref={yearRef}
+                                    className="segmented-field" 
+                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} 
+                                    type="text" 
+                                    placeholder="YYYY" 
+                                    maxLength={4} 
+                                    value={birthYear} 
+                                    onChange={(e) => handleInputChange(e.target.value, setBirthYear, 4, hourRef)} 
+                                />
                             </div>
                         </div>
 
                         <div className="parchment-card">
                             <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Time: * (00:00:00 - 24 hrs)</label>
                             <div className="input-segmented">
-                                <input className="segmented-field" style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} type="text" placeholder="HH" maxLength={2} value={birthHour} onChange={(e) => setBirthHour(e.target.value)} />
+                                <input 
+                                    ref={hourRef}
+                                    className="segmented-field" 
+                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} 
+                                    type="text" 
+                                    placeholder="HH" 
+                                    maxLength={2} 
+                                    value={birthHour} 
+                                    onChange={(e) => handleInputChange(e.target.value, setBirthHour, 2, minRef)} 
+                                />
                                 <span style={{ color: 'black', fontWeight: 800 }}>:</span>
-                                <input className="segmented-field" style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} type="text" placeholder="MM" maxLength={2} value={birthMin} onChange={(e) => setBirthMin(e.target.value)} />
+                                <input 
+                                    ref={minRef}
+                                    className="segmented-field" 
+                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} 
+                                    type="text" 
+                                    placeholder="MM" 
+                                    maxLength={2} 
+                                    value={birthMin} 
+                                    onChange={(e) => handleInputChange(e.target.value, setBirthMin, 2, secRef)} 
+                                />
                                 <span style={{ color: 'black', fontWeight: 800 }}>:</span>
-                                <input className="segmented-field" style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} type="text" placeholder="SS" maxLength={2} value={birthSec} onChange={(e) => setBirthSec(e.target.value)} />
+                                <input 
+                                    ref={secRef}
+                                    className="segmented-field" 
+                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} 
+                                    type="text" 
+                                    placeholder="SS" 
+                                    maxLength={2} 
+                                    value={birthSec} 
+                                    onChange={(e) => handleInputChange(e.target.value, setBirthSec, 2)} 
+                                />
                             </div>
                         </div>
 

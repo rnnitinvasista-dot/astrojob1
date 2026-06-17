@@ -3,6 +3,13 @@ export interface BNNCombination {
     result: string;
 }
 
+export interface BNNDegreeCombination {
+    p1: string;
+    p2: string;
+    result: string;
+    maxDiff: number;
+}
+
 export const BNN_JOB_COMBINATIONS: BNNCombination[] = [
     // Trios
     { planets: ["JUPITER", "SATURN", "SUN"], result: "High post in government - IAS, Minister, Mass leader." },
@@ -275,4 +282,24 @@ export const BNN_RELATION_COMBINATIONS: BNNCombination[] = [
     { planets: ["SUN", "KETU", "MARS"], result: "Disputes between father and brothers." },
     { planets: ["MERCURY", "KETU", "MARS"], result: "Disputes with brothers." },
     { planets: ["JUPITER", "KETU", "MOON"], result: "Disputes between native & mother." }
+];
+
+export const BNN_CHILDREN_COMBINATIONS: BNNCombination[] = [
+    { planets: ["JUPITER", "SUN", "SATURN"], result: "Delay in Male Progeny." },
+    { planets: ["VENUS", "JUPITER", "SATURN"], result: "Delay in Female Progeny." },
+    { planets: ["JUPITER", "RAHU"], result: "Problem in child birth, or short lived children (Possible Male Progeny Issue)." },
+    { planets: ["JUPITER", "KETU"], result: "Problem in child birth, or short lived children (Possible Male Progeny Issue)." },
+    { planets: ["VENUS", "JUPITER", "RAHU"], result: "Problem in child birth, or short lived children (Possible Female Progeny Issue)." },
+    { planets: ["VENUS", "JUPITER", "KETU"], result: "Problem in child birth, or short lived children (Possible Female Progeny Issue)." },
+    { planets: ["JUPITER", "SUN"], result: "Promise of Male Progeny." },
+    { planets: ["VENUS", "JUPITER"], result: "Promise of Female Progeny." },
+    { planets: ["JUPITER", "MARS", "MERCURY"], result: "Promise of Male Progeny." },
+    { planets: ["JUPITER", "MOON", "MERCURY"], result: "Promise of Female Progeny." },
+    { planets: ["MARS"], result: "Surgery related to progeny." }
+];
+
+export const BNN_DEGREE_COMBINATIONS: BNNDegreeCombination[] = [
+    { p1: "SUN", p2: "VENUS", maxDiff: 3.0, result: "Childlessness due to semen fault in male horoscope & ovaries problem in female horoscope (Planets within 3 degrees)." },
+    { p1: "MOON", p2: "VENUS", maxDiff: 3.0, result: "Fertility problem (Planets within 3 degrees)." },
+    { p1: "MARS", p2: "KETU", maxDiff: 3.0, result: "High probability of Abortion (Planets within 3 degrees)." }
 ];

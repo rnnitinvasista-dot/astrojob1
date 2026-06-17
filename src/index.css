@@ -391,12 +391,22 @@ tr:nth-child(even) {
   overflow-x: hidden;
 }
 
-@media (max-width: 640px) {
-
+@media (max-width: 767px) {
   .parchment-container,
   .results-view {
     padding-left: 0.4rem !important;
     padding-right: 0.4rem !important;
     padding-bottom: 0.75rem !important;
   }
+  .desktop-only { display: none !important; }
+  .mobile-only { display: block !important; }
+  /* Prevent mobile zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .desktop-only { display: block !important; }
+  .mobile-only { display: none !important; }
 }

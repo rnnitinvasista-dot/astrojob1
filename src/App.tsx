@@ -7,9 +7,12 @@ import axios from 'axios';
 import PremiumSouthIndianChart from './components/charts/PremiumSouthIndianChart';
 import YearlyPrediction from './components/predictions/YearlyPrediction';
 import PlanetTable from './components/tables/PlanetTable';
+import FortunaAnalysis from './components/tables/FortunaAnalysis';
+import BirthTimeRectification from './components/tables/BirthTimeRectification';
 import DashaTable from './components/tables/DashaTable';
 import NakshatraNadiTable from './components/tables/NakshatraNadiTable';
 import JobPredictionTable from './components/tables/JobPredictionTable';
+import CombinationTab from './components/tables/CombinationTab';
 import AdvV1PredictionTable from './components/tables/AdvV1PredictionTable';
 import AdvancePredictionTable from './components/tables/AdvancePredictionTable';
 import PowerPositionTable from './components/tables/PowerPositionTable';
@@ -22,8 +25,13 @@ import AIBotContent from './components/AIBotContent';
 import AdminPortal from './components/admin/AdminPortal';
 import BNNPage from './components/bnn/BNNPage';
 import DChartResultTable from './components/tables/DChartResultTable';
+import NumerologyForm from './components/numerology/NumerologyForm';
+import NumerologyReport from './components/numerology/NumerologyReport';
+import MatchMakingForm from './components/matchmaking/MatchMakingForm';
+import MatchMakingResult from './components/matchmaking/MatchMakingResult';
 import { App as CapApp } from '@capacitor/app';
 import { Geolocation } from '@capacitor/geolocation';
+import SimpleRulingPlanets from './components/tables/SimpleRulingPlanets';
 
 // Types
 interface KundliResponse {
@@ -61,35 +69,6 @@ const isPlanetMatch = (p1: string, p2: string) => {
   return s1 === s2 || s1.startsWith(s2) || s2.startsWith(s1);
 };
 
-const sortPlanetsWithDasha = <T,>(planets: T[], getName: (p: T) => string, dasha: any): T[] => {
-  const activeDasha = dasha?.current_dasha;
-  const activeBukthi = dasha?.current_bukthi;
-  const activeAntara = dasha?.current_antara;
-
-  return [...planets].sort((a, b) => {
-    const nameA = getName(a);
-    const nameB = getName(b);
-
-    const getPriority = (name: string) => {
-      if (isPlanetMatch(name, activeDasha)) return 1;
-      if (isPlanetMatch(name, activeBukthi)) return 2;
-      if (isPlanetMatch(name, activeAntara)) return 3;
-      return 10;
-    };
-
-    const prioA = getPriority(nameA);
-    const prioB = getPriority(nameB);
-
-    if (prioA !== prioB) return prioA - prioB;
-
-    const idxA = NADI_PLANET_ORDER.findIndex(p => isPlanetMatch(nameA, p));
-    const idxB = NADI_PLANET_ORDER.findIndex(p => isPlanetMatch(nameB, p));
-    if (idxA === -1) return 1;
-    if (idxB === -1) return -1;
-    return idxA - idxB;
-  });
-};
-
 const sortPlanetsByNadi = <T,>(planets: T[], getName: (p: T) => string): T[] => {
   return [...planets].sort((a, b) => {
     const idxA = NADI_PLANET_ORDER.indexOf(getName(a));
@@ -118,23 +97,32 @@ const HOUSE_OPTIONS = [
 
 
 const App = () => {
-  const [view, setView] = useState<'dashboard' | 'form' | 'result' | 'admin' | 'bnn'>('dashboard');
-  const [mode, setMode] = useState<'Natal' | 'Prashna' | 'Parashara' | 'BNN' | 'Yearly'>('Natal');
+  const [view, setView] = useState<'dashboard' | 'form' | 'result' | 'admin' | 'bnn' | 'numerologyForm' | 'numerologyReport' | 'matchMakingForm' | 'matchMakingResult'>('dashboard');
+  const [mode, setMode] = useState<'Natal' | 'Prashna' | 'Parashara' | 'BNN' | 'Yearly' | 'Numerology' | 'MatchMaking'>('Natal');
   const [kundliData, setKundliData] = useState<KundliResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'planets' | 'dasha' | 'houses' | 'predictions' | 'adv_v1' | 'advance_predictions' | 'nadi' | 'phala' | 'power_position' | 'analysis' | 'yearly' | 'd2' | 'd4' | 'd6' | 'd7' | 'd8' | 'd10' | 'd11' | 'd12'>('planets');
+  const [activeTab, setActiveTab] = useState<'planets' | 'dasha' | 'houses' | 'predictions' | 'combination' | 'adv_v1' | 'advance_predictions' | 'nadi' | 'phala' | 'power_position' | 'analysis' | 'yearly' | 'd1' | 'd2' | 'd4' | 'd5' | 'd6' | 'd7' | 'd8' | 'd10' | 'd11' | 'd12' | 'ruling_planets' | 'birth_time'>('planets');
   const [showPlanetTable, setShowPlanetTable] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [birthDetails, setBirthDetails] = useState<any>(null);
   const [chartMode, setChartMode] = useState<'Rashi' | 'Bhava'>('Bhava');
-  const [selectedArea, setSelectedArea] = useState('Job');
+  const [selectedArea, setSelectedArea] = useState('Dasha');
   const [selectedHouse, setSelectedHouse] = useState('None');
+  const [selectedPlanetFilter, setSelectedPlanetFilter] = useState('None');
   const [showAccessPopup, setShowAccessPopup] = useState(false);
   const [chartStyle, setChartStyle] = useState<'South Indian' | 'North Indian'>('South Indian');
   const [isTransitMode, setIsTransitMode] = useState(false);
   const [transitData, setTransitData] = useState<KundliResponse | null>(null);
   const [loadingTransit, setLoadingTransit] = useState(false);
   const [bnnSubView, setBnnSubView] = useState<'form' | 'result'>('form');
+  const [numerologyFormDetails, setNumerologyFormDetails] = useState<{ name: string; dob: string; phone: string; vehicleNumber: string } | null>(null);
+  const [matchMakingData, setMatchMakingData] = useState<{ 
+    boyDetails: any, 
+    girlDetails: any, 
+    boyRes: any, 
+    girlRes: any, 
+    result: any 
+  } | null>(null);
 
   const getOrdinal = (n: number) => {
     const s = ["th", "st", "nd", "rd"];
@@ -169,6 +157,10 @@ const App = () => {
           } else {
             setView('form');
           }
+        } else if (view === 'numerologyForm') {
+          setView('dashboard');
+        } else if (view === 'numerologyReport') {
+          setView('numerologyForm');
         } else if (view === 'bnn') {
           if (bnnSubView === 'result') {
             setBnnSubView('form');
@@ -203,12 +195,16 @@ const App = () => {
     wakeup();
   });
 
-  const handleModeSelect = (selectedMode: 'Natal' | 'Prashna' | 'Parashara' | 'BNN' | 'Yearly') => {
+  const handleModeSelect = (selectedMode: 'Natal' | 'Prashna' | 'Parashara' | 'BNN' | 'Yearly' | 'Numerology' | 'MatchMaking') => {
     setMode(selectedMode);
     setBirthDetails(null);
     if (selectedMode === 'BNN') {
       setBnnSubView('form');
       setView('bnn');
+    } else if (selectedMode === 'Numerology') {
+      setView('numerologyForm');
+    } else if (selectedMode === 'MatchMaking') {
+      setView('matchMakingForm');
     } else {
       setView('form');
     }
@@ -265,7 +261,7 @@ const App = () => {
         setActiveTab(mode === 'Yearly' ? 'yearly' : (isParashara ? 'd2' : 'planets'));
         setShowPlanetTable(false);
         if (mode === 'Parashara') {
-          setChartMode('Rashi');
+          setChartMode('Bhava');
         }
         setView('result');
       } else {
@@ -273,6 +269,69 @@ const App = () => {
       }
     } catch (err: any) {
       setError(err.message || 'Connection error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRectificationUpdate = (date: string, time: string) => {
+    if (!birthDetails) return;
+    const updatedData = {
+      ...birthDetails,
+      date_of_birth: date,
+      time_of_birth: time
+    };
+    handleFormSubmit(updatedData);
+  };
+
+  const handleMatchMakingSubmit = async (boy: any, girl: any) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const fetchOne = async (data: any) => {
+        const response = await axios.post(`${getApiUrl()}/kundli`, {
+          birth_details: {
+            date_of_birth: data.date_of_birth,
+            time_of_birth: data.time_of_birth,
+            timezone: "Asia/Kolkata",
+            latitude: parseFloat(data.latitude),
+            longitude: parseFloat(data.longitude),
+            place: data.place
+          },
+          calculation_settings: {
+            ayanamsa: "KP",
+            house_system: "Placidus",
+            node_type: "Mean"
+          }
+        });
+        return response.data;
+      };
+
+      const boyRes = await fetchOne(boy);
+      const girlRes = await fetchOne(girl);
+
+      if (boyRes.status === 'success' && girlRes.status === 'success') {
+        // Save both to recents
+        const recents = JSON.parse(localStorage.getItem('astro_recents') || '[]');
+        const bRecent = { ...boy, id: Date.now(), mode };
+        const gRecent = { ...girl, id: Date.now() + 1, mode }; // Offset ID slightly
+        localStorage.setItem('astro_recents', JSON.stringify([bRecent, gRecent, ...recents].slice(0, 20)));
+
+        const { calculateMatch } = await import('./utils/matchMakingUtils');
+        const matchResult = calculateMatch(boyRes, girlRes);
+        setMatchMakingData({ 
+          boyDetails: boy, 
+          girlDetails: girl, 
+          boyRes: boyRes, 
+          girlRes: girlRes, 
+          result: matchResult 
+        });
+        setView('matchMakingResult');
+      } else {
+        setError("Engine calculation failed for Boy or Girl");
+      }
+    } catch (err: any) {
+      setError(err.message || "Connection failed");
     } finally {
       setLoading(false);
     }
@@ -341,6 +400,11 @@ const App = () => {
   };
 
 
+  const handleNumerologySubmit = (data: { name: string; dob: string; phone: string; vehicleNumber: string }) => {
+    setNumerologyFormDetails(data);
+    setView('numerologyReport');
+  };
+
 
   const renderTabContent = () => {
     if (!kundliData) return null;
@@ -351,63 +415,18 @@ const App = () => {
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {/* Chart Mode Toggle */}
             <div style={{
-              display: 'flex',
-              background: 'var(--primary-light)',
-              padding: '4px',
+              textAlign: 'center',
+              padding: '8px',
               borderRadius: '12px',
-              gap: '4px',
               width: 'fit-content',
               margin: '0 auto',
-              border: '2px solid #000000'
+              border: '2px solid #000000',
+              background: 'var(--primary)',
+              fontWeight: 'bold',
+              fontSize: '0.8rem',
+              textTransform: 'uppercase'
             }}>
-              <button
-                onClick={() => {
-                  setChartMode('Rashi');
-                  if ((activeTab as string) === 'predictions' || (activeTab as string) === 'houses' || (activeTab as string) === 'nadi' || (activeTab as string) === 'phala') {
-                    setActiveTab('planets');
-                  }
-                }}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '0',
-                  border: 'none',
-                  background: chartMode === 'Rashi' ? 'var(--primary)' : 'transparent',
-                  color: chartMode === 'Rashi' ? '#000000' : 'var(--text-muted)',
-                  fontWeight: 'bold',
-                  fontSize: '0.8rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-              >
-                Rashi Chart
-              </button>
-               <button
-                onClick={() => {
-                  const hasAccess = userData?.role === 'admin' || userData?.hasKPAccess;
-                  if (!hasAccess) {
-                    setShowAccessPopup(true);
-                  } else {
-                    setChartMode('Bhava');
-                  }
-                }}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '0',
-                  border: 'none',
-                  background: chartMode === 'Bhava' ? 'var(--primary)' : 'transparent',
-                  color: chartMode === 'Bhava' ? '#000000' : 'var(--text-muted)',
-                  fontWeight: 'bold',
-                  fontSize: '0.8rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
-              >
-                KP Bhava Chart
-                {!(userData?.role === 'admin' || userData?.hasKPAccess) && <Lock size={14} style={{ opacity: 0.7 }} />}
-              </button>
+              KP Bhava Chart
             </div>
 
             <PremiumSouthIndianChart
@@ -420,6 +439,12 @@ const App = () => {
               janmaNakshatra={kundliData.metadata.janma_nakshatra}
               pada={kundliData.metadata.pada}
               rashi={kundliData.planets.find(p => p.planet === 'Moon')?.sign}
+            />
+
+            <FortunaAnalysis
+              planets={kundliData.planets}
+              ascendant={kundliData.ascendant}
+              houses={kundliData.houses}
             />
 
             <button
@@ -453,6 +478,12 @@ const App = () => {
             )}
           </div>
         );
+      case 'combination':
+        return (
+          <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
+            <CombinationTab data={kundliData.nakshatra_nadi} planets={kundliData.planets} dasha={kundliData.dasha} houses={kundliData.houses} />
+          </div>
+        );
       case 'houses':
         return (
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
@@ -465,16 +496,42 @@ const App = () => {
             <NakshatraNadiTable data={kundliData.nakshatra_nadi} />
           </div>
         );
+      case 'ruling_planets':
+        return (
+          <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
+            <SimpleRulingPlanets 
+              planets={kundliData.planets} 
+              ascendant={kundliData.ascendant} 
+            />
+          </div>
+        );
+      case 'birth_time':
+        return (
+          <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
+            <BirthTimeRectification 
+              houses={kundliData.houses}
+              planets={kundliData.planets}
+              ascendant={kundliData.ascendant}
+              birthDetails={birthDetails}
+              ayanamsa={birthDetails?.ayanamsa}
+              onUpdateDetails={handleRectificationUpdate}
+              metadata={kundliData.metadata}
+            />
+          </div>
+        );
       case 'predictions':
         return (
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
             <div style={{ padding: '8px', margin: '1rem 0', background: 'var(--primary-light)', borderRadius: '0', border: 'none' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '8px' }}>
                 <select
                   value={selectedArea}
                   onChange={(e) => setSelectedArea(e.target.value)}
                   style={{ width: '100%', padding: '12px', borderRadius: '0', border: '2px solid #000000', background: 'white', fontWeight: 'bold', color: 'var(--text)' }}
                 >
+                  <option>Dasha</option>
+                  <option>Bhukti</option>
+                  <option>Antara</option>
                   <option>Job</option>
                   <option>Business</option>
                   <option>Education</option>
@@ -483,6 +540,22 @@ const App = () => {
                   <option>Health</option>
                   <option>Travel</option>
                   <option>Property &amp; Vehicle</option>
+                </select>
+                <select
+                  value={selectedPlanetFilter}
+                  onChange={(e) => setSelectedPlanetFilter(e.target.value)}
+                  style={{ width: 'auto', padding: '12px 4px', borderRadius: '0', border: '2px solid #000000', background: 'white', fontWeight: 'bold', color: 'var(--text)', textAlign: 'center' }}
+                >
+                  <option>None</option>
+                  <option>Ketu</option>
+                  <option>Venus</option>
+                  <option>Sun</option>
+                  <option>Moon</option>
+                  <option>Mars</option>
+                  <option>Rahu</option>
+                  <option>Jupiter</option>
+                  <option>Saturn</option>
+                  <option>Mercury</option>
                 </select>
                 <select
                   value={selectedHouse}
@@ -497,13 +570,19 @@ const App = () => {
 
             {(() => {
               if (selectedHouse === 'None') {
-                const displayPlanets = sortPlanetsWithDasha(kundliData.planets, p => p.planet, kundliData.dasha);
+                const PLANET_ORDER = ['Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury'];
+                let displayPlanets = [...kundliData.planets].sort((a, b) => PLANET_ORDER.indexOf(a.planet) - PLANET_ORDER.indexOf(b.planet));
+                if (selectedPlanetFilter !== 'None') displayPlanets = displayPlanets.filter((p: any) => p.planet === selectedPlanetFilter);
+                else if (selectedArea === 'Dasha') displayPlanets = displayPlanets.filter((p: any) => p.planet === kundliData.dasha.current_dasha);
+                else if (selectedArea === 'Bhukti') displayPlanets = displayPlanets.filter((p: any) => p.planet === kundliData.dasha.current_bukthi);
+                else if (selectedArea === 'Antara') displayPlanets = displayPlanets.filter((p: any) => p.planet === kundliData.dasha.current_antara);
+                
                 return displayPlanets.map((p: any) => {
                   const planetName = p.planet;
                   const dashaTypes: ('Dasha' | 'Bhukti' | 'Antara')[] = [];
-                  if (planetName === kundliData.dasha.current_dasha) dashaTypes.push('Dasha');
-                  if (planetName === kundliData.dasha.current_bukthi) dashaTypes.push('Bhukti');
-                  if (planetName === kundliData.dasha.current_antara) dashaTypes.push('Antara');
+                  if (selectedArea === 'Dasha' && planetName === kundliData.dasha.current_dasha) dashaTypes.push('Dasha');
+                  if (selectedArea === 'Bhukti' && planetName === kundliData.dasha.current_bukthi) dashaTypes.push('Bhukti');
+                  if (selectedArea === 'Antara' && planetName === kundliData.dasha.current_antara) dashaTypes.push('Antara');
 
                   return (
                     <JobPredictionTable
@@ -516,6 +595,10 @@ const App = () => {
                       isTransitMode={isTransitMode}
                       loadingTransit={loadingTransit}
                       onTransitToggle={handleTransitToggle}
+                      
+                    
+                    
+                    isPrashnaMode={mode === 'Prashna'}
                     />
                   );
                 });
@@ -535,18 +618,39 @@ const App = () => {
                 }
                 
                 if (predCuspSubLord) {
+                  let targetPlanet = predCuspSubLord;
+                  const dashaTypes: ('Dasha' | 'Bhukti' | 'Antara' | 'Cusp')[] = ['Cusp'];
+                  
+                  if (selectedPlanetFilter !== 'None') {
+                    targetPlanet = selectedPlanetFilter;
+                  } else if (selectedArea === 'Dasha') {
+                    targetPlanet = kundliData.dasha.current_dasha;
+                    dashaTypes.push('Dasha');
+                  } else if (selectedArea === 'Bhukti') {
+                    targetPlanet = kundliData.dasha.current_bukthi;
+                    dashaTypes.push('Bhukti');
+                  } else if (selectedArea === 'Antara') {
+                    targetPlanet = kundliData.dasha.current_antara;
+                    dashaTypes.push('Antara');
+                  }
+
                   return (
                     <JobPredictionTable
-                      key={`${predCuspSubLord}-cusp-${selectedArea}`}
+                      key={`${targetPlanet}-cusp-${selectedArea}`}
                       data={isTransitMode && transitData ? transitData.nakshatra_nadi : kundliData.nakshatra_nadi}
                       planets={isTransitMode && transitData ? transitData.planets : kundliData.planets}
-                      types={['Cusp']}
-                      planetName={predCuspSubLord}
+                      types={dashaTypes}
+                      planetName={targetPlanet}
                       selectedArea={selectedArea}
                       customLabel={`${getOrdinal(predHouseNum)} House Cusp`}
+                      selectedHouseNum={predHouseNum}
                       isTransitMode={isTransitMode}
                       loadingTransit={loadingTransit}
                       onTransitToggle={handleTransitToggle}
+                      
+                    
+                    
+                    isPrashnaMode={mode === 'Prashna'}
                     />
                   );
                 }
@@ -573,11 +677,14 @@ const App = () => {
                   <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#64748b', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
                     Prediction Area
                   </label>
-                  <select 
-                    value={selectedArea}
-                    onChange={(e) => setSelectedArea(e.target.value)}
+                  <select
+                  value={selectedArea}
+                  onChange={(e) => setSelectedArea(e.target.value)}
                     style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #e2e8f0', fontSize: '0.9rem', fontWeight: 600, color: '#1e293b', background: '#f8fafc' }}
                   >
+                    <option>Dasha</option>
+                    <option>Bhukti</option>
+                    <option>Antara</option>
                     <option>Job</option>
                     <option>Business</option>
                     <option>Education</option>
@@ -606,13 +713,18 @@ const App = () => {
 
             {(() => {
               if (selectedHouse === 'None') {
-                const displayPlanets = sortPlanetsWithDasha(kundliData.planets, p => p.planet, kundliData.dasha);
+                const PLANET_ORDER = ['Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury'];
+                let displayPlanets = [...kundliData.planets].sort((a, b) => PLANET_ORDER.indexOf(a.planet) - PLANET_ORDER.indexOf(b.planet));
+                if (selectedArea === 'Dasha') displayPlanets = displayPlanets.filter((p: any) => p.planet === kundliData.dasha.current_dasha);
+                else if (selectedArea === 'Bhukti') displayPlanets = displayPlanets.filter((p: any) => p.planet === kundliData.dasha.current_bukthi);
+                else if (selectedArea === 'Antara') displayPlanets = displayPlanets.filter((p: any) => p.planet === kundliData.dasha.current_antara);
+                
                 return displayPlanets.map((p: any) => {
                   const planetName = p.planet;
                   const dashaTypes: ('Dasha' | 'Bhukti' | 'Antara')[] = [];
-                  if (planetName === kundliData.dasha.current_dasha) dashaTypes.push('Dasha');
-                  if (planetName === kundliData.dasha.current_bukthi) dashaTypes.push('Bhukti');
-                  if (planetName === kundliData.dasha.current_antara) dashaTypes.push('Antara');
+                  if (selectedArea === 'Dasha' && planetName === kundliData.dasha.current_dasha) dashaTypes.push('Dasha');
+                  if (selectedArea === 'Bhukti' && planetName === kundliData.dasha.current_bukthi) dashaTypes.push('Bhukti');
+                  if (selectedArea === 'Antara' && planetName === kundliData.dasha.current_antara) dashaTypes.push('Antara');
 
                   return (
                     <AdvV1PredictionTable
@@ -625,6 +737,7 @@ const App = () => {
                       isTransitMode={isTransitMode}
                       loadingTransit={loadingTransit}
                       onTransitToggle={handleTransitToggle}
+                      
                     />
                   );
                 });
@@ -656,6 +769,7 @@ const App = () => {
                       isTransitMode={isTransitMode}
                       loadingTransit={loadingTransit}
                       onTransitToggle={handleTransitToggle}
+                      
                     />
                   );
                 }
@@ -677,20 +791,39 @@ const App = () => {
         return (
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
             <div style={{ padding: '8px', margin: '1rem 0', background: 'var(--primary-light)', borderRadius: '0', border: 'none' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '8px' }}>
                 <select
                   value={selectedArea}
                   onChange={(e) => setSelectedArea(e.target.value)}
                   style={{ width: '100%', padding: '12px', borderRadius: '0', border: '2px solid #000000', background: 'white', fontWeight: 'bold', color: 'var(--text)' }}
                 >
+                  <option>Dasha</option>
+                  <option>Bhukti</option>
+                  <option>Antara</option>
                   <option>Job</option>
                   <option>Business</option>
                   <option>Education</option>
                   <option>Marriage</option>
-                   <option>Child Birth</option>
+                  <option>Child Birth</option>
                   <option>Health</option>
                   <option>Travel</option>
                   <option>Property &amp; Vehicle</option>
+                </select>
+                <select
+                  value={selectedPlanetFilter}
+                  onChange={(e) => setSelectedPlanetFilter(e.target.value)}
+                  style={{ width: 'auto', padding: '12px 4px', borderRadius: '0', border: '2px solid #000000', background: 'white', fontWeight: 'bold', color: 'var(--text)', textAlign: 'center' }}
+                >
+                  <option>None</option>
+                  <option>Ketu</option>
+                  <option>Venus</option>
+                  <option>Sun</option>
+                  <option>Moon</option>
+                  <option>Mars</option>
+                  <option>Rahu</option>
+                  <option>Jupiter</option>
+                  <option>Saturn</option>
+                  <option>Mercury</option>
                 </select>
                 <select
                   value={selectedHouse}
@@ -705,13 +838,18 @@ const App = () => {
 
             {(() => {
               if (selectedHouse === 'None') {
-                const displayPlanets = sortPlanetsWithDasha(kundliData.planets, p => p.planet, kundliData.dasha);
+                const PLANET_ORDER = ['Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury'];
+                let displayPlanets = [...kundliData.planets].sort((a, b) => PLANET_ORDER.indexOf(a.planet) - PLANET_ORDER.indexOf(b.planet));
+                if (selectedArea === 'Dasha') displayPlanets = displayPlanets.filter((p: any) => p.planet === kundliData.dasha.current_dasha);
+                else if (selectedArea === 'Bhukti') displayPlanets = displayPlanets.filter((p: any) => p.planet === kundliData.dasha.current_bukthi);
+                else if (selectedArea === 'Antara') displayPlanets = displayPlanets.filter((p: any) => p.planet === kundliData.dasha.current_antara);
+                
                 return displayPlanets.map((p: any) => {
                   const planetName = p.planet;
                   const dashaTypes: ('Dasha' | 'Bhukti' | 'Antara')[] = [];
-                  if (planetName === kundliData.dasha.current_dasha) dashaTypes.push('Dasha');
-                  if (planetName === kundliData.dasha.current_bukthi) dashaTypes.push('Bhukti');
-                  if (planetName === kundliData.dasha.current_antara) dashaTypes.push('Antara');
+                  if (selectedArea === 'Dasha' && planetName === kundliData.dasha.current_dasha) dashaTypes.push('Dasha');
+                  if (selectedArea === 'Bhukti' && planetName === kundliData.dasha.current_bukthi) dashaTypes.push('Bhukti');
+                  if (selectedArea === 'Antara' && planetName === kundliData.dasha.current_antara) dashaTypes.push('Antara');
 
                   return (
                     <AdvancePredictionTable
@@ -724,6 +862,7 @@ const App = () => {
                       isTransitMode={isTransitMode}
                       loadingTransit={loadingTransit}
                       onTransitToggle={handleTransitToggle}
+                      
                     />
                   );
                 });
@@ -755,6 +894,7 @@ const App = () => {
                       isTransitMode={isTransitMode}
                       loadingTransit={loadingTransit}
                       onTransitToggle={handleTransitToggle}
+                      
                     />
                   );
                 }
@@ -854,23 +994,41 @@ const App = () => {
             <YearlyPrediction kundliData={kundliData} birthDetails={birthDetails} />
           </div>
         );
+      case 'd1':
       case 'd2':
       case 'd4':
+      case 'd5':
       case 'd6':
       case 'd7':
       case 'd8':
       case 'd10':
       case 'd11':
       case 'd12':
-        return (
-          <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
-            <DChartResultTable 
-              vargaName={activeTab.toUpperCase()} 
-              kundliData={kundliData} 
-              birthDetails={birthDetails} 
-            />
-          </div>
-        );
+        {
+          const vargaKey = activeTab.toUpperCase();
+          const vargaData = kundliData.varga_charts[vargaKey];
+          return (
+            <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <PremiumSouthIndianChart
+                planets={vargaData.planets}
+                ascendant={vargaData.ascendant}
+                birthDetails={birthDetails}
+                vargaCharts={kundliData.varga_charts}
+                chartMode="Rashi"
+                chartStyle={chartStyle}
+                janmaNakshatra={kundliData.metadata.janma_nakshatra}
+                pada={kundliData.metadata.pada}
+                rashi={kundliData.planets.find(p => p.planet === 'Moon')?.sign}
+                forceVarga={vargaKey}
+                onVargaChange={(v) => setActiveTab(v.toLowerCase() as any)}
+              />
+              <DChartResultTable 
+                vargaName={vargaKey} 
+                kundliData={kundliData} 
+              />
+            </div>
+          );
+        }
       default:
         return null;
     }
@@ -904,6 +1062,10 @@ const App = () => {
              mode === 'Yearly' ? 'NN Yearly Prediction' :
              `KP ${chartMode} Prediction`;
     }
+    if (view === 'numerologyForm') return 'Numerology Input';
+    if (view === 'numerologyReport') return 'Numerology Insights';
+    if (view === 'matchMakingForm') return 'Match Making Details';
+    if (view === 'matchMakingResult') return 'Compatibility Result';
     return '';
   };
 
@@ -918,6 +1080,10 @@ const App = () => {
           else setView('dashboard');
         } else if (view === 'result') {
           setView('form');
+        } else if (view === 'matchMakingResult') {
+          setView('matchMakingForm');
+        } else if (view === 'numerologyReport') {
+          setView('numerologyForm');
         } else {
           setView('dashboard');
         }
@@ -959,8 +1125,12 @@ const App = () => {
         <>
           {view === 'dashboard' && (
             <Dashboard
-              onSelect={handleModeSelect}
+              onSelect={(mode) => handleModeSelect(mode as any)}
               hasKPAccess={userData?.hasKPAccess}
+              hasBNNAccess={userData?.hasBNNAccess}
+              hasYearlyAccess={userData?.hasYearlyAccess}
+              hasNumerologyAccess={userData?.hasNumerologyAccess}
+              hasMatchmakingAccess={userData?.hasMatchmakingAccess}
               isAdmin={userData?.role === 'admin'}
             />
           )}
@@ -1004,6 +1174,39 @@ const App = () => {
               isExpired={isExpired} 
               view={bnnSubView}
               setView={setBnnSubView}
+            />
+          )}
+
+          {view === 'numerologyForm' && (
+            <NumerologyForm 
+              onBack={() => setView('dashboard')}
+              onSubmit={handleNumerologySubmit}
+            />
+          )}
+
+          {view === 'matchMakingForm' && (
+            <MatchMakingForm 
+              onBack={() => setView('dashboard')}
+              onSubmit={handleMatchMakingSubmit}
+              isLoading={loading}
+              isExpired={isExpired}
+            />
+          )}
+
+          {view === 'matchMakingResult' && matchMakingData && (
+            <MatchMakingResult 
+              boyDetails={matchMakingData.boyDetails}
+              girlDetails={matchMakingData.girlDetails}
+              boyRes={matchMakingData.boyRes}
+              girlRes={matchMakingData.girlRes}
+              result={matchMakingData.result}
+            />
+          )}
+
+          {view === 'numerologyReport' && numerologyFormDetails && (
+            <NumerologyReport 
+              data={numerologyFormDetails}
+              onBack={() => setView('dashboard')}
             />
           )}
 

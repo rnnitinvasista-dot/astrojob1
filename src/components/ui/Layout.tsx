@@ -26,9 +26,6 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
 
     // Access flags
     const hasPowerPositionAccess = isAdmin || userData?.hasPowerPositionAccess;
-    const hasAnalysisAccess = isAdmin || userData?.hasAnalysisAccess;
-    const hasAdvancePredictionsAccess = isAdmin || userData?.hasAdvancePredictionsAccess;
-    const hasAdvV1Access = isAdmin || userData?.hasAdvV1Access;
 
     const getDaysRemaining = () => {
         if (!expiryDate) return null;
@@ -268,6 +265,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                         {mode === 'Parashara' ? (
                             <>
                                 {[
+                                    { id: 'd1', label: 'Lagna (D1)' },
                                     { id: 'd2', label: 'D2 Wealth' },
                                     { id: 'd4', label: 'D4 Property' },
                                     { id: 'd5', label: 'D5 Spiritual' },
@@ -289,18 +287,23 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                             <>
                                 <div className={`tab-item ${activeTab === 'planets' ? 'active' : ''}`}
                                     onClick={() => onTabChange('planets')}
-                                    style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                    style={{ fontWeight: 'bold', color: '#000' }}>
                                     Chart
                                 </div>
                                 <div className={`tab-item ${activeTab === 'dasha' ? 'active' : ''}`}
                                     onClick={() => onTabChange('dasha')}
-                                    style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                    style={{ fontWeight: 'bold', color: '#000' }}>
                                     Dasha
+                                </div>
+                                <div className={`tab-item ${activeTab === 'ruling_planets' ? 'active' : ''}`}
+                                    onClick={() => onTabChange('ruling_planets')}
+                                    style={{ fontWeight: 'bold', color: '#000' }}>
+                                    Ruling Planets
                                 </div>
                                 {chartMode === 'Rashi' && (
                                     <div className={`tab-item ${activeTab === 'phala' ? 'active' : ''}`}
                                         onClick={() => onTabChange('phala')}
-                                        style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                        style={{ fontWeight: 'bold', color: '#000' }}>
                                         PHALA/RESULT
                                     </div>
                                 )}
@@ -308,52 +311,43 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, showT
                                     <>
                                         <div className={`tab-item ${activeTab === 'predictions' ? 'active' : ''}`}
                                             onClick={() => onTabChange('predictions')}
-                                            style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                            style={{ fontWeight: 'bold', color: '#000' }}>
                                             Predictions
+                                        </div>
+                                        <div className={`tab-item ${activeTab === 'combination' ? 'active' : ''}`}
+                                            onClick={() => onTabChange('combination')}
+                                            style={{ fontWeight: 'bold', color: '#000' }}>
+                                            Combination
                                         </div>
                                         <div className={`tab-item ${activeTab === 'houses' ? 'active' : ''}`}
                                             onClick={() => onTabChange('houses')}
-                                            style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                            style={{ fontWeight: 'bold', color: '#000' }}>
                                             House Signification
                                         </div>
                                         {hasPowerPositionAccess && (
                                             <div className={`tab-item ${activeTab === 'power_position' ? 'active' : ''}`}
                                                 onClick={() => onTabChange('power_position')}
-                                                style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                                style={{ fontWeight: 'bold', color: '#000' }}>
                                                 Remedies
-                                            </div>
-                                        )}
-                                        {hasAdvV1Access && (
-                                            <div className={`tab-item ${activeTab === 'adv_v1' ? 'active' : ''}`}
-                                                onClick={() => onTabChange('adv_v1')}
-                                                style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
-                                                Adv V1
-                                            </div>
-                                        )}
-                                        {hasAnalysisAccess && (
-                                            <div className={`tab-item ${activeTab === 'analysis' ? 'active' : ''}`}
-                                                onClick={() => onTabChange('analysis')}
-                                                style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
-                                                Analysis
-                                            </div>
-                                        )}
-                                        {hasAdvancePredictionsAccess && (
-                                            <div className={`tab-item ${activeTab === 'advance_predictions' ? 'active' : ''}`}
-                                                onClick={() => onTabChange('advance_predictions')}
-                                                style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
-                                                Advance Predictions
                                             </div>
                                         )}
                                         <div className={`tab-item ${activeTab === 'nadi' ? 'active' : ''}`}
                                             onClick={() => onTabChange('nadi')}
-                                            style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                            style={{ fontWeight: 'bold', color: '#000' }}>
                                             KP Combination
                                         </div>
                                         <div className={`tab-item ${activeTab === 'yearly' ? 'active' : ''}`}
                                             onClick={() => onTabChange('yearly')}
-                                            style={{ fontWeight: 'bold', color: '#2c2c2c' }}>
+                                            style={{ fontWeight: 'bold', color: '#000' }}>
                                             Yearly
                                         </div>
+                                        {(mode === 'Natal' || mode === 'Prashna') && (
+                                            <div className={`tab-item ${activeTab === 'birth_time' ? 'active' : ''}`}
+                                                onClick={() => onTabChange('birth_time')}
+                                                style={{ fontWeight: 'bold', color: '#c2410c' }}>
+                                                Cusp Rectification
+                                            </div>
+                                        )}
                                     </>
                                 )}
                             </>

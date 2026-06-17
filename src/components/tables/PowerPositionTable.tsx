@@ -9,7 +9,7 @@ interface PowerPositionTableProps {
 }
 
 const PowerPositionTable: React.FC<PowerPositionTableProps> = ({ data, planets, dasha }) => {
-    const [selectedArea, setSelectedArea] = useState('Job');
+    const [selectedArea, setSelectedArea] = useState('Dasha');
     
     // Robust dasha detection
     const trueLords = getCurrentDashaLords(dasha.mahadasha_sequence);
@@ -115,18 +115,24 @@ const PowerPositionTable: React.FC<PowerPositionTableProps> = ({ data, planets, 
                     <span style={{ color: '#ef4444' }}>Bad</span>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '10px', height: '10px', backgroundColor: '#ffd8d1' }}></div>
-                    <span style={{ color: '#000000' }}>(D) Dasha</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '10px', height: '10px', backgroundColor: '#a2d5c6' }}></div>
-                    <span style={{ color: '#000000' }}>(B) Bukthi</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '10px', height: '10px', backgroundColor: '#e9d5ff' }}></div>
-                    <span style={{ color: '#000000' }}>(A) Antar</span>
-                  </div>
+                  {['Dasha', 'All Dasha'].includes(selectedArea) && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <div style={{ width: '10px', height: '10px', backgroundColor: '#ffd8d1' }}></div>
+                        <span style={{ color: '#000000' }}>(D) Dasha</span>
+                      </div>
+                  )}
+                  {['Bhukti', 'All Dasha'].includes(selectedArea) && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <div style={{ width: '10px', height: '10px', backgroundColor: '#a2d5c6' }}></div>
+                        <span style={{ color: '#000000' }}>(B) Bukthi</span>
+                      </div>
+                  )}
+                  {['Antara', 'All Dasha'].includes(selectedArea) && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <div style={{ width: '10px', height: '10px', backgroundColor: '#e9d5ff' }}></div>
+                        <span style={{ color: '#000000' }}>(A) Antar</span>
+                      </div>
+                  )}
                 </div>
             </div>
 
@@ -146,6 +152,9 @@ const PowerPositionTable: React.FC<PowerPositionTableProps> = ({ data, planets, 
                         outline: 'none'
                     }}
                 >
+                    <option>Dasha</option>
+                    <option>Bhukti</option>
+                    <option>Antara</option>
                     <option>Job</option>
                     <option>Business</option>
                     <option>Education</option>
@@ -167,7 +176,16 @@ const PowerPositionTable: React.FC<PowerPositionTableProps> = ({ data, planets, 
                         </tr>
                     </thead>
                     <tbody>
-                        {data.map((item, idx) => {
+                        {(() => {
+                            let displayData = data;
+                            if (selectedArea === 'Dasha') {
+                                displayData = data.filter(item => item.planet === activeDasha);
+                            } else if (selectedArea === 'Bhukti') {
+                                displayData = data.filter(item => item.planet === activeBukthi);
+                            } else if (selectedArea === 'Antara') {
+                                displayData = data.filter(item => item.planet === activeAntara);
+                            }
+                            return displayData.map((item, idx) => {
                             const planetPower = calculatePower(item.planet);
                             const plHit = placementMap[item.planet.toUpperCase()];
                             const nlHit = placementMap[item.star_lord.toUpperCase()];
@@ -184,9 +202,9 @@ const PowerPositionTable: React.FC<PowerPositionTableProps> = ({ data, planets, 
                             const isAntara = item.planet === activeAntara;
 
                             const activeRoles = [];
-                            if (isDasha) activeRoles.push('#ffd8d1');
-                            if (isBukthi) activeRoles.push('#a2d5c6');
-                            if (isAntara) activeRoles.push('#e9d5ff');
+                            if (selectedArea === 'Dasha' && isDasha) activeRoles.push('#ffd8d1');
+                            if (selectedArea === 'Bhukti' && isBukthi) activeRoles.push('#a2d5c6');
+                            if (selectedArea === 'Antara' && isAntara) activeRoles.push('#e9d5ff');
 
                             let rowBg = 'transparent';
                             if (activeRoles.length === 1) {
@@ -230,7 +248,8 @@ const PowerPositionTable: React.FC<PowerPositionTableProps> = ({ data, planets, 
                                         </td>
                                     </tr>
                                 );
-                        })}
+                            });
+                        })()}
                     </tbody>
                 </table>
             </div>

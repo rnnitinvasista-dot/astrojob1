@@ -464,14 +464,13 @@ class NadiEngine:
                     
             diff_deg = (node_lon - p_lon + 360.0) % 360.0
             is_aspecting = False
-            # Standard opposition/aspect (180°) is not considered for nodes to avoid agent leakage
-            # if abs(diff_deg - 180) <= 14: is_aspecting = True
-            if p_name == "Mars":
-                if (abs(diff_deg - 90) <= 14) or (abs(diff_deg - 210) <= 14): is_aspecting = True
+            if abs(diff_deg - 180) <= 6.0: is_aspecting = True
+            elif p_name == "Mars":
+                if (abs(diff_deg - 90) <= 6.0) or (abs(diff_deg - 210) <= 6.0): is_aspecting = True
             elif p_name == "Jupiter":
-                if (abs(diff_deg - 120) <= 14) or (abs(diff_deg - 240) <= 14): is_aspecting = True
+                if (abs(diff_deg - 120) <= 6.0) or (abs(diff_deg - 240) <= 6.0): is_aspecting = True
             elif p_name == "Saturn":
-                if (abs(diff_deg - 60) <= 14) or (abs(diff_deg - 270) <= 14): is_aspecting = True
+                if (abs(diff_deg - 60) <= 6.0) or (abs(diff_deg - 270) <= 6.0): is_aspecting = True
             
             if is_aspecting:
                 agents.append({'type': 'Aspect', 'planet': p_name})

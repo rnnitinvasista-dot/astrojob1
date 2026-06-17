@@ -3,6 +3,7 @@ import type { NakshatraNadiItem, HouseDetail } from '../../types/astrology';
 
 interface NakshatraNadiTableProps {
     data: NakshatraNadiItem[];
+    isFinderMode?: boolean;
 }
 
 const HouseList: React.FC<{ houses: HouseDetail[], color: string }> = ({ houses, color }) => {
@@ -32,7 +33,7 @@ const HouseList: React.FC<{ houses: HouseDetail[], color: string }> = ({ houses,
     );
 };
 
-const NakshatraNadiTable: React.FC<NakshatraNadiTableProps> = ({ data }) => {
+const NakshatraNadiTable: React.FC<NakshatraNadiTableProps> = ({ data, isFinderMode = false }) => {
     if (!data || data.length === 0) return null;
 
     return (
@@ -43,7 +44,8 @@ const NakshatraNadiTable: React.FC<NakshatraNadiTableProps> = ({ data }) => {
             padding: '1rem 0.5rem',
             borderTop: '5px solid #d4af37',
             background: 'var(--secondary-light)',
-            border: '3px solid #000000'
+            border: '3px solid #000000',
+            boxShadow: isFinderMode ? 'none' : undefined
         }}>
             <h2 style={{ textAlign: 'center', color: 'var(--text)', marginBottom: '1.5rem', fontWeight: 800 }}>
                 KP Combination

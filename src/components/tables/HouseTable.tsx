@@ -4,9 +4,10 @@ import type { House, Planet } from '../../types/astrology';
 interface HouseTableProps {
     houses: House[];
     planets: Planet[];
+    isFinderMode?: boolean;
 }
 
-const HouseTable: React.FC<HouseTableProps> = ({ houses, planets }) => {
+const HouseTable: React.FC<HouseTableProps> = ({ houses, planets, isFinderMode = false }) => {
     const getPlanetStatus = (planetName: string) => {
         if (!planetName) return null;
         // Normalize name for lookup (lords might be short names or full names)
@@ -45,7 +46,12 @@ const HouseTable: React.FC<HouseTableProps> = ({ houses, planets }) => {
     };
 
     return (
-        <div className="card" style={{ background: 'var(--secondary-light)', border: '3px solid #000000', borderRadius: '0' }}>
+        <div className="card" style={{ 
+            background: 'var(--secondary-light)', 
+            border: '3px solid #000000', 
+            borderRadius: '0',
+            boxShadow: isFinderMode ? 'none' : undefined
+        }}>
             <h2 style={{ marginBottom: '1rem', color: 'var(--text)', fontWeight: 800 }}>KP Houses (Cusps)</h2>
             <div className="table-container" style={{ border: '2px solid #000000' }}>
                 <table style={{ fontSize: '0.8125rem', borderCollapse: 'collapse', width: '100%' }}>

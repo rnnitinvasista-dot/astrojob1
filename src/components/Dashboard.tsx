@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { TreeDeciduous, HelpCircle, Scroll, X } from 'lucide-react';
 
 interface DashboardProps {
-    onSelect: (mode: 'Natal' | 'Prashna' | 'Parashara' | 'BNN' | 'Yearly') => void;
+    onSelect: (mode: 'Natal' | 'Prashna' | 'Parashara' | 'BNN' | 'Yearly' | 'Numerology' | 'MatchMaking', id?: string) => void;
     hasKPAccess?: boolean;
+    hasBNNAccess?: boolean;
+    hasYearlyAccess?: boolean;
+    hasNumerologyAccess?: boolean;
+    hasMatchmakingAccess?: boolean;
     isAdmin?: boolean;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, isAdmin }) => {
+const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, hasBNNAccess, hasYearlyAccess, hasNumerologyAccess, hasMatchmakingAccess, isAdmin }) => {
     const [showPopup, setShowPopup] = useState(false);
 
     const menuItems = [
@@ -25,7 +29,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, isAdmin })
             icon: <Scroll size={32} color="#fff" />,
             color: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
             mode: 'BNN',
-            requiresKP: false
+            requiresBNN: true
         },
         {
             id: 'gns',
@@ -49,16 +53,53 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, isAdmin })
             icon: <Scroll size={32} color="#fff" />,
             color: 'linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%)',
             mode: 'Yearly',
-            requiresKP: true
+            requiresYearly: true
+        },
+        {
+            id: 'numerology',
+            label: 'Numerology',
+            icon: <Scroll size={32} color="#fff" />,
+            color: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
+            mode: 'Numerology',
+            requiresKP: false
+        },
+        {
+            id: 'matchmaking',
+            label: 'Match Making',
+            icon: <Scroll size={32} color="#fff" />,
+            color: 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)',
+            mode: 'MatchMaking',
+            requiresKP: false
         }
     ];
 
-    const handleItemClick = (item: typeof menuItems[0]) => {
-        if (item.requiresKP && !isAdmin && !hasKPAccess) {
+    const handleItemClick = (item: any) => {
+        if (isAdmin) {
+            onSelect(item.mode as any, item.id);
+            return;
+        }
+        
+        if (item.requiresKP && !hasKPAccess) {
             setShowPopup(true);
             return;
         }
-        onSelect(item.mode as any);
+        if (item.requiresBNN && !hasBNNAccess) {
+            setShowPopup(true);
+            return;
+        }
+        if (item.requiresYearly && !hasYearlyAccess) {
+            setShowPopup(true);
+            return;
+        }
+        if (item.id === 'numerology' && !hasNumerologyAccess) {
+            setShowPopup(true);
+            return;
+        }
+        if (item.id === 'matchmaking' && !hasMatchmakingAccess) {
+            setShowPopup(true);
+            return;
+        }
+        onSelect(item.mode as any, item.id);
     };
 
     return (
@@ -76,10 +117,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, isAdmin })
         }}>
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)',
-                gap: '1.5rem',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '1rem',
                 width: '100%',
-                maxWidth: '400px'
+                maxWidth: '450px'
             }}>
                 {menuItems.map((item) => (
                     <div
@@ -94,8 +135,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, isAdmin })
                         }}
                     >
                         <div style={{
-                            width: '75px',
-                            height: '75px',
+                            width: '65px',
+                            height: '65px',
                             borderRadius: '50%',
                             background: item.color,
                             display: 'flex',
@@ -110,7 +151,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelect, hasKPAccess, isAdmin })
                             <img 
                                 src={item.id === 'gns' ? '/kp_prediction_icon.jpg' : 
                                      item.id === 'parashara' ? '/parashara_icon.jpg' : 
-                                     item.id === 'yearly' ? '/yearly_prediction_icon.png' :
+                                     item.id === 'yearly' ? '/nn_yearly_calendar_icon_1774980793033.png' :
+                                     item.id === 'bnn' ? '/bnn_logo_icon_1774980769614.png' :
+                                     item.id === 'numerology' ? '/numerology_icon.png' :
+                                     item.id === 'matchmaking' ? '/matchmaking_icon.png' :
                                      '/prashana_icon.jpg'} 
                                 alt={item.label}
                                 style={{

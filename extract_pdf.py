@@ -1,21 +1,39 @@
-import pypdf
 import sys
-
-def extract_text(pdf_path, output_path):
+import re
+try:
+    from pypdf import PdfReader
+except ImportError:
     try:
-        reader = pypdf.PdfReader(pdf_path)
-        text = ""
-        for page in reader.pages:
-            text += page.extract_text() + "\n"
-        with open(output_path, "w", encoding="utf-8") as f:
-            f.write(text)
-        print(f"Successfully extracted text to {output_path}")
-    except Exception as e:
-        print(f"Error: {e}")
+        from PyPDF2 import PdfReader
+    except ImportError:
+        print("Required PDF libraries not found.")
         sys.exit(1)
+
+def extract_text(pdf_path):
+    reader = PdfReader(pdf_path)
+    combined_data = {}
+    
+    # Process each page
+    for page_num, page in enumerate(reader.pages):
+        text = page.extract_text()
+        if not text: continue
+        
+        lines = text.split('\n')
+        for line in lines:
+            # More relaxed pattern to catch variation
+            match = re.search(r'(\d)\s*-+\s*(\d)', line)
+            if match:
+                print(f"PAGE {page_num}: {line}")
+    
+    return combined_data
+
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: python extract_pdf.py <pdf_path> <output_path>")
-        sys.exit(1)
-    extract_text(sys.argv[1], sys.argv[2])
+    pdf_path = r"d:\love story\backup astrology\adv astro\astro\functions\Nemorology Book (25-50) English.pdf"
+    data = extract_text(pdf_path)
+    import json
+    with open(r"d:\love story\backup astrology\adv astro\astro\numerology_combinations.json", "w") as f:
+        json.dump(data, f, indent=2)
+    print("Data extracted to numerology_combinations.json")
+
+

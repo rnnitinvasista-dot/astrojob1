@@ -32,6 +32,7 @@ export interface House {
     star_lord: string;
     sub_lord: string;
     sub_sub_lord: string;
+    sub_sub_sub_lord?: string;
     planet_lord: string;
     nakshatra: string;
     nadi: string;
@@ -54,6 +55,7 @@ export interface Ascendant {
     star_lord: string;
     sub_lord: string;
     sub_sub_lord: string;
+    sub_sub_sub_lord?: string;
     planet_lord: string;
     nakshatra: string;
     nadi: string;
@@ -69,6 +71,7 @@ export interface Planet {
     star_lord: string;
     sub_lord: string;
     sub_sub_lord: string;
+    sub_sub_sub_lord?: string;
     planet_lord: string;
     nakshatra: string;
     nadi: string;

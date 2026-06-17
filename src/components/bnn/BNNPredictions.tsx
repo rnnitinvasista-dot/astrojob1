@@ -11,9 +11,11 @@ import {
     BNN_WIFE_HEALTH_COMBINATIONS,
     BNN_COMMON_HEALTH_COMBINATIONS,
     BNN_PROPERTY_COMBINATIONS,
-    BNN_RELATION_COMBINATIONS
+    BNN_RELATION_COMBINATIONS,
+    BNN_CHILDREN_COMBINATIONS,
+    BNN_DEGREE_COMBINATIONS
 } from '../../utils/bnnCombinations';
-import type { BNNCombination } from '../../utils/bnnCombinations';
+import type { BNNCombination, BNNDegreeCombination } from '../../utils/bnnCombinations';
 import type { Planet } from '../../types/astrology';
 
 interface BNNPredictionsProps {
@@ -54,6 +56,24 @@ const getPredictionsForGroup = (planets: Planet[], combinations: BNNCombination[
             const code = combo.planets.map(getPlanetCode).join('+');
             results.push({ code, text: combo.result });
             combo.planets.forEach(p => usedPlanets.add(p));
+        }
+    }
+    return results;
+};
+
+const getDegreePredictions = (planets: Planet[], combinations: BNNDegreeCombination[]) => {
+    const results: { code: string; text: string }[] = [];
+    
+    for (const combo of combinations) {
+        const p1 = planets.find(p => p.planet.toUpperCase() === combo.p1 || (combo.p1 === 'RA' && p.planet.toUpperCase().startsWith('RA')) || (combo.p1 === 'KE' && p.planet.toUpperCase().startsWith('KE')));
+        const p2 = planets.find(p => p.planet.toUpperCase() === combo.p2 || (combo.p2 === 'RA' && p.planet.toUpperCase().startsWith('RA')) || (combo.p2 === 'KE' && p.planet.toUpperCase().startsWith('KE')));
+
+        if (p1 && p2 && p1.degree_decimal !== undefined && p2.degree_decimal !== undefined) {
+            const diff = Math.abs(p1.degree_decimal - p2.degree_decimal);
+            if (diff <= combo.maxDiff) {
+                const code = `${p1.planet.toUpperCase().slice(0,2)}+${p2.planet.toUpperCase().slice(0,2)}`;
+                results.push({ code, text: combo.result });
+            }
         }
     }
     return results;
@@ -114,6 +134,23 @@ const BNNPredictions: React.FC<BNNPredictionsProps> = ({ groupedPlanets, gender 
 
     const propertyResults = gatherAll(BNN_PROPERTY_COMBINATIONS);
     const relationResults = gatherAll(BNN_RELATION_COMBINATIONS);
+    
+    // Children Logic
+    const childrenBase = gatherAll(BNN_CHILDREN_COMBINATIONS);
+    const degreeResults: { code: string; text: string }[] = [];
+    const seenDegreeTexts = new Set<string>();
+    
+    (['NORTH', 'EAST', 'SOUTH', 'WEST'] as const).forEach(dir => {
+        const res = getDegreePredictions(groupedPlanets[dir], BNN_DEGREE_COMBINATIONS);
+        res.forEach(r => {
+            if (!seenDegreeTexts.has(r.text)) {
+                degreeResults.push(r);
+                seenDegreeTexts.add(r.text);
+            }
+        });
+    });
+
+    const childrenResults = [...childrenBase, ...degreeResults];
 
     const renderSection = (title: string, results: { code: string; text: string }[]) => {
         if (results.length === 0) return null;
@@ -203,9 +240,10 @@ const BNNPredictions: React.FC<BNNPredictionsProps> = ({ groupedPlanets, gender 
             {renderSection('HEALTH', finalHealth)}
             {renderSection('PROPERTY & VEHICLE', propertyResults)}
             {renderSection('FAMILY & RELATIONS', relationResults)}
+            {renderSection('CHILDREN', childrenResults)}
             {gender === 'Male' && renderSection('WIFE HEALTH THROUGH MALE’S CHART', wifeHealth)}
 
-            {(eduResults.length + jobResults.length + wealthResults.length + finalMarriage.length + finalHealth.length + propertyResults.length + relationResults.length + wifeHealth.length) === 0 && (
+            {(eduResults.length + jobResults.length + wealthResults.length + finalMarriage.length + finalHealth.length + propertyResults.length + relationResults.length + childrenResults.length + wifeHealth.length) === 0 && (
                 <div style={{ textAlign: 'center', color: '#64748b', fontStyle: 'italic', marginTop: '3rem' }}>
                     No specific BNN combinations found for this chart.
                 </div>

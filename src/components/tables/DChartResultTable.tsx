@@ -1,174 +1,183 @@
-import React from 'react';
-
-import PremiumSouthIndianChart from '../charts/PremiumSouthIndianChart';
+import React, { useState, useEffect } from 'react';
 import { 
-    calculateD2Result, calculateD4Result, calculateD5Result, calculateD6Result, calculateD7Result, 
-    calculateD8Result, calculateD10Result, calculateD11Result, calculateD12Result
+    calculateD2Result, calculateD4Result, calculateD5Result, calculateD6Result, 
+    calculateD7Result, calculateD8Result, calculateD9Result, calculateD10Result, 
+    calculateD11Result, calculateD12Result, calculateD1Result, type VargaResult 
 } from '../../utils/dChartPredictions';
-import type { VargaResult } from '../../utils/dChartPredictions';
 
 interface DChartResultTableProps {
     vargaName: string;
     kundliData: any;
-    birthDetails: any;
 }
 
-const DChartResultTable: React.FC<DChartResultTableProps> = ({ vargaName, kundliData, birthDetails }) => {
-    if (!kundliData || !kundliData.varga_charts?.[vargaName]) {
-        return (
-            <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
-                Chart data for {vargaName} not found. Please try refreshing or re-calculating.
-            </div>
-        );
+const DChartResultTable: React.FC<DChartResultTableProps> = ({ vargaName, kundliData }) => {
+    const [results, setResults] = useState<VargaResult[]>([]);
+
+    if (!kundliData || !kundliData.varga_charts || !kundliData.varga_charts[vargaName]) {
+        return null;
     }
 
     const vargaData = kundliData.varga_charts[vargaName];
-    const natalPlanets = kundliData.planets;
-    
-    let results: VargaResult[] = [];
-    switch (vargaName) {
-        case 'D2': results = calculateD2Result(vargaData.planets, vargaData.ascendant); break;
-        case 'D4': results = calculateD4Result(vargaData.planets, vargaData.ascendant, natalPlanets); break;
-        case 'D5': results = calculateD5Result(vargaData.planets, vargaData.ascendant, natalPlanets); break;
-        case 'D6': results = calculateD6Result(vargaData.planets, vargaData.ascendant, natalPlanets); break;
-        case 'D7': results = calculateD7Result(vargaData.planets, vargaData.ascendant, natalPlanets); break;
-        case 'D8': results = calculateD8Result(vargaData.planets, vargaData.ascendant, natalPlanets); break;
-        case 'D10': results = calculateD10Result(vargaData.planets, vargaData.ascendant, natalPlanets); break;
-        case 'D11': results = calculateD11Result(vargaData.planets, vargaData.ascendant, natalPlanets); break;
-        case 'D12': results = calculateD12Result(vargaData.planets, vargaData.ascendant, natalPlanets); break;
-    }
+    const natalLagna = kundliData.varga_charts?.["D1"]?.ascendant?.sign || kundliData.ascendant?.sign || 'Aries';
+
+    useEffect(() => {
+        let houseResults: VargaResult[] = [];
+        switch (vargaName) {
+            case 'D1': houseResults = calculateD1Result(vargaData.planets, vargaData.ascendant); break;
+            case 'D2': houseResults = calculateD2Result(vargaData.planets, vargaData.ascendant); break;
+            case 'D4': houseResults = calculateD4Result(vargaData.planets, vargaData.ascendant, natalLagna); break;
+            case 'D5': houseResults = calculateD5Result(vargaData.planets, vargaData.ascendant, natalLagna); break;
+            case 'D6': houseResults = calculateD6Result(vargaData.planets, vargaData.ascendant, natalLagna); break;
+            case 'D7': houseResults = calculateD7Result(vargaData.planets, vargaData.ascendant, natalLagna); break;
+            case 'D8': houseResults = calculateD8Result(vargaData.planets, vargaData.ascendant, natalLagna); break;
+            case 'D9': houseResults = calculateD9Result(vargaData.planets, vargaData.ascendant, natalLagna); break;
+            case 'D10': houseResults = calculateD10Result(vargaData.planets, vargaData.ascendant, natalLagna); break;
+            case 'D11': houseResults = calculateD11Result(vargaData.planets, vargaData.ascendant, natalLagna); break;
+            case 'D12': houseResults = calculateD12Result(vargaData.planets, vargaData.ascendant, natalLagna); break;
+        }
+        setResults(houseResults);
+    }, [vargaName, vargaData, natalLagna]);
 
     const getGradeColor = (grade: string | undefined) => {
         if (!grade) return '#1e293b';
-        if (grade.includes('A++') || grade.includes('EXCELLENT') || grade.includes('HIGH')) return '#15803d';
-        if (grade.includes('A+') || grade.includes('VERY GOOD') || grade.includes('GOOD')) return '#1d4ed8';
-        if (grade.includes('A') || grade.includes('MEDIUM')) return '#b45309';
-        return '#dc2626';
+        if (grade === 'A+' || grade === 'A++') return '#16a34a'; // Green
+        if (grade === 'A') return '#b45309'; // Gold
+        if (grade === 'B') return '#1e40af'; // Blue
+        if (grade === 'C') return '#dc2626'; // Red
+        return '#64748b';
+    };
+
+    const getShortPlanet = (longName: string | undefined) => {
+        if (!longName) return '-';
+        const map: Record<string, string> = {
+            'Sun': 'SU', 'Moon': 'MO', 'Mars': 'MA', 'Mercury': 'ME', 
+            'Jupiter': 'JU', 'Venus': 'VE', 'Saturn': 'SA', 'Rahu': 'RA', 'Ketu': 'KE'
+        };
+        return map[longName] || longName;
+    };
+
+    const hasGrades = results.some((r: any) => r.grade);
+    const isParticulars = ['D8', 'D10'].includes(vargaName);
+    const is5Col = ['D1', 'D2', 'D4', 'D7', 'D12'].includes(vargaName);
+
+    const getPlanetHouse = (fallbackPlanet: string | undefined) => {
+        const signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
+        const pName = fallbackPlanet || 'Sun';
+        const pV = vargaData.planets.find((p: any) => p.planet === pName);
+        if (!pV) return '1';
+        
+        const pIdx = signs.findIndex(s => s.toLowerCase() === pV.sign.toLowerCase().trim());
+        const aIdx = signs.findIndex(s => s.toLowerCase() === vargaData.ascendant.sign.toLowerCase().trim());
+        if (pIdx === -1 || aIdx === -1) return '1';
+        return ((pIdx - aIdx + 12) % 12 + 1).toString();
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', animation: 'fadeIn 0.4s ease' }}>
-            <PremiumSouthIndianChart
-                planets={kundliData.planets}
-                ascendant={kundliData.ascendant}
-                vargaCharts={kundliData.varga_charts}
-                birthDetails={birthDetails}
-                forceVarga={vargaName}
-                chartMode="Rashi"
-                janmaNakshatra={kundliData.metadata.janma_nakshatra}
-                pada={kundliData.metadata.pada}
-                rashi={kundliData.planets.find((p: any) => p.planet === 'Moon')?.sign}
-            />
-
-            <div className="card" style={{ background: '#fff', padding: '1.25rem', border: '3px solid #000', borderRadius: '0' }}>
-                <h3 style={{ 
-                    textAlign: 'center', 
-                    color: '#8b0000', 
-                    fontWeight: 900, 
-                    fontSize: '1.3rem', 
-                    marginBottom: '1rem',
-                    textTransform: 'uppercase',
-                    borderBottom: '2px solid #e2e8f0',
-                    paddingBottom: '8px'
-                }}>
-                    Parashara Results: {vargaName}
-                </h3>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {results.map((res, idx) => (
-                        <div key={idx} style={{ 
-                            background: '#f8fafc', 
-                            padding: '1rem', 
-                            borderRadius: '8px', 
-                            borderLeft: `6px solid ${getGradeColor(res.grade as string)}`,
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                        }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                                <span style={{ fontWeight: 800, color: '#475569', fontSize: '0.9rem', textTransform: 'uppercase' }}>{res.field}</span>
-                                {res.grade && (
-                                    <span style={{ 
-                                        fontWeight: 900, 
-                                        color: 'white', 
-                                        background: getGradeColor(res.grade as string),
-                                        padding: '2px 8px',
-                                        borderRadius: '4px',
-                                        fontSize: '0.75rem'
-                                    }}>
-                                        {res.grade}
-                                    </span>
-                                )}
-                            </div>
-                            
-                            {res.planet && (
-                                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b', marginBottom: '4px' }}>
-                                    Target Planet: <span style={{ color: '#d84315' }}>{res.planet}</span>
-                                </div>
-                            )}
-
-                            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', lineHeight: '1.4' }}>
-                                {res.result}
-                            </div>
-
-                            {res.grade && (
-                                <div style={{ 
-                                    marginTop: '8px', 
-                                    paddingLeft: '10px', 
-                                    borderLeft: '3px solid #e2e8f0', 
-                                    fontSize: '0.85rem', 
-                                    fontStyle: 'italic',
-                                    color: '#64748b',
-                                    fontWeight: 600
-                                }}>
-                                    <span style={{ fontWeight: 800, color: getGradeColor(res.grade as string), marginRight: '4px' }}>Note:</span>
-                                    {(() => {
-                                        const g = res.grade as string;
-                                        if (g.includes('A++') || g.includes('EXCELLENT')) return "Exceptional results. Promises extraordinary success, abundance, and very strong positive energy in this area.";
-                                        if (g.includes('A+') || g.includes('VERY GOOD')) return "Highly favorable placement. Indicates significant gains, steady growth, and successful outcomes.";
-                                        if (g.includes('A') || g.includes('GOOD')) return "Positive influence. Ensures good progress and consistent results with reasonable effort.";
-                                        if (g.includes('B') || g.includes('MEDIUM')) return "Balanced results. Success is possible through consistent effort and a steady approach.";
-                                        if (g.includes('C') || g.includes('LOW')) return "Challenging placement. May require extra hard work, patience, or specific remedies to overcome obstacles.";
-                                        return "General results based on planetary strength.";
-                                    })()}
-                                </div>
-                            )}
-
-                            {res.points !== undefined && (
-                                <div style={{ marginTop: '8px', fontWeight: 700, color: '#1e40af', fontSize: '0.85rem' }}>
-                                    Total Calculated Points: {res.points}
-                                </div>
-                            )}
-
-                            {res.parihara && (
-                                <div style={{ marginTop: '10px', background: 'rgba(217, 119, 6, 0.1)', padding: '8px', borderRadius: '6px', border: '1px dashed #d97706' }}>
-                                    <span style={{ fontWeight: 800, fontSize: '0.75rem', color: '#b45309', display: 'block', marginBottom: '2px' }}>REMEDY / PARIHARA:</span>
-                                    <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#92400e' }}>{res.parihara}</span>
-                                </div>
-                            )}
-                        </div>
-                    ))}
+        <div className="mt-8 mb-12" style={{ width: '100%', maxWidth: '100%', minWidth: '0', overflow: 'hidden' }}>
+            <h3 style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '1rem', color: '#000', textTransform: 'uppercase' }}>
+                {vargaName === 'D1' ? 'LAGNA CHART' : (vargaName === 'D2' ? 'HORA' : vargaName)} RESULT:
+            </h3>
+            <div style={{ background: '#fff', padding: '0.25rem', border: '3px solid #000', borderRadius: '8px', position: 'relative', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', maxWidth: '100%', overflow: 'hidden' }}>
+                {/* Desktop View (Hidden on Mobile) */}
+                <div className="desktop-only overflow-x-auto w-full" style={{ WebkitOverflowScrolling: 'touch', width: '100%', display: 'block', paddingBottom: '12px', minWidth: '0' }}>
+                    <table style={{ 
+                        width: '100%', 
+                        minWidth: is5Col ? '650px' : '400px', 
+                        borderCollapse: 'collapse', 
+                        fontFamily: 'system-ui, sans-serif'
+                    }}>
+                        <thead>
+                            <tr style={{ background: '#CFAE5D', borderBottom: '2px solid #000' }}>
+                                <th style={{ textAlign: 'left', padding: '8px 4px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', fontSize: '10px' }}>
+                                    {isParticulars ? 'PARTICULARS' : 'HOUSE / PLANET'}
+                                </th>
+                                {is5Col && <th style={{ textAlign: 'left', padding: '8px 4px', fontWeight: 900, color: '#fff', fontSize: '10px' }}>FIELD / HORA</th>}
+                                <th style={{ textAlign: 'center', padding: '8px 4px', fontWeight: 900, color: '#fff', fontSize: '10px' }}>
+                                    {is5Col ? 'POSITION' : (vargaName === 'D2' ? 'HORA' : 'PLANET')}
+                                </th>
+                                {hasGrades && <th style={{ textAlign: 'center', padding: '8px 4px', fontWeight: 900, color: '#fff', fontSize: '10px' }}>GRADE</th>}
+                                <th style={{ textAlign: 'left', padding: '8px 4px', fontWeight: 900, color: '#fff', fontSize: '10px' }}>RESULT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {results.map((res: any, i: number) => {
+                                const isSplit = res.field.includes('::');
+                                const [label, field] = isSplit ? res.field.split('::') : [res.field, ''];
+                                return (
+                                    <tr key={i} style={{ borderBottom: '1px solid #e2e8f0', background: i % 2 === 0 ? '#fff' : '#f8fafc' }}>
+                                        <td style={{ padding: '8px 4px', fontWeight: 700, color: '#000', textTransform: 'uppercase', fontSize: '10px' }}>{label}</td>
+                                        {is5Col && <td style={{ padding: '8px 4px', fontWeight: 700, color: '#64748b', fontSize: '9px' }}>{field}</td>}
+                                        <td style={{ padding: '8px 4px', textAlign: 'center', fontWeight: 700, color: '#1e40af', fontSize: '10px' }}>
+                                            {is5Col ? ( (vargaName === 'D2' && res.planet !== 'TOTAL') ? getShortPlanet(res.planet) : (res.planet === 'TOTAL' ? '-' : getPlanetHouse(res.planet)) ) : getShortPlanet(res.planet)}
+                                        </td>
+                                        {hasGrades && (
+                                            <td style={{ padding: '8px 4px', textAlign: 'center' }}>
+                                                <span style={{ 
+                                                    fontWeight: 900, 
+                                                    color: getGradeColor(res.grade),
+                                                    fontSize: '10px'
+                                                }}>
+                                                    {res.grade || '-'}
+                                                </span>
+                                            </td>
+                                        )}
+                                        <td style={{ padding: '8px 4px', lineHeight: '1.4', color: getGradeColor(res.grade), fontSize: '9px', fontWeight: 900, textTransform: 'uppercase', minWidth: '200px', whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                                            {res.result}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 </div>
 
-                <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#f1f5f9', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
-                    <h4 style={{ margin: '0 0 0.5rem', fontSize: '0.85rem', fontWeight: 900, color: '#475569', textTransform: 'uppercase' }}>Grade Key & Summary:</h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.8rem', fontWeight: 600 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ width: '30px', background: '#15803d', color: 'white', padding: '2px 4px', borderRadius: '4px', textAlign: 'center', fontSize: '10px' }}>A++</span>
-                            <span style={{ color: '#15803d' }}>EXCELLENT: Extraordinary strength.</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ width: '30px', background: '#1d4ed8', color: 'white', padding: '2px 4px', borderRadius: '4px', textAlign: 'center', fontSize: '10px' }}>A+</span>
-                            <span style={{ color: '#1d4ed8' }}>VERY GOOD: High positive results.</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ width: '30px', background: '#b45309', color: 'white', padding: '2px 4px', borderRadius: '4px', textAlign: 'center', fontSize: '10px' }}>A / B</span>
-                            <span style={{ color: '#b45309' }}>GOOD / MEDIUM: Stable, balanced.</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ width: '30px', background: '#dc2626', color: 'white', padding: '2px 4px', borderRadius: '4px', textAlign: 'center', fontSize: '10px' }}>C</span>
-                            <span style={{ color: '#dc2626' }}>LOW: Challenging, needs care.</span>
+                {/* Mobile Friendly Vertical View (Visible on Mobile) */}
+                <div className="mobile-only" style={{ padding: '4px' }}>
+                    {results.map((res: any, i: number) => {
+                        const isSplit = res.field.includes('::');
+                        const [label, field] = isSplit ? res.field.split('::') : [res.field, ''];
+                        const position = is5Col ? ( (vargaName === 'D2' && res.planet !== 'TOTAL') ? getShortPlanet(res.planet) : (res.planet === 'TOTAL' ? '-' : getPlanetHouse(res.planet)) ) : getShortPlanet(res.planet);
+                        
+                        return (
+                            <div key={i} style={{ 
+                                border: '1px solid #e2e8f0', 
+                                borderRadius: '6px', 
+                                marginBottom: '10px', 
+                                overflow: 'hidden',
+                                background: i % 2 === 0 ? '#fff' : '#f8fafc'
+                            }}>
+                                <div style={{ background: '#CFAE5D', color: '#fff', padding: '6px 8px', fontSize: '11px', fontWeight: 900, display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>{label}</span>
+                                    {res.grade && <span style={{ background: '#fff', color: getGradeColor(res.grade), padding: '0 4px', borderRadius: '3px' }}>{res.grade}</span>}
+                                </div>
+                                <div style={{ padding: '8px', fontSize: '10px' }}>
+                                    {field && <div style={{ marginBottom: '4px' }}><span style={{ color: '#64748b' }}>FIELD:</span> <span style={{ fontWeight: 700 }}>{field}</span></div>}
+                                    <div style={{ marginBottom: '6px' }}><span style={{ color: '#64748b' }}>{is5Col ? 'POSITION' : 'PLANET'}:</span> <span style={{ fontWeight: 700, color: '#1e40af' }}>{position}</span></div>
+                                    <div style={{ color: getGradeColor(res.grade), fontWeight: 900, lineHeight: '1.4', borderTop: '1px solid #eee', paddingTop: '6px' }}>
+                                        {res.result}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {hasGrades && vargaName !== 'D2' && (
+                    <div style={{ 
+                        marginTop: '0.75rem', 
+                        paddingTop: '0.4rem', 
+                        borderTop: '1px solid #eee',
+                        textAlign: 'center'
+                    }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', fontSize: '9px', fontWeight: 900, justifyContent: 'center', flexWrap: 'wrap', textTransform: 'uppercase' }}>
+                            <span style={{ color: '#16a34a' }}>A++ EXCELLENT</span>
+                            <span style={{ color: '#2563eb' }}>A+ VERY GOOD</span>
+                            <span style={{ color: '#b45309' }}>A GOOD</span>
+                            <span style={{ color: '#1e40af' }}>B MEDIUM</span>
+                            <span style={{ color: '#dc2626' }}>C LOW</span>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );

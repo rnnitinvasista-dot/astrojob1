@@ -5,9 +5,10 @@ import { getCurrentDashaLords } from '../../services/api';
 
 interface DashaTableProps {
     dasha: Dasha;
+    isFinderMode?: boolean;
 }
 
-const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
+const DashaTable: React.FC<DashaTableProps> = ({ dasha, isFinderMode = false }) => {
     const [expandedMD, setExpandedMD] = React.useState<number | null>(null);
     const [expandedAD, setExpandedAD] = React.useState<string | null>(null);
     const [expandedPD, setExpandedPD] = React.useState<string | null>(null);
@@ -113,7 +114,8 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha }) => {
                 maxWidth: '100%',
                 borderTop: '5px solid var(--primary)',
                 background: 'var(--secondary-light)',
-                border: '3px solid #000000'
+                border: '3px solid #000000',
+                boxShadow: isFinderMode ? 'none' : undefined
             }}>
                 <div style={{ padding: '1.25rem', borderBottom: '3px solid #000000', background: 'var(--primary)' }}>
                     <h2 style={{ color: '#000000', fontSize: '1.1rem', fontWeight: 800 }}>Vimshottari Dasha Sequence</h2>

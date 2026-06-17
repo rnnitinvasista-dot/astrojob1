@@ -23,3 +23,9 @@ agents = engine.get_node_agents('Ketu', ketu_data, result['planets'])
 print("\n--- Ketu Agents ---")
 for a in agents:
     print(f"{a['type']:<15}: {a['planet']}")
+
+# Print Ketu nakshatra_nadi details
+ketu_nadi = next(item for item in result['nakshatra_nadi'] if item['planet'] == "Ketu")
+print("\n--- Ketu Nakshatra Nadi Entry ---")
+print(json.dumps(ketu_nadi, indent=2))
+
