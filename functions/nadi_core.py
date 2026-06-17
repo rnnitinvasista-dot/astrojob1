@@ -698,12 +698,24 @@ class NadiEngine:
     def calculate_kp_significators_4level(self, p_name, planet_map, planet_ownership):
         if p_name not in planet_map: return {"L1":[], "L2":[], "L3":[], "L4":[], "is_self_strength": False}
         p_data = planet_map[p_name]
-        sl_data = planet_map.get(p_data["star_lord"])
+        
+        short_to_long = {
+            "Su": "Sun", "Mo": "Moon", "Ma": "Mars", "Me": "Mercury",
+            "Ju": "Jupiter", "Ve": "Venus", "Sa": "Saturn",
+            "Ra": "Rahu", "Ke": "Ketu"
+        }
+        
+        star_lord_name = short_to_long.get(p_data["star_lord"], p_data["star_lord"])
+        sl_data = planet_map.get(star_lord_name)
+        
         l1 = [int(sl_data["house_placed"])] if sl_data else []
         l2 = [int(p_data["house_placed"])]
-        l3 = sorted([int(h) for h in planet_ownership.get(p_data["star_lord"], [])])
+        l3 = sorted([int(h) for h in planet_ownership.get(star_lord_name, [])])
         l4 = sorted([int(h) for h in planet_ownership.get(p_name, [])])
-        self_s = not any(p["star_lord"] == p_name for p in planet_map.values())
+        
+        short_name = self.SHORT_CODES.get(p_name, p_name)
+        self_s = not any(p["star_lord"] == p_name or p["star_lord"] == short_name for p in planet_map.values())
+        
         return {"L1": l2, "L2": l1, "L3": l4, "L4": l3, "is_self_strength": True} if self_s else {"L1": l1, "L2": l2, "L3": l3, "L4": l4, "is_self_strength": False}
 
     def get_node_significators(self, node_name, planet_map, house_owners):
