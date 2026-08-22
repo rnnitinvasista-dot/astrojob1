@@ -481,6 +481,9 @@ class NadiEngine:
         if self.ayanamsa == "Newcomb":
             swe.set_sid_mode(39, 0, 0) # SIDM_VP291
             ayan_kp = swe.get_ayanamsa_ut(jd)
+        elif self.ayanamsa == "Lahiri":
+            swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+            ayan_kp = swe.get_ayanamsa_ut(jd)
         else:
             swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
             ayan_kp = swe.get_ayanamsa_ut(jd) - (6.2 / 3600.0)
