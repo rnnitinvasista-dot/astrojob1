@@ -207,13 +207,7 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha, birthDetails,
                 <h2 style={{ margin: 0, color: 'var(--text)', fontWeight: 800 }}>NP Technique</h2>
                 <div style={{ display: exportType ? 'none' : 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button 
-                            onClick={() => setExportType('image')}
-                            disabled={exportType !== null}
-                            style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid var(--primary)', background: 'transparent', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem' }}
-                        >
-                            {exportType === 'image' ? 'Exporting...' : 'Export Photo'}
-                        </button>
+
                         <button 
                             onClick={() => setExportType('pdf')}
                             disabled={exportType !== null}
