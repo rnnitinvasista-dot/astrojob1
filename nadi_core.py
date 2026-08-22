@@ -608,9 +608,9 @@ class NadiEngine:
                 "planet_lord": pl_n, "pl_lord_signified": self.get_eff_sigs_detailed(pl_n, planet_res_map_kp, planet_ownership_trad if pl_n in ["Rahu", "Ketu"] else planet_ownership_kp)
             })
             
-        # Use Lahiri Moon Longitude for Dasha for maximum precision
-        moon_lon_lh = next(p["lon"] for p in planets_raw_lahiri if p["planet"] == "Moon")
-        dasha_data = self.calculate_dasha(planets_raw_lahiri, birth_dt_loc, moon_lon_lahiri=moon_lon_lh)
+        # Use the Moon Longitude based on the selected Ayanamsa (ayan_kp)
+        moon_lon_selected = next(p["lon"] for p in planets_raw_kp if p["planet"] == "Moon")
+        dasha_data = self.calculate_dasha(planets_raw_kp, birth_dt_loc, moon_lon_lahiri=moon_lon_selected)
         
         varga_configs = {
             "D1": 1, "D2": 2, "D3": 3, "D4": 4, "D5": 5, "D6": 6, "D7": 7, "D8": 8, "D9": 9, 
