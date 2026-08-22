@@ -297,7 +297,7 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha, birthDetails,
                     </div>
                     {ascendant && (
                         <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
-                            <PremiumSouthIndianChart planets={planets} ascendant={ascendant} />
+                            <PremiumSouthIndianChart planets={planets} ascendant={ascendant} exportMode={!!exportType} />
                         </div>
                     )}
                     <h3 style={{ margin: '1rem 0 0 0', alignSelf: 'flex-start' }}>Planets View</h3>

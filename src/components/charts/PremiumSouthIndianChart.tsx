@@ -23,7 +23,8 @@ interface PremiumSouthIndianChartProps {
     pada?: number;
     rashi?: string;
     forceVarga?: string;
-    onVargaChange?: (varga: string) => void;
+    onVargaChange?: (v: string) => void;
+    exportMode?: boolean;
 }
 
 const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
@@ -37,7 +38,8 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
     pada,
     rashi,
     forceVarga,
-    onVargaChange
+    onVargaChange,
+    exportMode
 }) => {
     const [selectedVarga, setSelectedVarga] = useState<string>(forceVarga || 'D1');
 
@@ -114,7 +116,7 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
     return (
         <div style={{ background: 'transparent', padding: '0', width: '100%', margin: '0 auto', flexShrink: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <div style={{ fontWeight: 800, color: 'var(--secondary)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <div style={{ fontWeight: 800, color: 'var(--secondary)', fontSize: exportMode ? '1.8rem' : '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     {chartMode === 'Bhava' ? 'KP BHAVA CHART' : `${selectedVarga} CHART`}
                 </div>
                 {chartMode !== 'Bhava' && (
@@ -210,21 +212,21 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         textAlign: 'center',
-                                        fontSize: '0.65rem',
+                                        fontSize: exportMode ? '1.2rem' : '0.65rem',
                                         color: 'var(--secondary)',
                                         padding: '12px',
                                         lineHeight: '1.4',
                                         zIndex: 2
                                     }}>
-                                        <div style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--secondary)', marginBottom: '1px' }}>
+                                        <div style={{ fontWeight: 800, fontSize: exportMode ? '1.8rem' : '0.9rem', color: 'var(--secondary)', marginBottom: '1px' }}>
                                             {chartMode === 'Bhava' ? 'KP' : selectedVarga}
                                         </div>
-                                        <div style={{ fontWeight: 700, fontSize: '0.72rem' }}>{birthDetails?.name || 'Native'}</div>
-                                        <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>
+                                        <div style={{ fontWeight: 700, fontSize: exportMode ? '1.4rem' : '0.72rem' }}>{birthDetails?.name || 'Native'}</div>
+                                        <div style={{ fontSize: exportMode ? '1.2rem' : '0.6rem', color: 'var(--text-muted)' }}>
                                             {birthDetails?.date_of_birth && `(${calculateAge(birthDetails.date_of_birth)})`}
                                         </div>
-                                        <div style={{ fontSize: '0.58rem', color: 'var(--text-muted)' }}>{formatDate(birthDetails?.date_of_birth)} {birthDetails?.time_of_birth}</div>
-                                        <div style={{ fontWeight: 800, color: 'var(--primary)', marginTop: '2px', fontSize: '0.65rem' }}>
+                                        <div style={{ fontSize: exportMode ? '1.1rem' : '0.58rem', color: 'var(--text-muted)' }}>{formatDate(birthDetails?.date_of_birth)} {birthDetails?.time_of_birth}</div>
+                                        <div style={{ fontWeight: 800, color: 'var(--primary)', marginTop: '2px', fontSize: exportMode ? '1.2rem' : '0.65rem' }}>
                                             {rashi && `${rashi} Rashi`} {janmaNakshatra && `| ${janmaNakshatra}${pada ? '-' + pada : ''}`}
                                         </div>
                                     </div>
@@ -253,13 +255,13 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
 
                     return (
                         <div key={i} style={{ background: '#fff', padding: '6px', position: 'relative', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                            <div style={{ fontSize: '0.55rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase' }}>
+                            <div style={{ fontSize: exportMode ? '1.1rem' : '0.55rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase' }}>
                                 {boxLabel}
                             </div>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', alignItems: 'flex-start', contentVisibility: 'auto' }}>
                                 {signPlanets.map((p, idx) => (
                                     <span key={idx} style={{
-                                        fontSize: '0.75rem',
+                                        fontSize: exportMode ? '1.4rem' : '0.85rem',
                                         fontWeight: 900,
                                         color: p.isAsc ? '#d97706' : (p.isRetro ? '#7c3aed' : (p.isCombust ? '#b91c1c' : '#1e40af')),
                                         display: 'flex',
@@ -273,7 +275,7 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
                     );
                 })}
             </div>
-            <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'center', gap: '1rem', fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)', borderTop: '1px solid rgba(124, 92, 183, 0.08)', paddingTop: '0.5rem' }}>
+            <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'center', gap: '1rem', fontSize: exportMode ? '1.2rem' : '0.65rem', fontWeight: 700, color: 'var(--text-muted)', borderTop: '1px solid rgba(124, 92, 183, 0.08)', paddingTop: '0.5rem' }}>
                 <span style={{ color: '#d97706' }}>Lagna = Ascendant</span>
                 <span style={{ color: '#7c3aed' }}>* = Retrograde</span>
                 <span style={{ color: '#b91c1c' }}>(c) = Combust</span>
@@ -283,3 +285,4 @@ const PremiumSouthIndianChart: React.FC<PremiumSouthIndianChartProps> = ({
 };
 
 export default PremiumSouthIndianChart;
+
