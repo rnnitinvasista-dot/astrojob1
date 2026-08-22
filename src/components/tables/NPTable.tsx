@@ -311,3 +311,4 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha }) => {
 };
 
 export default NPTable;
+
