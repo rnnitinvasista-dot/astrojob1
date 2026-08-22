@@ -299,7 +299,7 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha, birthDetails,
                         </div>
                     </div>
                     {ascendant && (
-                        <div style={{ width: '100%', maxWidth: '500px' }}>
+                        <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
                             <PremiumSouthIndianChart planets={planets} ascendant={ascendant} />
                         </div>
                     )}
@@ -358,8 +358,9 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha, birthDetails,
             </div>
             )}
 
+            {exportType && <h3 style={{ margin: '2rem 0 1rem 0' }}>Cusps View</h3>}
             {/* Second Table: Cusp Sub Lords */}
-            {tableType === 'cusps' && (
+            {(tableType === 'cusps' || exportType) && (
             <div className="table-container" style={{ border: '1px solid rgba(124, 92, 183, 0.08)' }}>
                 <table style={{ fontSize: '0.9rem', borderCollapse: 'collapse', width: '100%' }}>
                     <thead>
