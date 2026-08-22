@@ -229,15 +229,15 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha }) => {
                             return (
                                 <tr key={planet.planet}>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center' }}>
-                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}>{pName}</div>
+                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}><span style={{ padding: '4px 8px', borderRadius: '6px', ...getPlanetHighlight(pName) }}>{pName}</span></div>
                                         <div style={{ color: '#475569', fontSize: '0.85rem' }}>{renderHouses(pDisplay)}</div>
                                     </td>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center' }}>
-                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}>{nlName || '-'}</div>
+                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}><span style={{ padding: '4px 8px', borderRadius: '6px', ...getPlanetHighlight(nlName) }}>{nlName || '-'}</span></div>
                                         <div style={{ color: '#475569', fontSize: '0.85rem' }}>{renderHouses(nlDisplay)}</div>
                                     </td>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center' }}>
-                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}>{slName || '-'}</div>
+                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}><span style={{ padding: '4px 8px', borderRadius: '6px', ...getPlanetHighlight(slName) }}>{slName || '-'}</span></div>
                                         <div style={{ color: '#475569', fontSize: '0.85rem' }}>{renderHouses(slDisplay)}</div>
                                     </td>
                                 </tr>
@@ -288,15 +288,15 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha }) => {
                                         {house.house_number}
                                     </td>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center' }}>
-                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}>{cuspSL || '-'}</div>
+                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}><span style={{ padding: '4px 8px', borderRadius: '6px', ...getPlanetHighlight(cuspSL) }}>{cuspSL || '-'}</span></div>
                                         <div style={{ color: '#475569', fontSize: '0.85rem' }}>{renderHouses(cuspSLDisplay)}</div>
                                     </td>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center' }}>
-                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}>{nlOfSL || '-'}</div>
+                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}><span style={{ padding: '4px 8px', borderRadius: '6px', ...getPlanetHighlight(nlOfSL) }}>{nlOfSL || '-'}</span></div>
                                         <div style={{ color: '#475569', fontSize: '0.85rem' }}>{renderHouses(nlOfSLDisplay)}</div>
                                     </td>
                                     <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center' }}>
-                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}>{slOfSL || '-'}</div>
+                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}><span style={{ padding: '4px 8px', borderRadius: '6px', ...getPlanetHighlight(slOfSL) }}>{slOfSL || '-'}</span></div>
                                         <div style={{ color: '#475569', fontSize: '0.85rem' }}>{renderHouses(slOfSLDisplay)}</div>
                                     </td>
                                 </tr>
