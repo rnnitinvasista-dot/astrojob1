@@ -72,16 +72,23 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha }) => {
 
     const getPlanetHighlight = (planetName: string) => {
         if (!planetName || planetName === 'None' || planetName === '-') return {};
-        if (isPlanetMatch(planetName, globalActiveLords.dasha)) {
-            return { background: 'rgba(59, 130, 246, 0.15)', color: '#1e40af', border: '1px solid rgba(59, 130, 246, 0.4)' };
+        const isDasha = isPlanetMatch(planetName, globalActiveLords.dasha);
+        const isBukthi = isPlanetMatch(planetName, globalActiveLords.bukthi);
+        const isAntara = isPlanetMatch(planetName, globalActiveLords.antara);
+
+        const colors = [];
+        if (isDasha) colors.push('rgba(59, 130, 246, 0.25)'); // Light Blue
+        if (isBukthi) colors.push('rgba(168, 85, 247, 0.25)'); // Light Purple
+        if (isAntara) colors.push('rgba(234, 179, 8, 0.25)'); // Light Yellow
+
+        if (colors.length === 0) return {};
+        
+        if (colors.length === 1) {
+            return { background: colors[0] };
         }
-        if (isPlanetMatch(planetName, globalActiveLords.bukthi)) {
-            return { background: 'rgba(168, 85, 247, 0.15)', color: '#6b21a8', border: '1px solid rgba(168, 85, 247, 0.4)' };
-        }
-        if (isPlanetMatch(planetName, globalActiveLords.antara)) {
-            return { background: 'rgba(234, 179, 8, 0.15)', color: '#854d0e', border: '1px solid rgba(234, 179, 8, 0.4)' };
-        }
-        return {};
+        
+        // Gradient for multiple matches
+        return { background: `linear-gradient(135deg, ${colors.join(', ')})` };
     };
 
     // Calculate house numbers for a given planet based on priority logic
@@ -254,16 +261,16 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha }) => {
 
                             return (
                                 <tr key={planet.planet}>
-                                    <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center' }}>
-                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}><span style={{ padding: '4px 8px', borderRadius: '6px', ...getPlanetHighlight(pName) }}>{pName}</span></div>
+                                    <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center', ...getPlanetHighlight(pName) }}>
+                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}>{pName}</div>
                                         <div style={{ color: '#475569', fontSize: '0.85rem' }}>{renderHouses(pDisplay)}</div>
                                     </td>
-                                    <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center' }}>
-                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}><span style={{ padding: '4px 8px', borderRadius: '6px', ...getPlanetHighlight(nlName) }}>{nlName || '-'}</span></div>
+                                    <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center', ...getPlanetHighlight(nlName) }}>
+                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}>{nlName || '-'}</div>
                                         <div style={{ color: '#475569', fontSize: '0.85rem' }}>{renderHouses(nlDisplay)}</div>
                                     </td>
-                                    <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center' }}>
-                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}><span style={{ padding: '4px 8px', borderRadius: '6px', ...getPlanetHighlight(slName) }}>{slName || '-'}</span></div>
+                                    <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center', ...getPlanetHighlight(slName) }}>
+                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}>{slName || '-'}</div>
                                         <div style={{ color: '#475569', fontSize: '0.85rem' }}>{renderHouses(slDisplay)}</div>
                                     </td>
                                 </tr>
@@ -312,16 +319,16 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha }) => {
                                     <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center', fontWeight: 800, color: '#1e293b' }}>
                                         {house.house_number}
                                     </td>
-                                    <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center' }}>
-                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}><span style={{ padding: '4px 8px', borderRadius: '6px', ...getPlanetHighlight(cuspSL) }}>{cuspSL || '-'}</span></div>
+                                    <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center', ...getPlanetHighlight(cuspSL) }}>
+                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}>{cuspSL || '-'}</div>
                                         <div style={{ color: '#475569', fontSize: '0.85rem' }}>{renderHouses(cuspSLDisplay)}</div>
                                     </td>
-                                    <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center' }}>
-                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}><span style={{ padding: '4px 8px', borderRadius: '6px', ...getPlanetHighlight(nlOfSL) }}>{nlOfSL || '-'}</span></div>
+                                    <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center', ...getPlanetHighlight(nlOfSL) }}>
+                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}>{nlOfSL || '-'}</div>
                                         <div style={{ color: '#475569', fontSize: '0.85rem' }}>{renderHouses(nlOfSLDisplay)}</div>
                                     </td>
-                                    <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center' }}>
-                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}><span style={{ padding: '4px 8px', borderRadius: '6px', ...getPlanetHighlight(slOfSL) }}>{slOfSL || '-'}</span></div>
+                                    <td style={{ border: '1px solid #e2e8f0', padding: '12px', textAlign: 'center', ...getPlanetHighlight(slOfSL) }}>
+                                        <div style={{ fontWeight: 800, color: '#1e293b', marginBottom: '4px' }}>{slOfSL || '-'}</div>
                                         <div style={{ color: '#475569', fontSize: '0.85rem' }}>{renderHouses(slOfSLDisplay)}</div>
                                     </td>
                                 </tr>
