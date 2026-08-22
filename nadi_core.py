@@ -478,8 +478,12 @@ class NadiEngine:
         jd = swe.julday(utc_dt.year, utc_dt.month, utc_dt.day, utc_dt.hour + utc_dt.minute/60 + utc_dt.second/3600)
         
         # Calculate Multi-Ayanamsas
-        swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
-        ayan_kp = swe.get_ayanamsa_ut(jd) - (6.2 / 3600.0)
+        if self.ayanamsa == "Newcomb":
+            swe.set_sid_mode(39, 0, 0) # SIDM_VP291
+            ayan_kp = swe.get_ayanamsa_ut(jd)
+        else:
+            swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
+            ayan_kp = swe.get_ayanamsa_ut(jd) - (6.2 / 3600.0)
         swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
         ayan_lahiri = swe.get_ayanamsa_ut(jd)
         
