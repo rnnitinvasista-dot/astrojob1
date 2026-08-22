@@ -198,7 +198,10 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha, birthDetails,
             border: '1px solid rgba(124, 92, 183, 0.08)', 
             borderRadius: '12px',
             marginBottom: '1rem',
-            padding: exportType ? '2rem' : undefined // Add padding for export
+            padding: exportType ? '2rem' : undefined,
+            width: exportType ? '1200px' : '100%',
+            maxWidth: exportType ? 'none' : undefined,
+            overflow: exportType ? 'visible' : undefined
         }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <h2 style={{ margin: 0, color: 'var(--text)', fontWeight: 800 }}>NP Technique</h2>
