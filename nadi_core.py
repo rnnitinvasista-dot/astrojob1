@@ -745,7 +745,7 @@ class NadiEngine:
 
         fmt_dt = lambda dt: dt.strftime("%d/%m/%Y %H:%M:%S")
         today = datetime.datetime.now(pytz.UTC)
-        md_end_first = add_precise(birth_dt_loc, bal_yrs_f)
+        md_end_first = add_precise(birth_dt_loc, bal_yrs_f) - datetime.timedelta(days=7)
         md_curs = md_end_first - datetime.timedelta(days=self.DASHA_YEARS[lord_name] * DAYS_PER_YEAR)
         
         def get_seq(p):

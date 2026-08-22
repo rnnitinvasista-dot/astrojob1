@@ -783,7 +783,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                             borderRadius: '3px', margin: '0 2px', padding: (h === hit) ? '0' : '0 3px',
                             background: (h === hit) ? '#f8fafc' : 'transparent',
                             color: getHouseColor(h, isBad, selectedArea) === '#ef4444' ? '#ef4444' : getHouseColor(h, isBad, selectedArea) === '#16a34a' ? '#16a34a' : '#2563eb',
-                            fontWeight: '800'
+                            fontWeight: '900'
                         }}>
                             {h}
                         </span>
@@ -831,7 +831,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                     return (
                         <span key={h} style={{
                             color: getHouseColor(h, isBad, selectedArea) === '#ef4444' ? '#ef4444' : getHouseColor(h, isBad, selectedArea) === '#16a34a' ? '#16a34a' : '#2563eb',
-                            fontWeight: '800',
+                            fontWeight: isCircled ? '900' : '800',
                             width: isCircled ? '24px' : 'auto',
                             height: isCircled ? '24px' : 'auto',
                             border: isCircled ? '1.5px solid #000000' : 'none',
@@ -921,30 +921,30 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
 
     return (
         <div style={{
-            background: 'var(--secondary-light)',
-            borderRadius: '0',
-            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+            background: '#ffffff',
+            borderRadius: '12px',
+            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)',
             marginBottom: '1.5rem',
             overflow: 'hidden',
             fontFamily: "'Inter', sans-serif",
             width: '100%',
             maxWidth: '100%',
             margin: '0 0 0.75rem',
-            border: '3px solid #000000',
+            border: '1px solid rgba(124, 92, 183, 0.08)',
         }}>
             <div style={{ 
                 background: headerStyle.background, 
-                padding: '10px 12px', 
-                borderBottom: '2px solid #000000' 
+                padding: '16px 20px', 
+                borderBottom: '1px solid rgba(124, 92, 183, 0.08)' 
             }}>
                 <div style={{ 
                     display: 'flex', 
                     justifyContent: 'space-between', 
                     alignItems: 'center',
                 }}>
-                    <h3 style={{ margin: 0, color: headerStyle.color, fontWeight: 900, fontSize: '0.9rem', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                        {planetName} - {selectedArea} {customLabel && <span style={{ fontSize: '0.7rem', opacity: 0.9, marginLeft: '8px', padding: '2px 6px', background: 'rgba(255,255,255,0.2)', borderRadius: '4px' }}>{customLabel}</span>}
-                        {isTransitMode && <span style={{ color: '#3b82f6', marginLeft: '8px', fontSize: '0.7rem' }}>(TRANSIT)</span>}
+                    <h3 style={{ margin: 0, color: headerStyle.color, fontWeight: 900, fontSize: '1.1rem', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                        {planetName} - {selectedArea} {customLabel && <span style={{ fontSize: '0.8rem', opacity: 0.9, marginLeft: '8px', padding: '2px 6px', background: 'rgba(255,255,255,0.2)', borderRadius: '4px' }}>{customLabel}</span>}
+                        {isTransitMode && <span style={{ color: '#3b82f6', marginLeft: '8px', fontSize: '0.75rem' }}>(TRANSIT)</span>}
                     </h3>
 
                     {!selectedHouseNum && (
@@ -963,7 +963,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                     height: '16px',
                                     borderRadius: '8px',
                                     background: isTransitMode ? '#3b82f6' : '#e2e8f0',
-                                    border: '1.5px solid #000000',
+                                    border: '1px solid rgba(124, 92, 183, 0.08)',
                                     position: 'relative',
                                     cursor: 'pointer',
                                     display: 'flex',
@@ -977,7 +977,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                     height: '10px',
                                     borderRadius: '50%',
                                     background: 'white',
-                                    border: '1px solid #000000',
+                                    border: '1px solid rgba(124, 92, 183, 0.08)',
                                     transition: 'all 0.3s ease',
                                     transform: isTransitMode ? 'translateX(14px)' : 'translateX(0px)',
                                     display: 'flex',
@@ -1026,7 +1026,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                         padding: '12px',
                         display: 'flex',
                         justifyContent: 'center',
-                        borderBottom: '2px solid #000000',
+                        borderBottom: '1px solid rgba(124, 92, 183, 0.08)',
                         background: '#f8fafc'
                     }}>
                         <button
@@ -1034,7 +1034,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                             style={{
                                 background: showCalculation ? '#f1f5f9' : '#3b82f6',
                                 color: showCalculation ? '#000000' : '#ffffff',
-                                border: '3px solid #000000',
+                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                 padding: '8px 16px',
                                 fontWeight: 900,
                                 fontSize: '0.85rem',
@@ -1054,7 +1054,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                         {selectedHouseNum && showCalculation && isPrashnaMode && (
                             <div style={{
                                 padding: '12px',
-                                borderBottom: '2.5px solid #000000',
+                                borderBottom: '1px solid rgba(124, 92, 183, 0.08)',
                                 background: '#faf5ff',
                             }}>
                                 <div style={{
@@ -1062,7 +1062,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                     fontWeight: 900,
                                     textTransform: 'uppercase',
                                     color: '#701a75',
-                                    borderBottom: '2px solid #000000',
+                                    borderBottom: '1px solid rgba(124, 92, 183, 0.08)',
                                     paddingBottom: '6px',
                                     marginBottom: '10px',
                                     display: 'flex',
@@ -1136,7 +1136,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                             { label: 'NL', p: planetData.star_lord, h: nlHit, bif: nlBif, isRetro: isPlanetRetrograde(planetData.star_lord) },
                             { label: 'SL', p: planetData.sub_lord, h: slHit, bif: slBif, isRetro: isPlanetRetrograde(planetData.sub_lord) }
                         ].map((row) => (
-                            <div key={row.label} style={{ borderBottom: '1.5px solid #000000', padding: '8px 12px' }}>
+                            <div key={row.label} style={{ borderBottom: '1px solid rgba(124, 92, 183, 0.08)', padding: '8px 12px' }}>
                                 <div style={{ fontWeight: 800, fontSize: '0.8rem', color: '#000000', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                     <span style={{ color: '#1d4ed8' }}>{row.p.substring(0, 2).toUpperCase()}</span>
                                     <span style={{ opacity: 0.8, fontSize: '0.65rem' }}>({row.label})</span>
@@ -1165,7 +1165,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                     </div>
                 ))}
 
-                <div style={{ borderBottom: '1.5px solid #000000', padding: '8px 12px', background: '#f8fafc', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <div style={{ borderBottom: '1px solid rgba(124, 92, 183, 0.08)', padding: '8px 12px', background: '#f8fafc', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                     <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>COMBINATION</div>
                     <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                         {isTravel || isProperty ? (
@@ -1194,8 +1194,8 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                     </div>
                 </div>
                 {(isTravel || isProperty) && (
-                    <div style={{ borderBottom: '1.5px solid #000000', background: '#f8fafc' }}>
-                        <div style={{ display: 'flex', borderBottom: '1px solid #000000' }}>
+                    <div style={{ borderBottom: '1px solid rgba(124, 92, 183, 0.08)', background: '#f8fafc' }}>
+                        <div style={{ display: 'flex', borderBottom: '1px solid rgba(124, 92, 183, 0.08)' }}>
                             <div 
                                 onClick={() => setSubTab(isTravel ? 'ABROAD' : 'PURCHASE')}
                                 style={{ 
@@ -1203,7 +1203,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                     fontSize: '0.7rem', fontWeight: 900, 
                                     background: (subTab === 'ABROAD' || subTab === 'PURCHASE') ? '#ffffff' : '#f1f5f9',
                                     color: (subTab === 'ABROAD' || subTab === 'PURCHASE') ? '#1e3a8a' : '#64748b',
-                                    borderRight: '1px solid #000000'
+                                    borderRight: '1px solid rgba(124, 92, 183, 0.08)'
                                 }}
                             >
                                 {isTravel ? "ABROAD / AWAY" : "PURCHASE"}
@@ -1223,7 +1223,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                     </div>
                 )}
 
-                <div style={{ borderBottom: '1.5px solid #000000', padding: '8px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <div style={{ borderBottom: '1px solid rgba(124, 92, 183, 0.08)', padding: '8px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                     <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>
                         {isEducation ? "EXAM" : (isMarriage || isChildBirth || isHealth || isTravel || isProperty) ? "INDICATION" : "INCOME/EXPENSES"}
                     </div>
@@ -1352,7 +1352,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                     };
 
                     return (
-                        <div style={{ borderBottom: '1.5px solid #000000', padding: '8px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                        <div style={{ borderBottom: '1px solid rgba(124, 92, 183, 0.08)', padding: '8px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
                             <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>{labelToUse}</div>
                             <div style={{ display: 'flex', gap: '8px', fontWeight: 800, fontSize: '0.85rem', alignItems: 'center', textAlign: 'center' }}>
                                 <span style={{ color: '#334155' }}>
@@ -1364,7 +1364,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                 })()}
 
                 {isProperty && subTab === 'SALE' && checkSubset(allHousesSet, PROPERTY_LITIGATION) && (
-                    <div style={{ borderBottom: '1.5px solid #000000', padding: '8px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ borderBottom: '1px solid rgba(124, 92, 183, 0.08)', padding: '8px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                         <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#b91c1c', textTransform: 'uppercase' }}>DESCRIPTION</div>
                         <div style={{ display: 'flex', gap: '8px', fontWeight: 800, fontSize: '0.85rem', alignItems: 'center', textAlign: 'center' }}>
                             <span style={{ color: '#ef4444' }}>
@@ -1388,7 +1388,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                             justifyContent: 'center', 
                             alignItems: 'center', 
                             gap: '6px', 
-                            borderBottom: '1.5px solid #000000' 
+                            borderBottom: '1px solid rgba(124, 92, 183, 0.08)' 
                         }}
                     >
                         <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>SUCCESS RATE</div>
@@ -1400,8 +1400,8 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                 )}
 
                 {isHealth && !isTransitMode && (
-                    <div style={{ borderBottom: '1.5px solid #000000', background: '#f8fafc' }}>
-                        <div style={{ display: 'flex', borderBottom: '1px solid #000000' }}>
+                    <div style={{ borderBottom: '1px solid rgba(124, 92, 183, 0.08)', background: '#f8fafc' }}>
+                        <div style={{ display: 'flex', borderBottom: '1px solid rgba(124, 92, 183, 0.08)' }}>
                             <div 
                                 onClick={() => setActiveTab('DETAILS')}
                                 style={{ 
@@ -1409,7 +1409,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                     fontSize: '0.7rem', fontWeight: 900, 
                                     background: activeTab === 'DETAILS' ? '#ffffff' : '#f1f5f9',
                                     color: activeTab === 'DETAILS' ? '#1e3a8a' : '#64748b',
-                                    borderRight: '1px solid #000000'
+                                    borderRight: '1px solid rgba(124, 92, 183, 0.08)'
                                 }}
                             >
                                 DISEASE POSSIBILITY
@@ -1521,7 +1521,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
 
                                             {hasNlHitRemedies && (
                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                                    <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#000000', borderBottom: '1.5px solid #000000', paddingBottom: '4px', marginBottom: '4px', textTransform: 'uppercase' }}>
+                                                    <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#000000', borderBottom: '1px solid rgba(124, 92, 183, 0.08)', paddingBottom: '4px', marginBottom: '4px', textTransform: 'uppercase' }}>
                                                         House Hit Remedies (NL Hit: House {nlHit})
                                                     </div>
                                                     {nlHitRemedies.map((remedy, idx) => {
@@ -1545,7 +1545,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
 
                                             {hasSlHitRemedies && (
                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                                    <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#000000', borderBottom: '1.5px solid #000000', paddingBottom: '4px', marginBottom: '4px', textTransform: 'uppercase' }}>
+                                                    <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#000000', borderBottom: '1px solid rgba(124, 92, 183, 0.08)', paddingBottom: '4px', marginBottom: '4px', textTransform: 'uppercase' }}>
                                                         House Hit Remedies (SL Hit: House {slHit})
                                                     </div>
                                                     {slHitRemedies.map((remedy, idx) => {
@@ -1575,7 +1575,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                 )}
 
                 {isMarriage && !isTransitMode && (
-                    <div style={{ borderBottom: '1.5px solid #000000', padding: '12px', background: '#f8fafc' }}>
+                    <div style={{ borderBottom: '1px solid rgba(124, 92, 183, 0.08)', padding: '12px', background: '#f8fafc' }}>
                         <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#1e3a8a', marginBottom: '8px', textTransform: 'uppercase', textAlign: 'center' }}>
                             IMPORTANT NOTES
                         </div>
@@ -1743,7 +1743,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
 
                                             {hasNlHitRemedies && (
                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                                    <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#000000', borderBottom: '1.5px solid #000000', paddingBottom: '4px', marginBottom: '4px', textTransform: 'uppercase' }}>
+                                                    <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#000000', borderBottom: '1px solid rgba(124, 92, 183, 0.08)', paddingBottom: '4px', marginBottom: '4px', textTransform: 'uppercase' }}>
                                                         House Hit Remedies (NL Hit: House {nlHit})
                                                     </div>
                                                     {nlHitRemedies.map((remedy, idx) => {
@@ -1767,7 +1767,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
 
                                             {hasSlHitRemedies && (
                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                                    <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#000000', borderBottom: '1.5px solid #000000', paddingBottom: '4px', marginBottom: '4px', textTransform: 'uppercase' }}>
+                                                    <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#000000', borderBottom: '1px solid rgba(124, 92, 183, 0.08)', paddingBottom: '4px', marginBottom: '4px', textTransform: 'uppercase' }}>
                                                         House Hit Remedies (SL Hit: House {slHit})
                                                     </div>
                                                     {slHitRemedies.map((remedy, idx) => {
@@ -1813,7 +1813,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                 <div style={{
                     padding: '16px',
                     background: '#ffffff',
-                    borderTop: '2px solid #000000',
+                    borderTop: '1px solid rgba(124, 92, 183, 0.08)',
                     fontFamily: "'Inter', sans-serif"
                 }}>
                     <h4 style={{
@@ -1846,8 +1846,8 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                         const weaknessText = FIRST_CSL_NL_RASHI_WEAKNESS[rashiKey] || "No significant weakness indicated.";
 
                         return (
-                            <div style={{ marginBottom: '20px', border: '2px solid #000000', borderRadius: '4px', overflow: 'hidden' }}>
-                                <div style={{ background: '#fef2f2', padding: '10px 12px', borderBottom: '2px solid #000000', fontWeight: 900, fontSize: '0.85rem', color: '#b91c1c', textTransform: 'uppercase', textAlign: 'center' }}>
+                            <div style={{ marginBottom: '20px', border: '1px solid rgba(124, 92, 183, 0.08)', borderRadius: '4px', overflow: 'hidden' }}>
+                                <div style={{ background: '#fef2f2', padding: '10px 12px', borderBottom: '1px solid rgba(124, 92, 183, 0.08)', fontWeight: 900, fontSize: '0.85rem', color: '#b91c1c', textTransform: 'uppercase', textAlign: 'center' }}>
                                     1st CSL Nakshatra Lord Rasi Placed Weakness or Negativity
                                 </div>
                                 <div style={{ padding: '12px', background: '#ffffff', fontSize: '0.8rem', color: '#334155', lineHeight: '1.6' }}>
@@ -1892,7 +1892,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                         <table key={activeHit} style={{
                                             width: '100%',
                                             borderCollapse: 'collapse',
-                                            border: '2px solid #000000',
+                                            border: '1px solid rgba(124, 92, 183, 0.08)',
                                             fontSize: '0.75rem'
                                         }}>
                                             <tbody>
@@ -1903,7 +1903,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                         verticalAlign: 'middle',
                                                         fontWeight: 900,
                                                         fontSize: '1.1rem',
-                                                        border: '2px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         background: '#f8fafc'
                                                     }}>
                                                         {activeHit}
@@ -1912,7 +1912,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                         width: '80px',
                                                         fontWeight: 900,
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         background: '#f8fafc',
                                                         color: '#000000'
                                                     }}>
@@ -1920,7 +1920,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     </td>
                                                     <td style={{
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         color: '#000000',
                                                         fontWeight: 500
                                                     }}>
@@ -1931,7 +1931,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     <td style={{
                                                         fontWeight: 900,
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         background: '#f8fafc',
                                                         color: '#000000'
                                                     }}>
@@ -1939,7 +1939,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     </td>
                                                     <td style={{
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         color: '#000000',
                                                         fontWeight: 500
                                                     }}>
@@ -1950,7 +1950,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     <td style={{
                                                         fontWeight: 900,
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         background: '#f8fafc',
                                                         color: '#000000'
                                                     }}>
@@ -1958,7 +1958,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     </td>
                                                     <td style={{
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         color: '#000000',
                                                         fontWeight: 500
                                                     }}>
@@ -1996,7 +1996,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <table key={num} style={{
                                                 width: '100%',
                                                 borderCollapse: 'collapse',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 fontSize: '0.75rem'
                                             }}>
                                                 <tbody>
@@ -2007,7 +2007,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             verticalAlign: 'middle',
                                                             fontWeight: 900,
                                                             fontSize: '1.1rem',
-                                                            border: '2px solid #000000',
+                                                            border: '1px solid rgba(124, 92, 183, 0.08)',
                                                             background: '#f8fafc'
                                                         }}>
                                                             {num}
@@ -2016,7 +2016,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             width: '80px',
                                                             fontWeight: 900,
                                                             padding: '8px',
-                                                            border: '1px solid #000000',
+                                                            border: '1px solid rgba(124, 92, 183, 0.08)',
                                                             background: '#f8fafc',
                                                             color: '#000000'
                                                         }}>
@@ -2024,7 +2024,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                         </td>
                                                         <td style={{
                                                             padding: '8px',
-                                                            border: '1px solid #000000',
+                                                            border: '1px solid rgba(124, 92, 183, 0.08)',
                                                             color: '#000000',
                                                             fontWeight: 500
                                                         }}>
@@ -2035,7 +2035,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                         <td style={{
                                                             fontWeight: 900,
                                                             padding: '8px',
-                                                            border: '1px solid #000000',
+                                                            border: '1px solid rgba(124, 92, 183, 0.08)',
                                                             background: '#f8fafc',
                                                             color: '#000000'
                                                         }}>
@@ -2043,7 +2043,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                         </td>
                                                         <td style={{
                                                             padding: '8px',
-                                                            border: '1px solid #000000',
+                                                            border: '1px solid rgba(124, 92, 183, 0.08)',
                                                             color: '#000000',
                                                             fontWeight: 500
                                                         }}>
@@ -2054,7 +2054,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                         <td style={{
                                                             fontWeight: 900,
                                                             padding: '8px',
-                                                            border: '1px solid #000000',
+                                                            border: '1px solid rgba(124, 92, 183, 0.08)',
                                                             background: '#f8fafc',
                                                             color: '#000000'
                                                         }}>
@@ -2062,7 +2062,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                         </td>
                                                         <td style={{
                                                             padding: '8px',
-                                                            border: '1px solid #000000',
+                                                            border: '1px solid rgba(124, 92, 183, 0.08)',
                                                             color: '#000000',
                                                             fontWeight: 500
                                                         }}>
@@ -2085,7 +2085,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                 <div style={{
                     padding: '16px',
                     background: '#ffffff',
-                    borderTop: '2px solid #000000',
+                    borderTop: '1px solid rgba(124, 92, 183, 0.08)',
                     fontFamily: "'Inter', sans-serif"
                 }}>
                     <h4 style={{
@@ -2127,7 +2127,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                         <table key={activeHit} style={{
                                             width: '100%',
                                             borderCollapse: 'collapse',
-                                            border: '2px solid #000000',
+                                            border: '1px solid rgba(124, 92, 183, 0.08)',
                                             fontSize: '0.75rem'
                                         }}>
                                             <tbody>
@@ -2138,7 +2138,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                         verticalAlign: 'middle',
                                                         fontWeight: 900,
                                                         fontSize: '1.1rem',
-                                                        border: '2px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         background: '#f8fafc'
                                                     }}>
                                                         {activeHit}
@@ -2147,7 +2147,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                         width: '80px',
                                                         fontWeight: 900,
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         background: '#f8fafc',
                                                         color: '#000000'
                                                     }}>
@@ -2155,7 +2155,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     </td>
                                                     <td style={{
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         color: '#000000',
                                                         fontWeight: 500
                                                     }}>
@@ -2166,7 +2166,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     <td style={{
                                                         fontWeight: 900,
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         background: '#f8fafc',
                                                         color: '#000000'
                                                     }}>
@@ -2174,7 +2174,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     </td>
                                                     <td style={{
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         color: '#000000',
                                                         fontWeight: 500
                                                     }}>
@@ -2185,7 +2185,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     <td style={{
                                                         fontWeight: 900,
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         background: '#f8fafc',
                                                         color: '#000000'
                                                     }}>
@@ -2193,7 +2193,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     </td>
                                                     <td style={{
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         color: '#000000',
                                                         fontWeight: 500
                                                     }}>
@@ -2231,7 +2231,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <table key={num} style={{
                                                 width: '100%',
                                                 borderCollapse: 'collapse',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 fontSize: '0.75rem'
                                             }}>
                                                 <tbody>
@@ -2242,7 +2242,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             verticalAlign: 'middle',
                                                             fontWeight: 900,
                                                             fontSize: '1.1rem',
-                                                            border: '2px solid #000000',
+                                                            border: '1px solid rgba(124, 92, 183, 0.08)',
                                                             background: '#f8fafc'
                                                         }}>
                                                             {num}
@@ -2251,7 +2251,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             width: '80px',
                                                             fontWeight: 900,
                                                             padding: '8px',
-                                                            border: '1px solid #000000',
+                                                            border: '1px solid rgba(124, 92, 183, 0.08)',
                                                             background: '#f8fafc',
                                                             color: '#000000'
                                                         }}>
@@ -2259,7 +2259,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                         </td>
                                                         <td style={{
                                                             padding: '8px',
-                                                            border: '1px solid #000000',
+                                                            border: '1px solid rgba(124, 92, 183, 0.08)',
                                                             color: '#000000',
                                                             fontWeight: 500
                                                         }}>
@@ -2270,7 +2270,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                         <td style={{
                                                             fontWeight: 900,
                                                             padding: '8px',
-                                                            border: '1px solid #000000',
+                                                            border: '1px solid rgba(124, 92, 183, 0.08)',
                                                             background: '#f8fafc',
                                                             color: '#000000'
                                                         }}>
@@ -2278,7 +2278,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                         </td>
                                                         <td style={{
                                                             padding: '8px',
-                                                            border: '1px solid #000000',
+                                                            border: '1px solid rgba(124, 92, 183, 0.08)',
                                                             color: '#000000',
                                                             fontWeight: 500
                                                         }}>
@@ -2289,7 +2289,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                         <td style={{
                                                             fontWeight: 900,
                                                             padding: '8px',
-                                                            border: '1px solid #000000',
+                                                            border: '1px solid rgba(124, 92, 183, 0.08)',
                                                             background: '#f8fafc',
                                                             color: '#000000'
                                                         }}>
@@ -2297,7 +2297,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                         </td>
                                                         <td style={{
                                                             padding: '8px',
-                                                            border: '1px solid #000000',
+                                                            border: '1px solid rgba(124, 92, 183, 0.08)',
                                                             color: '#000000',
                                                             fontWeight: 500
                                                         }}>
@@ -2320,7 +2320,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                     <div style={{
                         padding: '16px',
                         background: '#ffffff',
-                        borderTop: '2px solid #000000',
+                        borderTop: '1px solid rgba(124, 92, 183, 0.08)',
                         fontFamily: "'Inter', sans-serif"
                     }}>
                         <h4 style={{
@@ -2362,7 +2362,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <table key={activeHit} style={{
                                                 width: '100%',
                                                 borderCollapse: 'collapse',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 fontSize: '0.75rem'
                                             }}>
                                                 <tbody>
@@ -2373,7 +2373,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 verticalAlign: 'middle',
                                                 fontWeight: 900,
                                                 fontSize: '1.1rem',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc'
                                             }}>
                                                 {activeHit}
@@ -2382,7 +2382,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 width: '80px',
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -2390,7 +2390,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -2401,7 +2401,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <td style={{
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -2409,7 +2409,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -2420,7 +2420,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <td style={{
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -2428,7 +2428,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -2466,7 +2466,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 <table key={num} style={{
                                                     width: '100%',
                                                     borderCollapse: 'collapse',
-                                                    border: '2px solid #000000',
+                                                    border: '1px solid rgba(124, 92, 183, 0.08)',
                                                     fontSize: '0.75rem'
                                                 }}>
                                                     <tbody>
@@ -2477,7 +2477,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 verticalAlign: 'middle',
                                                                 fontWeight: 900,
                                                                 fontSize: '1.1rem',
-                                                                border: '2px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc'
                                                             }}>
                                                                 {num}
@@ -2486,7 +2486,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 width: '80px',
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -2494,7 +2494,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -2505,7 +2505,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -2513,7 +2513,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -2524,7 +2524,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -2532,7 +2532,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -2555,7 +2555,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                     <div style={{
                         padding: '16px',
                         background: '#ffffff',
-                        borderTop: '2px solid #000000',
+                        borderTop: '1px solid rgba(124, 92, 183, 0.08)',
                         fontFamily: "'Inter', sans-serif"
                     }}>
                         <h4 style={{
@@ -2597,7 +2597,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <table key={activeHit} style={{
                                                 width: '100%',
                                                 borderCollapse: 'collapse',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 fontSize: '0.75rem'
                                             }}>
                                                 <tbody>
@@ -2608,7 +2608,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 verticalAlign: 'middle',
                                                 fontWeight: 900,
                                                 fontSize: '1.1rem',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc'
                                             }}>
                                                 {activeHit}
@@ -2617,7 +2617,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 width: '80px',
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -2625,7 +2625,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -2636,7 +2636,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <td style={{
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -2644,7 +2644,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -2655,7 +2655,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <td style={{
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -2663,7 +2663,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -2701,7 +2701,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 <table key={num} style={{
                                                     width: '100%',
                                                     borderCollapse: 'collapse',
-                                                    border: '2px solid #000000',
+                                                    border: '1px solid rgba(124, 92, 183, 0.08)',
                                                     fontSize: '0.75rem'
                                                 }}>
                                                     <tbody>
@@ -2712,7 +2712,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 verticalAlign: 'middle',
                                                                 fontWeight: 900,
                                                                 fontSize: '1.1rem',
-                                                                border: '2px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc'
                                                             }}>
                                                                 {num}
@@ -2721,7 +2721,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 width: '80px',
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -2729,7 +2729,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -2740,7 +2740,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -2748,7 +2748,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -2759,7 +2759,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -2767,7 +2767,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -2790,7 +2790,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                     <div style={{
                         padding: '16px',
                         background: '#ffffff',
-                        borderTop: '2px solid #000000',
+                        borderTop: '1px solid rgba(124, 92, 183, 0.08)',
                         fontFamily: "'Inter', sans-serif"
                     }}>
                         <h4 style={{
@@ -2832,7 +2832,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <table key={activeHit} style={{
                                                 width: '100%',
                                                 borderCollapse: 'collapse',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 fontSize: '0.75rem'
                                             }}>
                                                 <tbody>
@@ -2843,7 +2843,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 verticalAlign: 'middle',
                                                 fontWeight: 900,
                                                 fontSize: '1.1rem',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc'
                                             }}>
                                                 {activeHit}
@@ -2852,7 +2852,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 width: '80px',
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -2860,7 +2860,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -2871,7 +2871,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <td style={{
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -2879,7 +2879,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -2890,7 +2890,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <td style={{
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -2898,7 +2898,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -2936,7 +2936,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 <table key={num} style={{
                                                     width: '100%',
                                                     borderCollapse: 'collapse',
-                                                    border: '2px solid #000000',
+                                                    border: '1px solid rgba(124, 92, 183, 0.08)',
                                                     fontSize: '0.75rem'
                                                 }}>
                                                     <tbody>
@@ -2947,7 +2947,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 verticalAlign: 'middle',
                                                                 fontWeight: 900,
                                                                 fontSize: '1.1rem',
-                                                                border: '2px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc'
                                                             }}>
                                                                 {num}
@@ -2956,7 +2956,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 width: '80px',
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -2964,7 +2964,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -2975,7 +2975,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -2983,7 +2983,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -2994,7 +2994,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -3002,7 +3002,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -3025,7 +3025,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                     <div style={{
                         padding: '16px',
                         background: '#ffffff',
-                        borderTop: '2px solid #000000',
+                        borderTop: '1px solid rgba(124, 92, 183, 0.08)',
                         fontFamily: "'Inter', sans-serif"
                     }}>
                         <h4 style={{
@@ -3135,8 +3135,8 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                             const capitalize = (s: string) => s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
                             return (
-                                <div style={{ marginBottom: '20px', border: '2px solid #000000', borderRadius: '4px', overflow: 'hidden' }}>
-                                    <div style={{ background: '#fef2f2', padding: '10px 12px', borderBottom: '2px solid #000000', fontWeight: 900, fontSize: '0.85rem', color: '#b91c1c', textTransform: 'uppercase', textAlign: 'center' }}>
+                                <div style={{ marginBottom: '20px', border: '1px solid rgba(124, 92, 183, 0.08)', borderRadius: '4px', overflow: 'hidden' }}>
+                                    <div style={{ background: '#fef2f2', padding: '10px 12px', borderBottom: '1px solid rgba(124, 92, 183, 0.08)', fontWeight: 900, fontSize: '0.85rem', color: '#b91c1c', textTransform: 'uppercase', textAlign: 'center' }}>
                                         6TH CUSP GENERAL COMBINATION (DISEASE)
                                     </div>
                                     <div style={{ padding: '12px', background: '#ffffff', fontSize: '0.8rem', color: '#334155', lineHeight: '1.6' }}>
@@ -3200,7 +3200,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <table key={activeHit} style={{
                                                 width: '100%',
                                                 borderCollapse: 'collapse',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 fontSize: '0.75rem'
                                             }}>
                                                 <tbody>
@@ -3211,7 +3211,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 verticalAlign: 'middle',
                                                 fontWeight: 900,
                                                 fontSize: '1.1rem',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc'
                                             }}>
                                                 {activeHit}
@@ -3220,7 +3220,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 width: '80px',
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -3228,7 +3228,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -3239,7 +3239,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <td style={{
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -3247,7 +3247,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -3258,7 +3258,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <td style={{
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -3266,7 +3266,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -3277,7 +3277,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <td style={{
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -3285,7 +3285,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -3323,7 +3323,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 <table key={num} style={{
                                                     width: '100%',
                                                     borderCollapse: 'collapse',
-                                                    border: '2px solid #000000',
+                                                    border: '1px solid rgba(124, 92, 183, 0.08)',
                                                     fontSize: '0.75rem'
                                                 }}>
                                                     <tbody>
@@ -3334,7 +3334,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 verticalAlign: 'middle',
                                                                 fontWeight: 900,
                                                                 fontSize: '1.1rem',
-                                                                border: '2px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc'
                                                             }}>
                                                                 {num}
@@ -3343,7 +3343,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 width: '80px',
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -3351,7 +3351,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -3362,7 +3362,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -3370,7 +3370,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -3381,7 +3381,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -3389,7 +3389,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -3400,7 +3400,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -3408,7 +3408,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -3431,7 +3431,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                     <div style={{
                         padding: '16px',
                         background: '#ffffff',
-                        borderTop: '2px solid #000000',
+                        borderTop: '1px solid rgba(124, 92, 183, 0.08)',
                         fontFamily: "'Inter', sans-serif"
                     }}>
                         <h4 style={{
@@ -3475,8 +3475,8 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                 ][plHit] || "Not available";
 
                                 return (
-                                    <div style={{ border: '2px solid #000000', borderRadius: '4px', overflow: 'hidden' }}>
-                                        <div style={{ background: '#eff6ff', padding: '10px 12px', borderBottom: '2px solid #000000', fontWeight: 900, fontSize: '0.85rem', color: '#1e40af', textTransform: 'uppercase', textAlign: 'center' }}>
+                                    <div style={{ border: '1px solid rgba(124, 92, 183, 0.08)', borderRadius: '4px', overflow: 'hidden' }}>
+                                        <div style={{ background: '#eff6ff', padding: '10px 12px', borderBottom: '1px solid rgba(124, 92, 183, 0.08)', fontWeight: 900, fontSize: '0.85rem', color: '#1e40af', textTransform: 'uppercase', textAlign: 'center' }}>
                                             Marriage Fixed By
                                         </div>
                                         <div style={{ padding: '12px', background: '#ffffff' }}>
@@ -3510,8 +3510,8 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                 const activeCharacteristic = partnerCharacteristics[activePlanetName] || "Not available";
 
                                 return (
-                                    <div style={{ border: '2px solid #000000', borderRadius: '4px', overflow: 'hidden' }}>
-                                        <div style={{ background: '#fdf2f8', padding: '10px 12px', borderBottom: '2px solid #000000', fontWeight: 900, fontSize: '0.85rem', color: '#be185d', textTransform: 'uppercase', textAlign: 'center' }}>
+                                    <div style={{ border: '1px solid rgba(124, 92, 183, 0.08)', borderRadius: '4px', overflow: 'hidden' }}>
+                                        <div style={{ background: '#fdf2f8', padding: '10px 12px', borderBottom: '1px solid rgba(124, 92, 183, 0.08)', fontWeight: 900, fontSize: '0.85rem', color: '#be185d', textTransform: 'uppercase', textAlign: 'center' }}>
                                             Nature of Partner
                                         </div>
                                         <div style={{ padding: '12px', background: '#ffffff' }}>
@@ -3547,8 +3547,8 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                 ][plHit] || "Not available";
 
                                 return (
-                                    <div style={{ border: '2px solid #000000', borderRadius: '4px', overflow: 'hidden' }}>
-                                        <div style={{ background: '#fef3c7', padding: '10px 12px', borderBottom: '2px solid #000000', fontWeight: 900, fontSize: '0.85rem', color: '#92400e', textTransform: 'uppercase', textAlign: 'center' }}>
+                                    <div style={{ border: '1px solid rgba(124, 92, 183, 0.08)', borderRadius: '4px', overflow: 'hidden' }}>
+                                        <div style={{ background: '#fef3c7', padding: '10px 12px', borderBottom: '1px solid rgba(124, 92, 183, 0.08)', fontWeight: 900, fontSize: '0.85rem', color: '#92400e', textTransform: 'uppercase', textAlign: 'center' }}>
                                             7th Cusp General Combination (Houses in Content of Marriage)
                                         </div>
                                         <div style={{ padding: '12px', background: '#ffffff' }}>
@@ -3585,7 +3585,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <table key={activeHit} style={{
                                                 width: '100%',
                                                 borderCollapse: 'collapse',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 fontSize: '0.75rem'
                                             }}>
                                                 <tbody>
@@ -3596,7 +3596,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 verticalAlign: 'middle',
                                                 fontWeight: 900,
                                                 fontSize: '1.1rem',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc'
                                             }}>
                                                 {activeHit}
@@ -3605,7 +3605,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 width: '80px',
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -3613,7 +3613,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -3624,7 +3624,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <td style={{
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -3632,7 +3632,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -3643,7 +3643,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <td style={{
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -3651,7 +3651,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -3689,7 +3689,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 <table key={num} style={{
                                                     width: '100%',
                                                     borderCollapse: 'collapse',
-                                                    border: '2px solid #000000',
+                                                    border: '1px solid rgba(124, 92, 183, 0.08)',
                                                     fontSize: '0.75rem'
                                                 }}>
                                                     <tbody>
@@ -3700,7 +3700,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 verticalAlign: 'middle',
                                                                 fontWeight: 900,
                                                                 fontSize: '1.1rem',
-                                                                border: '2px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc'
                                                             }}>
                                                                 {num}
@@ -3709,7 +3709,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 width: '80px',
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -3717,7 +3717,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -3728,7 +3728,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -3736,7 +3736,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -3747,7 +3747,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -3755,7 +3755,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -3778,7 +3778,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                     <div style={{
                         padding: '16px',
                         background: '#ffffff',
-                        borderTop: '2px solid #000000',
+                        borderTop: '1px solid rgba(124, 92, 183, 0.08)',
                         fontFamily: "'Inter', sans-serif"
                     }}>
                         <h4 style={{
@@ -3820,7 +3820,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <table key={activeHit} style={{
                                                 width: '100%',
                                                 borderCollapse: 'collapse',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 fontSize: '0.75rem'
                                             }}>
                                                 <tbody>
@@ -3831,7 +3831,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 verticalAlign: 'middle',
                                                 fontWeight: 900,
                                                 fontSize: '1.1rem',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc'
                                             }}>
                                                 {activeHit}
@@ -3840,7 +3840,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 width: '80px',
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -3848,7 +3848,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -3859,7 +3859,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <td style={{
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -3867,7 +3867,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -3878,7 +3878,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <td style={{
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -3886,7 +3886,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -3924,7 +3924,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 <table key={num} style={{
                                                     width: '100%',
                                                     borderCollapse: 'collapse',
-                                                    border: '2px solid #000000',
+                                                    border: '1px solid rgba(124, 92, 183, 0.08)',
                                                     fontSize: '0.75rem'
                                                 }}>
                                                     <tbody>
@@ -3935,7 +3935,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 verticalAlign: 'middle',
                                                                 fontWeight: 900,
                                                                 fontSize: '1.1rem',
-                                                                border: '2px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc'
                                                             }}>
                                                                 {num}
@@ -3944,7 +3944,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 width: '80px',
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -3952,7 +3952,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -3963,7 +3963,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -3971,7 +3971,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -3982,7 +3982,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -3990,7 +3990,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -4013,7 +4013,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                     <div style={{
                         padding: '16px',
                         background: '#ffffff',
-                        borderTop: '2px solid #000000',
+                        borderTop: '1px solid rgba(124, 92, 183, 0.08)',
                         fontFamily: "'Inter', sans-serif"
                     }}>
                         <h4 style={{
@@ -4055,7 +4055,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <table key={activeHit} style={{
                                                         width: '100%',
                                                         borderCollapse: 'collapse',
-                                                        border: '2px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         fontSize: '0.75rem'
                                                         }}>
                                             <tbody>
@@ -4066,7 +4066,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                         verticalAlign: 'middle',
                                                         fontWeight: 900,
                                                         fontSize: '1.1rem',
-                                                        border: '2px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         background: '#f8fafc'
                                                         }}>
                                                         {activeHit}
@@ -4075,7 +4075,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                         width: '80px',
                                                         fontWeight: 900,
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         background: '#f8fafc',
                                                         color: '#000000'
                                                         }}>
@@ -4083,7 +4083,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     </td>
                                                     <td style={{
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         color: '#000000',
                                                         fontWeight: 500
                                                         }}>
@@ -4094,7 +4094,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     <td style={{
                                                         fontWeight: 900,
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         background: '#f8fafc',
                                                         color: '#000000'
                                                         }}>
@@ -4102,7 +4102,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     </td>
                                                     <td style={{
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         color: '#000000',
                                                         fontWeight: 500
                                                         }}>
@@ -4113,7 +4113,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     <td style={{
                                                         fontWeight: 900,
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         background: '#f8fafc',
                                                         color: '#000000'
                                                         }}>
@@ -4121,7 +4121,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     </td>
                                                     <td style={{
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         color: '#000000',
                                                         fontWeight: 500
                                                         }}>
@@ -4132,7 +4132,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     <td style={{
                                                         fontWeight: 900,
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         background: '#f8fafc',
                                                         color: '#000000'
                                                         }}>
@@ -4140,7 +4140,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     </td>
                                                     <td style={{
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         color: '#000000',
                                                         fontWeight: 500
                                                         }}>
@@ -4151,7 +4151,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     <td style={{
                                                         fontWeight: 900,
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         background: '#f8fafc',
                                                         color: '#000000'
                                                         }}>
@@ -4159,7 +4159,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                     </td>
                                                     <td style={{
                                                         padding: '8px',
-                                                        border: '1px solid #000000',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
                                                         color: '#000000',
                                                         fontWeight: 500
                                                         }}>
@@ -4197,7 +4197,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 <table key={num} style={{
                                                     width: '100%',
                                                     borderCollapse: 'collapse',
-                                                    border: '2px solid #000000',
+                                                    border: '1px solid rgba(124, 92, 183, 0.08)',
                                                     fontSize: '0.75rem'
                                                 }}>
                                                     <tbody>
@@ -4208,7 +4208,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 verticalAlign: 'middle',
                                                                 fontWeight: 900,
                                                                 fontSize: '1.1rem',
-                                                                border: '2px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc'
                                                             }}>
                                                                 {num}
@@ -4217,7 +4217,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 width: '80px',
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -4225,7 +4225,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -4236,7 +4236,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -4244,7 +4244,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -4255,7 +4255,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -4263,7 +4263,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -4274,7 +4274,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -4282,7 +4282,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                              }}>
@@ -4293,7 +4293,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -4301,7 +4301,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -4324,7 +4324,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                     <div style={{
                         padding: '16px',
                         background: '#ffffff',
-                        borderTop: '2px solid #000000',
+                        borderTop: '1px solid rgba(124, 92, 183, 0.08)',
                         fontFamily: "'Inter', sans-serif"
                     }}>
                         <h4 style={{
@@ -4366,7 +4366,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <table key={activeHit} style={{
                                                 width: '100%',
                                                 borderCollapse: 'collapse',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 fontSize: '0.75rem'
                                             }}>
                                                 <tbody>
@@ -4377,7 +4377,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 verticalAlign: 'middle',
                                                 fontWeight: 900,
                                                 fontSize: '1.1rem',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc'
                                             }}>
                                                 {activeHit}
@@ -4386,7 +4386,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 width: '80px',
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -4394,7 +4394,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -4405,7 +4405,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <td style={{
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -4413,7 +4413,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -4451,7 +4451,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 <table key={num} style={{
                                                     width: '100%',
                                                     borderCollapse: 'collapse',
-                                                    border: '2px solid #000000',
+                                                    border: '1px solid rgba(124, 92, 183, 0.08)',
                                                     fontSize: '0.75rem'
                                                 }}>
                                                     <tbody>
@@ -4462,7 +4462,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 verticalAlign: 'middle',
                                                                 fontWeight: 900,
                                                                 fontSize: '1.1rem',
-                                                                border: '2px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc'
                                                             }}>
                                                                 {num}
@@ -4471,7 +4471,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 width: '80px',
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -4479,7 +4479,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -4490,7 +4490,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -4498,7 +4498,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -4521,7 +4521,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                     <div style={{
                         padding: '16px',
                         background: '#ffffff',
-                        borderTop: '2px solid #000000',
+                        borderTop: '1px solid rgba(124, 92, 183, 0.08)',
                         fontFamily: "'Inter', sans-serif"
                     }}>
                         <h4 style={{
@@ -4563,7 +4563,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <table key={activeHit} style={{
                                                 width: '100%',
                                                 borderCollapse: 'collapse',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 fontSize: '0.75rem'
                                             }}>
                                                 <tbody>
@@ -4574,7 +4574,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 verticalAlign: 'middle',
                                                 fontWeight: 900,
                                                 fontSize: '1.1rem',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc'
                                             }}>
                                                 {activeHit}
@@ -4583,7 +4583,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 width: '80px',
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -4591,7 +4591,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -4629,7 +4629,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 <table key={num} style={{
                                                     width: '100%',
                                                     borderCollapse: 'collapse',
-                                                    border: '2px solid #000000',
+                                                    border: '1px solid rgba(124, 92, 183, 0.08)',
                                                     fontSize: '0.75rem'
                                                 }}>
                                                     <tbody>
@@ -4640,7 +4640,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 verticalAlign: 'middle',
                                                                 fontWeight: 900,
                                                                 fontSize: '1.1rem',
-                                                                border: '2px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc'
                                                             }}>
                                                                 {num}
@@ -4649,7 +4649,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 width: '80px',
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -4657,7 +4657,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -4680,7 +4680,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                     <div style={{
                         padding: '16px',
                         background: '#ffffff',
-                        borderTop: '2px solid #000000',
+                        borderTop: '1px solid rgba(124, 92, 183, 0.08)',
                         fontFamily: "'Inter', sans-serif"
                     }}>
                         <h4 style={{
@@ -4722,7 +4722,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <table key={activeHit} style={{
                                                 width: '100%',
                                                 borderCollapse: 'collapse',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 fontSize: '0.75rem'
                                             }}>
                                                 <tbody>
@@ -4733,7 +4733,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 verticalAlign: 'middle',
                                                 fontWeight: 900,
                                                 fontSize: '1.1rem',
-                                                border: '2px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc'
                                             }}>
                                                 {activeHit}
@@ -4742,7 +4742,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 width: '80px',
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -4750,7 +4750,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -4761,7 +4761,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <td style={{
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -4769,7 +4769,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -4780,7 +4780,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             <td style={{
                                                 fontWeight: 900,
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 background: '#f8fafc',
                                                 color: '#000000'
                                             }}>
@@ -4788,7 +4788,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                             </td>
                                             <td style={{
                                                 padding: '8px',
-                                                border: '1px solid #000000',
+                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                 color: '#000000',
                                                 fontWeight: 500
                                             }}>
@@ -4826,7 +4826,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                 <table key={num} style={{
                                                     width: '100%',
                                                     borderCollapse: 'collapse',
-                                                    border: '2px solid #000000',
+                                                    border: '1px solid rgba(124, 92, 183, 0.08)',
                                                     fontSize: '0.75rem'
                                                 }}>
                                                     <tbody>
@@ -4837,7 +4837,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 verticalAlign: 'middle',
                                                                 fontWeight: 900,
                                                                 fontSize: '1.1rem',
-                                                                border: '2px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc'
                                                             }}>
                                                                 {num}
@@ -4846,7 +4846,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                                 width: '80px',
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -4854,7 +4854,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -4865,7 +4865,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -4873,7 +4873,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>
@@ -4884,7 +4884,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             <td style={{
                                                                 fontWeight: 900,
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 background: '#f8fafc',
                                                                 color: '#000000'
                                                             }}>
@@ -4892,7 +4892,7 @@ const JobPredictionTable: React.FC<JobPredictionTableProps> = ({
                                                             </td>
                                                             <td style={{
                                                                 padding: '8px',
-                                                                border: '1px solid #000000',
+                                                                border: '1px solid rgba(124, 92, 183, 0.08)',
                                                                 color: '#000000',
                                                                 fontWeight: 500
                                                             }}>

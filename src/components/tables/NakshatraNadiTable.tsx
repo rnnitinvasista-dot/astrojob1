@@ -42,16 +42,16 @@ const NakshatraNadiTable: React.FC<NakshatraNadiTableProps> = ({ data, isFinderM
             width: '100%',
             maxWidth: '100%',
             padding: '1rem 0.5rem',
-            borderTop: '5px solid #d4af37',
+            border: '1px solid rgba(124, 92, 183, 0.08)',
+            borderRadius: '12px',
             background: 'var(--secondary-light)',
-            border: '3px solid #000000',
             boxShadow: isFinderMode ? 'none' : undefined
         }}>
             <h2 style={{ textAlign: 'center', color: 'var(--text)', marginBottom: '1.5rem', fontWeight: 800 }}>
                 KP Combination
             </h2>
-            <div className="table-container" style={{ border: 'none' }}>
-                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+            <div className="table-container" style={{ border: 'none', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: '400px' }}>
                     <thead>
                         <tr style={{ background: 'var(--secondary-light)', color: 'var(--secondary)' }}>
                             <th style={{ width: '100px', border: '1px solid #e2e8f0', padding: '8px' }}>Planet</th>

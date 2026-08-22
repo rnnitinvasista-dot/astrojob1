@@ -48,22 +48,22 @@ const HouseTable: React.FC<HouseTableProps> = ({ houses, planets, isFinderMode =
     return (
         <div className="card" style={{ 
             background: 'var(--secondary-light)', 
-            border: '3px solid #000000', 
-            borderRadius: '0',
+            border: '1px solid rgba(124, 92, 183, 0.08)', 
+            borderRadius: '12px',
             boxShadow: isFinderMode ? 'none' : undefined
         }}>
             <h2 style={{ marginBottom: '1rem', color: 'var(--text)', fontWeight: 800 }}>KP Houses (Cusps)</h2>
-            <div className="table-container" style={{ border: '2px solid #000000' }}>
-                <table style={{ fontSize: '0.8125rem', borderCollapse: 'collapse', width: '100%' }}>
+            <div className="table-container" style={{ border: '1px solid rgba(124, 92, 183, 0.08)' }}>
+                <table style={{ fontSize: '0.85rem', borderCollapse: 'collapse', width: '100%' }}>
                     <thead>
                         <tr>
-                            <th style={{ border: '1px solid #000000', padding: '8px', color: 'var(--text)' }}>Hos</th>
-                            <th style={{ width: '35%', border: '1px solid #000000', padding: '8px', color: 'var(--text)' }}>Significations</th>
-                            <th style={{ border: '1px solid #000000', padding: '8px', color: 'var(--text)' }}>Degree</th>
-                            <th style={{ border: '1px solid #000000', padding: '8px', color: 'var(--text)' }}>SL</th>
-                            <th style={{ border: '1px solid #000000', padding: '8px', color: 'var(--text)' }}>NL</th>
-                            <th style={{ border: '1px solid #000000', padding: '8px', backgroundColor: 'var(--primary)', color: '#000000' }}>SB</th>
-                            <th style={{ border: '1px solid #000000', padding: '8px', color: 'var(--text)' }}>SS</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '10px', color: 'var(--text)' }}>Hos</th>
+                            <th style={{ width: '35%', border: '1px solid #e2e8f0', padding: '10px', color: 'var(--text)' }}>Significations</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '10px', color: 'var(--text)' }}>Degree</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '10px', color: 'var(--text)' }}>SL</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '10px', color: 'var(--text)' }}>NL</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '10px', backgroundColor: 'var(--primary)', color: '#ffffff' }}>SB</th>
+                            <th style={{ border: '1px solid #e2e8f0', padding: '10px', color: 'var(--text)' }}>SS</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -74,10 +74,10 @@ const HouseTable: React.FC<HouseTableProps> = ({ houses, planets, isFinderMode =
                                     {houseDescriptions[house.house_number]}
                                 </td>
                                 <td style={{ border: '1px solid #e2e8f0', padding: '8px' }}>{house.cusp_degree_dms}</td>
-                                <td style={{ border: '1px solid #000000', padding: '8px' }}>{renderLord(house.sign_lord, '#1e293b')}</td>
-                                <td style={{ border: '1px solid #000000', padding: '8px' }}>{renderLord(house.star_lord, '#1e293b')}</td>
-                                <td style={{ border: '1px solid #000000', padding: '8px', backgroundColor: 'var(--primary-light)' }}>{renderLord(house.sub_lord, '#000000')}</td>
-                                <td style={{ border: '1px solid #000000', padding: '8px' }}>{renderLord(house.sub_sub_lord, '#1e293b')}</td>
+                                <td style={{ border: '1px solid #e2e8f0', padding: '10px' }}>{renderLord(house.sign_lord, 'var(--text)')}</td>
+                                <td style={{ border: '1px solid #e2e8f0', padding: '10px' }}>{renderLord(house.star_lord, 'var(--text)')}</td>
+                                <td style={{ border: '1px solid #e2e8f0', padding: '10px', backgroundColor: 'var(--primary-light)' }}>{renderLord(house.sub_lord, 'var(--primary)')}</td>
+                                <td style={{ border: '1px solid #e2e8f0', padding: '10px' }}>{renderLord(house.sub_sub_lord, 'var(--text)')}</td>
                             </tr>
                         ))}
                     </tbody>

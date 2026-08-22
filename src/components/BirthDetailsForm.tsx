@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
-import { Search, MapPin, X, History as HistoryIcon } from 'lucide-react';
+import { Search, MapPin, X, History as HistoryIcon, Shield, Info, User, Moon, Star } from 'lucide-react';
 import type { BirthDetails } from '../types/astrology';
 
 interface BirthDetailsFormProps {
@@ -33,7 +33,7 @@ const STANDARD_CITIES: Record<string, { lat: number, lon: number, name: string }
     'ahmedabad': { lat: 23.0225, lon: 72.5714, name: 'Ahmedabad, Gujarat, India' }
 };
 
-const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading, mode, isExpired, initialData }) => {
+const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading, mode, isExpired, initialData, onBack }) => {
     const isPrashna = mode === 'Prashna';
     const isNatalOrParashara = mode === 'Natal' || mode === 'Parashara' || mode === 'BNN' || mode === 'Yearly';
     
@@ -48,7 +48,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
     const [birthYear, setBirthYear] = useState('');
     const [birthHour, setBirthHour] = useState('');
     const [birthMin, setBirthMin] = useState('');
-    const [birthSec, setBirthSec] = useState('');
+    const [birthSec, setBirthSec] = useState('00');
 
     const dayRef = useRef<HTMLInputElement>(null);
     const monthRef = useRef<HTMLInputElement>(null);
@@ -85,7 +85,6 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
             return;
         }
 
-        // Only auto-fill for Prashna mode
         if (mode === 'Prashna') {
             const now = new Date();
             const d = String(now.getDate()).padStart(2, '0');
@@ -110,18 +109,13 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                 place: 'Detecting Location...'
             }));
 
-            // Auto-detect location AND Reverse Geocode
+            // Geolocation auto detect
             const detectLocation = async () => {
                 try {
                     const position = await Geolocation.getCurrentPosition();
                     const { latitude, longitude } = position.coords;
-                    setFormData(prev => ({
-                        ...prev,
-                        latitude,
-                        longitude
-                    }));
+                    setFormData(prev => ({ ...prev, latitude, longitude }));
 
-                    // Reverse Geocoding
                     const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
                     const data = await res.json();
                     if (data.address) {
@@ -151,7 +145,6 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
             };
             detectLocation();
         } else {
-            // Restore Natal Defaults - Empty for user entry
             setFormData(prev => ({
                 ...prev,
                 name: '',
@@ -162,7 +155,7 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                 longitude: 77.5833
             }));
             setBirthDay(''); setBirthMonth(''); setBirthYear('');
-            setBirthHour(''); setBirthMin(''); setBirthSec('');
+            setBirthHour(''); setBirthMin(''); setBirthSec('00');
         }
     }, [mode, isPrashna, initialData]);
 
@@ -176,7 +169,6 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
             const lowerQuery = query.toLowerCase().trim();
             const standardMatch = STANDARD_CITIES[lowerQuery];
 
-            // If we have a standard match, use ONLY that and stop
             if (standardMatch) {
                 setSuggestions([{
                     display_name: standardMatch.name,
@@ -187,7 +179,6 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                 return;
             }
 
-            // Use Open-Meteo Geocoding API — free, no key, CORS-friendly, no rate limits
             const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=15&language=en&format=json`;
             const response = await fetch(url);
             const data = await response.json();
@@ -197,14 +188,11 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                 return;
             }
 
-            // Filter by selected country code
             const countryResults = data.results.filter((r: any) =>
                 r.country_code?.toLowerCase() === selectedCountry.toLowerCase()
             );
 
-            // Use country-filtered results, or fallback to all if none match
             const pool = countryResults.length > 0 ? countryResults : data.results;
-
             const seenCities = new Set<string>();
             const uniqueData: LocationSuggestion[] = [];
 
@@ -212,7 +200,6 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
                 const primaryWord = item.name.split(' ')[0].toLowerCase().trim();
                 if (!seenCities.has(primaryWord)) {
                     seenCities.add(primaryWord);
-                    // Build a readable display name: City, State, Country
                     const parts = [item.name, item.admin1, item.country].filter(Boolean);
                     const displayName = parts.join(', ');
                     uniqueData.push({
@@ -247,12 +234,29 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
         maxLength: number, 
         nextRef?: React.RefObject<HTMLInputElement | null>
     ) => {
-        // Only allow numbers
         const cleaned = value.replace(/[^0-9]/g, '');
         setter(cleaned);
         if (cleaned.length === maxLength && nextRef?.current) {
             nextRef.current.focus();
         }
+    };
+
+    const handleClearAll = () => {
+        setFormData(prev => ({
+            ...prev,
+            name: '',
+            date_of_birth: '',
+            time_of_birth: '',
+            place: '',
+            latitude: 12.9666,
+            longitude: 77.5833
+        }));
+        setBirthDay('');
+        setBirthMonth('');
+        setBirthYear('');
+        setBirthHour('');
+        setBirthMin('');
+        setBirthSec('00');
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -272,315 +276,762 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
         onSubmit(finalData);
     };
 
+    const getBreadcrumbLabel = () => {
+        switch (mode) {
+            case 'Natal': return 'Birth Chart';
+            case 'Prashna': return 'Prashana Kundali';
+            case 'BNN': return 'Bhrigu Nandi Nadi';
+            case 'Yearly': return 'Yearly Prediction';
+            case 'Numerology': return 'Numerology';
+            case 'MatchMaking': return 'Match Making';
+            case 'Parashara': return 'Parashara Kundli';
+            default: return 'Astrology Tool';
+        }
+    };
+
     return (
-        <div className="safe-padding-top" style={{ background: 'var(--bg)', minHeight: '100vh', padding: '0 1rem 2rem' }}>
-            <div style={{ 
-                width: '100%', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                gap: '1rem',
-                border: '3px solid #000000',
-                padding: '1.5rem',
-                borderRadius: '16px',
-                background: 'var(--secondary-light)',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
-            }}>
+        <div style={{ background: 'var(--bg)', minHeight: '100vh', padding: 'calc(env(safe-area-inset-top, 20px) + 2rem) 1.5rem 3rem' }}>
+            <style>{`
+                .form-split-grid {
+                    display: grid;
+                    grid-template-columns: 1.4fr 1fr;
+                    gap: 2rem;
+                }
+                .form-inputs-layout {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 1.25rem;
+                }
+                @media (max-width: 900px) {
+                    .form-split-grid {
+                        grid-template-columns: 1fr !important;
+                        gap: 1.5rem !important;
+                    }
+                    .form-right-illustration {
+                        display: none !important;
+                    }
+                    .form-inputs-layout {
+                        grid-template-columns: 1fr !important;
+                        gap: 1rem !important;
+                    }
+                }
+            `}</style>
+
+            <div style={{ maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
+                
+                {/* Header breadcrumb & info row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.25rem', marginBottom: '1.5rem' }}>
+                    <div>
+                        {/* Breadcrumbs */}
+                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'flex', gap: '6px', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>
+                            <span style={{ cursor: 'pointer' }} onClick={onBack}>Dashboard</span>
+                            <span>&gt;</span>
+                            <span style={{ cursor: 'pointer' }} onClick={onBack}>{getBreadcrumbLabel()}</span>
+                            <span>&gt;</span>
+                            <span style={{ color: 'var(--primary)' }}>Birth Details</span>
+                        </div>
+                        {/* Title */}
+                        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.5rem, 3vw, 2.2rem)', fontWeight: 700, color: 'var(--secondary)', margin: '0 0 0.5rem' }}>
+                            Let's Start with Your Birth Details
+                        </h1>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0, fontWeight: 400 }}>
+                            Accurate birth details help us generate your precise birth chart and personalized insights.
+                        </p>
+                    </div>
+
+                    {/* Privacy badge */}
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.75rem',
+                        background: 'rgba(124, 92, 183, 0.03)',
+                        border: '1px solid rgba(124, 92, 183, 0.08)',
+                        padding: '0.75rem 1.25rem',
+                        borderRadius: '12px',
+                        maxWidth: '280px'
+                    }}>
+                        <Shield size={24} style={{ color: 'var(--primary)', flexShrink: 0 }} />
+                        <div style={{ fontSize: '0.75rem', lineHeight: 1.4, color: 'var(--text-muted)' }}>
+                            <strong style={{ color: 'var(--secondary)', display: 'block' }}>Your data is safe and private.</strong>
+                            We never share your information.
+                        </div>
+                    </div>
+                </div>
+
+                {/* Form recents switcher (only for non-prashna) */}
                 {isNatalOrParashara && (
-                    <div className="parchment-card" style={{ padding: '0', display: 'flex', marginBottom: '1.5rem', overflow: 'hidden' }}>
+                    <div style={{
+                        display: 'inline-flex',
+                        background: '#F4F1FA',
+                        borderRadius: '8px',
+                        padding: '4px',
+                        marginBottom: '1.5rem'
+                    }}>
+                        <button
+                            onClick={() => setActiveTab('NEW')}
+                            style={{
+                                border: 'none',
+                                background: activeTab === 'NEW' ? 'white' : 'transparent',
+                                color: activeTab === 'NEW' ? 'var(--primary)' : 'var(--text-muted)',
+                                padding: '6px 16px',
+                                borderRadius: '6px',
+                                fontWeight: 700,
+                                fontSize: '0.8rem',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            NEW DETAILS
+                        </button>
                         <button
                             onClick={() => setActiveTab('RECENTS')}
                             style={{
-                                flex: 1, padding: '1rem', border: 'none',
-                                background: activeTab === 'RECENTS' ? 'white' : 'var(--primary-light)',
+                                border: 'none',
+                                background: activeTab === 'RECENTS' ? 'white' : 'transparent',
                                 color: activeTab === 'RECENTS' ? 'var(--primary)' : 'var(--text-muted)',
-                                fontWeight: 'bold', cursor: 'pointer'
+                                padding: '6px 16px',
+                                borderRadius: '6px',
+                                fontWeight: 700,
+                                fontSize: '0.8rem',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
                             }}
                         >
                             RECENTS
                         </button>
-                        <button
-                            onClick={() => setActiveTab('NEW')}
-                            style={{
-                                flex: 1, padding: '1rem', border: 'none',
-                                background: activeTab === 'NEW' ? 'var(--primary)' : 'var(--primary-light)',
-                                color: activeTab === 'NEW' ? 'white' : 'var(--text-muted)',
-                                fontWeight: 'bold', cursor: 'pointer'
-                            }}
-                        >
-                            NEW
-                        </button>
                     </div>
                 )}
 
-                {activeTab === 'RECENTS' && isNatalOrParashara ? (
-                    <div style={{ minHeight: '300px' }}>
-                        {JSON.parse(localStorage.getItem('astro_recents') || '[]').filter((r: any) => String(r.mode) !== 'Prashna').length === 0 ? (
-                            <div className="parchment-card" style={{ textAlign: 'center', padding: '3rem 1rem', color: '#94a3b8' }}>
-                                <HistoryIcon size={48} style={{ marginBottom: '1rem', opacity: 0.3 }} />
-                                <p>No recent history found</p>
-                            </div>
-                        ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                {JSON.parse(localStorage.getItem('astro_recents') || '[]')
-                                    .filter((r: any) => String(r.mode) !== 'Prashna')
-                                    .map((item: any) => (
-                                        <div
-                                            key={item.id}
-                                            onClick={() => {
-                                                setFormData(item);
-                                                const [y, m, d] = item.date_of_birth.split('-');
-                                                setBirthYear(y); setBirthMonth(m); setBirthDay(d);
-                                                const [h, min, s] = item.time_of_birth.split(':');
-                                                setBirthHour(h); setBirthMin(min); setBirthSec(s);
-                                                setActiveTab('NEW');
-                                            }}
-                                            className="parchment-card"
-                                            style={{
-                                                cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'transform 0.2s'
-                                            }}
-                                        >
-                                            <div>
-                                                <div style={{ fontWeight: 800, color: '#1e3a8a' }}>{item.name || 'Unnamed'}</div>
-                                                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                                                    {item.date_of_birth} | {item.time_of_birth}
+                {/* Split main grid layout */}
+                <div className="form-split-grid">
+                    
+                    {/* Left: Input fields panel */}
+                    <div style={{
+                        background: 'white',
+                        border: '1px solid rgba(124, 92, 183, 0.08)',
+                        borderRadius: '16px',
+                        padding: '2rem',
+                        boxShadow: 'var(--shadow)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1.5rem'
+                    }}>
+                        {activeTab === 'RECENTS' && isNatalOrParashara ? (
+                            <div style={{ minHeight: '320px' }}>
+                                {JSON.parse(localStorage.getItem('astro_recents') || '[]').filter((r: any) => String(r.mode) !== 'Prashna').length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '4rem 1rem', color: '#94a3b8' }}>
+                                        <HistoryIcon size={48} style={{ marginBottom: '1rem', opacity: 0.3, color: 'var(--primary)' }} />
+                                        <p style={{ fontSize: '0.9rem', margin: 0 }}>No recent history found</p>
+                                    </div>
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                        {JSON.parse(localStorage.getItem('astro_recents') || '[]')
+                                            .filter((r: any) => String(r.mode) !== 'Prashna')
+                                            .map((item: any) => (
+                                                <div
+                                                    key={item.id}
+                                                    onClick={() => {
+                                                        setFormData(item);
+                                                        const [y, m, d] = item.date_of_birth.split('-');
+                                                        setBirthYear(y); setBirthMonth(m); setBirthDay(d);
+                                                        const [h, min, s] = item.time_of_birth.split(':');
+                                                        setBirthHour(h); setBirthMin(min); setBirthSec(s);
+                                                        setActiveTab('NEW');
+                                                    }}
+                                                    style={{
+                                                        cursor: 'pointer',
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center',
+                                                        padding: '1rem',
+                                                        borderRadius: '12px',
+                                                        border: '1px solid rgba(124, 92, 183, 0.08)',
+                                                        background: 'var(--bg)',
+                                                        transition: 'border-color 0.2s'
+                                                    }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(124, 92, 183, 0.08)'}
+                                                >
+                                                    <div>
+                                                        <div style={{ fontWeight: 800, color: 'var(--secondary)', fontSize: '0.95rem' }}>{item.name || 'Unnamed'}</div>
+                                                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                                                            {item.date_of_birth} | {item.time_of_birth}
+                                                        </div>
+                                                        <div style={{ fontSize: '0.75rem', color: 'var(--primary)', marginTop: '4px', fontWeight: 600 }}>{item.place}</div>
+                                                    </div>
+                                                    <Search size={18} style={{ color: 'var(--primary)' }} />
                                                 </div>
-                                                <div style={{ fontSize: '0.75rem', color: 'var(--primary)', marginTop: '4px' }}>{item.place}</div>
-                                            </div>
-                                            <Search size={18} color="#cbd5e1" />
-                                        </div>
-                                    ))}
-                            </div>
-                        )}
-                    </div>
-                ) : (
-                    <form onSubmit={handleSubmit}>
-                        {isNatalOrParashara && (
-                            <div className="parchment-card">
-                                <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Name: *</label>
-                                <input
-                                    type="text"
-                                    placeholder="Enter Name"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                            dayRef.current?.focus();
-                                        }
-                                    }}
-                                    required
-                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
-                                />
-                            </div>
-                        )}
-
-                        <div className="parchment-card">
-                            <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Date: * (DD/MM/YYYY)</label>
-                            <div className="input-segmented">
-                                <input 
-                                    ref={dayRef}
-                                    className="segmented-field" 
-                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} 
-                                    type="text" 
-                                    placeholder="DD" 
-                                    maxLength={2} 
-                                    value={birthDay} 
-                                    onChange={(e) => handleInputChange(e.target.value, setBirthDay, 2, monthRef)} 
-                                />
-                                <span style={{ color: 'black', fontWeight: 800 }}>/</span>
-                                <input 
-                                    ref={monthRef}
-                                    className="segmented-field" 
-                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} 
-                                    type="text" 
-                                    placeholder="MM" 
-                                    maxLength={2} 
-                                    value={birthMonth} 
-                                    onChange={(e) => handleInputChange(e.target.value, setBirthMonth, 2, yearRef)} 
-                                />
-                                <span style={{ color: 'black', fontWeight: 800 }}>/</span>
-                                <input 
-                                    ref={yearRef}
-                                    className="segmented-field" 
-                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} 
-                                    type="text" 
-                                    placeholder="YYYY" 
-                                    maxLength={4} 
-                                    value={birthYear} 
-                                    onChange={(e) => handleInputChange(e.target.value, setBirthYear, 4, hourRef)} 
-                                />
-                            </div>
-                        </div>
-
-                        <div className="parchment-card">
-                            <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Time: * (00:00:00 - 24 hrs)</label>
-                            <div className="input-segmented">
-                                <input 
-                                    ref={hourRef}
-                                    className="segmented-field" 
-                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} 
-                                    type="text" 
-                                    placeholder="HH" 
-                                    maxLength={2} 
-                                    value={birthHour} 
-                                    onChange={(e) => handleInputChange(e.target.value, setBirthHour, 2, minRef)} 
-                                />
-                                <span style={{ color: 'black', fontWeight: 800 }}>:</span>
-                                <input 
-                                    ref={minRef}
-                                    className="segmented-field" 
-                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} 
-                                    type="text" 
-                                    placeholder="MM" 
-                                    maxLength={2} 
-                                    value={birthMin} 
-                                    onChange={(e) => handleInputChange(e.target.value, setBirthMin, 2, secRef)} 
-                                />
-                                <span style={{ color: 'black', fontWeight: 800 }}>:</span>
-                                <input 
-                                    ref={secRef}
-                                    className="segmented-field" 
-                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.5rem' }} 
-                                    type="text" 
-                                    placeholder="SS" 
-                                    maxLength={2} 
-                                    value={birthSec} 
-                                    onChange={(e) => handleInputChange(e.target.value, setBirthSec, 2)} 
-                                />
-                            </div>
-                        </div>
-
-                        <div className="parchment-card" onClick={() => setShowLocationModal(true)} style={{ cursor: 'pointer' }}>
-                            <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Place: *</label>
-                            <div style={{ padding: '0.5rem 0', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span style={{ fontSize: '1rem', fontWeight: 600, color: '#1e293b' }}>{formData.place}</span>
-                                <MapPin size={18} color="black" />
-                            </div>
-                        </div>
-
-
-                        <div className="parchment-card">
-                            <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Gender</label>
-                            <div className="radio-group">
-                                {['Male', 'Female', 'Others'].map((g) => (
-                                    <label key={g} className="radio-item" style={{ fontSize: '0.9rem', color: '#1e3a8a' }}>
-                                        <input
-                                            type="radio" name="gender" value={g}
-                                            checked={formData.gender === g}
-                                            onChange={() => setFormData({ ...formData, gender: g as any })}
-                                            style={{ accentColor: 'black', width: '20px', height: '20px' }}
-                                        />
-                                        {g}
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-
-                        {isPrashna ? (
-                            <div className="parchment-card">
-                                <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Enter number from 1 to 249 *</label>
-                                <input
-                                    type="number"
-                                    min={1}
-                                    max={249}
-                                    placeholder="1 - 249"
-                                    value={formData.horary_number || ''}
-                                    onChange={(e) => setFormData({ ...formData, horary_number: parseInt(e.target.value) })}
-                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
-                                    required
-                                />
+                                            ))}
+                                    </div>
+                                )}
                             </div>
                         ) : (
-                            <div className="parchment-card">
-                                <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Ayanamsa:</label>
-                                <div style={{ padding: '0.6rem', border: '1.5px solid #cbd5e1', background: 'var(--primary-light)', color: 'var(--text)', fontWeight: 600, fontSize: '0.9rem' }}>
-                                    KP New (Krishnamurti)
+                            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                
+                                {/* Info icon header inside card */}
+                                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', borderBottom: '1px solid rgba(124, 92, 183, 0.08)', paddingBottom: '1rem' }}>
+                                    <div style={{
+                                        width: '36px', height: '36px', borderRadius: '50%', background: 'var(--primary-light)',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)'
+                                    }}>
+                                        <User size={18} />
+                                    </div>
+                                    <div>
+                                        <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--secondary)', margin: 0 }}>Basic Information</h3>
+                                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>Please enter your birth details as accurately as possible.</p>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
 
-                        <button
-                            type="submit"
-                            className="scroll-button"
-                            disabled={isLoading || isExpired}
-                            style={{
-                                color: isExpired ? '#94a3b8' : 'var(--text)',
-                                background: isExpired ? '#e2e8f0' : 'var(--primary)',
-                                borderColor: isExpired ? '#e2e8f0' : '#000000',
-                                cursor: isExpired ? 'not-allowed' : 'pointer'
-                            }}
-                        >
-                            {isLoading ? 'Wait...' : (isExpired ? 'Subscription Expired' : (isPrashna ? 'Generate Prashna Kundli' : 'Generate Prediction'))}
-                        </button>
-                    </form>
-                )}
+                                <div className="form-inputs-layout">
+                                    
+                                    {/* Name Input */}
+                                    {isNatalOrParashara && (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                            <label style={{ color: 'var(--secondary)', fontWeight: 700, fontSize: '0.75rem', letterSpacing: '0.05em' }}>FULL NAME</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Enter Name"
+                                                value={formData.name}
+                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                required
+                                                style={{
+                                                    border: '1.5px solid rgba(124, 92, 183, 0.15)',
+                                                    borderRadius: '8px',
+                                                    padding: '0.7rem 0.9rem',
+                                                    width: '100%',
+                                                    background: 'white',
+                                                    fontSize: '0.9rem',
+                                                    outline: 'none',
+                                                    color: 'var(--text)',
+                                                    fontFamily: 'inherit'
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+
+                                    {/* Date input (using segments DD MM YYYY but looking clean and rounded) */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                        <label style={{ color: 'var(--secondary)', fontWeight: 700, fontSize: '0.75rem', letterSpacing: '0.05em' }}>DATE OF BIRTH</label>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <input 
+                                                ref={dayRef}
+                                                type="text" 
+                                                placeholder="DD" 
+                                                maxLength={2} 
+                                                value={birthDay} 
+                                                onChange={(e) => handleInputChange(e.target.value, setBirthDay, 2, monthRef)} 
+                                                style={{
+                                                    border: '1.5px solid rgba(124, 92, 183, 0.15)',
+                                                    borderRadius: '8px',
+                                                    padding: '0.7rem',
+                                                    width: '50px',
+                                                    textAlign: 'center',
+                                                    outline: 'none',
+                                                    fontSize: '0.9rem',
+                                                    color: 'var(--text)'
+                                                }}
+                                            />
+                                            <span style={{ color: 'rgba(124, 92, 183, 0.3)', fontWeight: 700 }}>/</span>
+                                            <input 
+                                                ref={monthRef}
+                                                type="text" 
+                                                placeholder="MM" 
+                                                maxLength={2} 
+                                                value={birthMonth} 
+                                                onChange={(e) => handleInputChange(e.target.value, setBirthMonth, 2, yearRef)} 
+                                                style={{
+                                                    border: '1.5px solid rgba(124, 92, 183, 0.15)',
+                                                    borderRadius: '8px',
+                                                    padding: '0.7rem',
+                                                    width: '50px',
+                                                    textAlign: 'center',
+                                                    outline: 'none',
+                                                    fontSize: '0.9rem',
+                                                    color: 'var(--text)'
+                                                }}
+                                            />
+                                            <span style={{ color: 'rgba(124, 92, 183, 0.3)', fontWeight: 700 }}>/</span>
+                                            <input 
+                                                ref={yearRef}
+                                                type="text" 
+                                                placeholder="YYYY" 
+                                                maxLength={4} 
+                                                value={birthYear} 
+                                                onChange={(e) => handleInputChange(e.target.value, setBirthYear, 4, hourRef)} 
+                                                style={{
+                                                    border: '1.5px solid rgba(124, 92, 183, 0.15)',
+                                                    borderRadius: '8px',
+                                                    padding: '0.7rem',
+                                                    width: '75px',
+                                                    textAlign: 'center',
+                                                    outline: 'none',
+                                                    fontSize: '0.9rem',
+                                                    color: 'var(--text)'
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Time of birth HH:MM:SS */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                        <label style={{ color: 'var(--secondary)', fontWeight: 700, fontSize: '0.75rem', letterSpacing: '0.05em' }}>TIME OF BIRTH</label>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <input 
+                                                ref={hourRef}
+                                                type="text" 
+                                                placeholder="HH" 
+                                                maxLength={2} 
+                                                value={birthHour} 
+                                                onChange={(e) => handleInputChange(e.target.value, setBirthHour, 2, minRef)} 
+                                                style={{
+                                                    border: '1.5px solid rgba(124, 92, 183, 0.15)',
+                                                    borderRadius: '8px',
+                                                    padding: '0.7rem',
+                                                    width: '50px',
+                                                    textAlign: 'center',
+                                                    outline: 'none',
+                                                    fontSize: '0.9rem',
+                                                    color: 'var(--text)'
+                                                }}
+                                            />
+                                            <span style={{ color: 'rgba(124, 92, 183, 0.3)', fontWeight: 700 }}>:</span>
+                                            <input 
+                                                ref={minRef}
+                                                type="text" 
+                                                placeholder="MM" 
+                                                maxLength={2} 
+                                                value={birthMin} 
+                                                onChange={(e) => handleInputChange(e.target.value, setBirthMin, 2, secRef)} 
+                                                style={{
+                                                    border: '1.5px solid rgba(124, 92, 183, 0.15)',
+                                                    borderRadius: '8px',
+                                                    padding: '0.7rem',
+                                                    width: '50px',
+                                                    textAlign: 'center',
+                                                    outline: 'none',
+                                                    fontSize: '0.9rem',
+                                                    color: 'var(--text)'
+                                                }}
+                                            />
+                                            <span style={{ color: 'rgba(124, 92, 183, 0.3)', fontWeight: 700 }}>:</span>
+                                            <input 
+                                                ref={secRef}
+                                                type="text" 
+                                                placeholder="SS" 
+                                                maxLength={2} 
+                                                value={birthSec} 
+                                                onChange={(e) => handleInputChange(e.target.value, setBirthSec, 2)} 
+                                                style={{
+                                                    border: '1.5px solid rgba(124, 92, 183, 0.15)',
+                                                    borderRadius: '8px',
+                                                    padding: '0.7rem',
+                                                    width: '50px',
+                                                    textAlign: 'center',
+                                                    outline: 'none',
+                                                    fontSize: '0.9rem',
+                                                    color: 'var(--text)'
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Place Input */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', cursor: 'pointer' }} onClick={() => setShowLocationModal(true)}>
+                                        <label style={{ color: 'var(--secondary)', fontWeight: 700, fontSize: '0.75rem', letterSpacing: '0.05em' }}>BIRTH PLACE</label>
+                                        <div style={{
+                                            border: '1.5px solid rgba(124, 92, 183, 0.15)',
+                                            borderRadius: '8px',
+                                            padding: '0.7rem 0.9rem',
+                                            background: 'white',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            fontSize: '0.9rem',
+                                            color: formData.place ? 'var(--text)' : '#94a3b8'
+                                        }}>
+                                            <span>{formData.place || 'Select Place'}</span>
+                                            <MapPin size={18} style={{ color: 'var(--primary)' }} />
+                                        </div>
+                                    </div>
+
+                                    {/* Gender Input */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                        <label style={{ color: 'var(--secondary)', fontWeight: 700, fontSize: '0.75rem', letterSpacing: '0.05em' }}>GENDER</label>
+                                        <div style={{ display: 'flex', gap: '1.5rem', height: '42px', alignItems: 'center' }}>
+                                            {['Male', 'Female', 'Others'].map((g) => (
+                                                <label key={g} style={{ fontSize: '0.85rem', color: 'var(--secondary)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                                                    <input
+                                                        type="radio" name="gender" value={g}
+                                                        checked={formData.gender === g}
+                                                        onChange={() => setFormData({ ...formData, gender: g as any })}
+                                                        style={{ accentColor: 'var(--primary)', width: '18px', height: '18px' }}
+                                                    />
+                                                    {g}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Prashna or Ayanamsa Option block */}
+                                    {isPrashna ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                            <label style={{ color: 'var(--secondary)', fontWeight: 700, fontSize: '0.75rem', letterSpacing: '0.05em' }}>HORARY NUMBER (1-249)</label>
+                                            <input
+                                                type="number"
+                                                min={1}
+                                                max={249}
+                                                placeholder="1 - 249"
+                                                value={formData.horary_number || ''}
+                                                onChange={(e) => setFormData({ ...formData, horary_number: parseInt(e.target.value) })}
+                                                required
+                                                style={{
+                                                    border: '1.5px solid rgba(124, 92, 183, 0.15)',
+                                                    borderRadius: '8px',
+                                                    padding: '0.7rem 0.9rem',
+                                                    width: '100%',
+                                                    background: 'white',
+                                                    fontSize: '0.9rem',
+                                                    outline: 'none',
+                                                    color: 'var(--text)',
+                                                    fontFamily: 'inherit'
+                                                }}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                            <label style={{ color: 'var(--secondary)', fontWeight: 700, fontSize: '0.75rem', letterSpacing: '0.05em' }}>AYANAMSA</label>
+                                            <select
+                                                value={formData.ayanamsa || 'KP'}
+                                                onChange={(e) => setFormData({ ...formData, ayanamsa: e.target.value })}
+                                                style={{
+                                                    padding: '0.7rem 0.9rem',
+                                                    border: '1.5px solid rgba(124, 92, 183, 0.15)',
+                                                    borderRadius: '8px',
+                                                    background: 'white',
+                                                    color: 'var(--text)',
+                                                    fontWeight: 600,
+                                                    fontSize: '0.9rem',
+                                                    outline: 'none',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                <option value="KP">KP New (Krishnamurti)</option>
+                                                <option value="Newcomb">Newcomb Ayanamsa</option>
+                                                <option value="Lahiri">Lahiri Ayanamsa</option>
+                                            </select>
+                                        </div>
+                                    )}
+
+                                </div>
+
+                                {/* Why details matter Info Box */}
+                                <div style={{
+                                    display: 'flex',
+                                    gap: '0.75rem',
+                                    background: 'rgba(124, 92, 183, 0.03)',
+                                    border: '1px solid rgba(124, 92, 183, 0.08)',
+                                    borderRadius: '12px',
+                                    padding: '1rem',
+                                    alignItems: 'flex-start',
+                                    marginTop: '0.5rem'
+                                }}>
+                                    <Info size={20} style={{ color: 'var(--primary)', flexShrink: 0, marginTop: '2px' }} />
+                                    <div>
+                                        <h4 style={{ margin: '0 0 2px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--secondary)' }}>Why accurate details matter?</h4>
+                                        <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.45 }}>
+                                            Even a difference of a few minutes can change your rising sign and planetary positions.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Action button row */}
+                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginTop: '0.5rem' }}>
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading || isExpired}
+                                        style={{
+                                            background: isExpired ? '#e2e8f0' : 'var(--primary)',
+                                            color: isExpired ? '#94a3b8' : 'white',
+                                            border: 'none',
+                                            borderRadius: '6px',
+                                            padding: '0.9rem 2.2rem',
+                                            fontWeight: 700,
+                                            letterSpacing: '0.05em',
+                                            fontSize: '0.85rem',
+                                            cursor: isExpired ? 'not-allowed' : 'pointer',
+                                            transition: 'all 0.2s',
+                                            boxShadow: isExpired ? 'none' : '0 4px 10px rgba(124, 92, 183, 0.15)',
+                                            textTransform: 'uppercase'
+                                        }}
+                                        onMouseEnter={(e) => { if (!isLoading && !isExpired) e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; }}
+                                    >
+                                        {isLoading ? 'WAIT...' : (isExpired ? 'SUBSCRIPTION EXPIRED' : (isPrashna ? 'GENERATE PRASHNA KUNDLI' : 'GENERATE CHART'))}
+                                    </button>
+
+                                    <span
+                                        onClick={handleClearAll}
+                                        style={{
+                                            fontSize: '0.8rem',
+                                            fontWeight: 700,
+                                            letterSpacing: '0.05em',
+                                            color: 'var(--text-muted)',
+                                            cursor: 'pointer',
+                                            textTransform: 'uppercase',
+                                            padding: '8px 12px',
+                                            transition: 'color 0.2s'
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                                    >
+                                        CLEAR ALL
+                                    </span>
+                                </div>
+
+                            </form>
+                        )}
+                    </div>
+
+                    {/* Right: Premium cosmic blueprint panel (Desktop only) */}
+                    <div className="form-right-illustration" style={{
+                        background: 'linear-gradient(180deg, #FDFBFA 0%, #F5F1FA 100%)',
+                        border: '1px solid rgba(124, 92, 183, 0.08)',
+                        borderRadius: '16px',
+                        padding: '2.5rem 2rem',
+                        boxShadow: 'var(--shadow)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        textAlign: 'center'
+                    }}>
+                        
+                        {/* Circular animated rings moon */}
+                        <div style={{
+                            position: 'relative',
+                            width: '180px',
+                            height: '180px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginBottom: '2rem'
+                        }}>
+                            <style>{`
+                                @keyframes form-orbit {
+                                    from { transform: rotate(0deg); }
+                                    to { transform: rotate(360deg); }
+                                }
+                            `}</style>
+                            <div style={{
+                                position: 'absolute',
+                                width: '170px',
+                                height: '170px',
+                                border: '1px dashed rgba(124, 92, 183, 0.15)',
+                                borderRadius: '50%',
+                                animation: 'form-orbit 30s linear infinite'
+                            }} />
+                            <div style={{
+                                position: 'absolute',
+                                width: '130px',
+                                height: '130px',
+                                border: '1.5px solid rgba(124, 92, 183, 0.1)',
+                                borderRadius: '50%'
+                            }} />
+                            <div style={{
+                                width: '90px',
+                                height: '90px',
+                                border: '1.5px solid rgba(124, 92, 183, 0.2)',
+                                borderRadius: '50%',
+                                background: 'white',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: '0 4px 12px rgba(124,92,183,0.06)'
+                            }}>
+                                <Moon size={28} style={{ color: 'var(--primary)', transform: 'rotate(-20deg)' }} />
+                            </div>
+                        </div>
+
+                        {/* Title descriptions */}
+                        <h2 style={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: '1.35rem',
+                            fontWeight: 700,
+                            color: 'var(--secondary)',
+                            margin: '0 0 0.5rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.02em'
+                        }}>
+                            Your Cosmic Blueprint Awaits
+                        </h2>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: '0 0 2rem', maxWidth: '280px' }}>
+                            Your birth chart is a map of the sky at the moment you were born.
+                        </p>
+
+                        {/* List bullets */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', maxWidth: '260px', textAlign: 'left' }}>
+                            {[
+                                'Understand your personality',
+                                'Discover your life purpose',
+                                'Navigate your path with clarity'
+                            ].map((item, idx) => (
+                                <div key={idx} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                                    <div style={{
+                                        width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(124, 92, 183, 0.05)',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', flexShrink: 0
+                                    }}>
+                                        <Star size={12} />
+                                    </div>
+                                    <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--secondary)' }}>
+                                        {item}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+
+                    </div>
+
+                </div>
+
             </div>
 
             {/* Location Search Modal */}
             {showLocationModal && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <div style={{ padding: '1rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h3 style={{ margin: 0, fontWeight: 800, color: '#1e3a8a' }}>Select Location</h3>
-                            <button onClick={() => setShowLocationModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                                <X size={24} color="#64748b" />
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 10000,
+                    padding: '20px'
+                }}>
+                    <div style={{
+                        background: 'white',
+                        padding: '1.5rem',
+                        borderRadius: '16px',
+                        maxWidth: '450px',
+                        width: '100%',
+                        position: 'relative',
+                        boxShadow: 'var(--shadow-lg)',
+                        border: '1px solid rgba(124, 92, 183, 0.1)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1rem'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.75rem' }}>
+                            <h3 style={{ margin: 0, fontWeight: 800, color: 'var(--secondary)', fontSize: '1.1rem' }}>Select Location</h3>
+                            <button onClick={() => setShowLocationModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
+                                <X size={20} />
                             </button>
                         </div>
-                        <div style={{ padding: '1rem' }}>
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#64748b', marginBottom: '8px' }}>Select Country</label>
-                                <select
-                                    value={selectedCountry}
-                                    onChange={(e) => setSelectedCountry(e.target.value)}
-                                    style={{ borderRadius: '0', border: '1.5px solid #cbd5e1', marginBottom: '1rem', background: '#f8fafc' }}
-                                >
-                                    <option value="in">India 🇮🇳</option>
-                                    <option value="us">USA 🇺🇸</option>
-                                    <option value="gb">UK 🇬🇧</option>
-                                    <option value="ca">Canada 🇨🇦</option>
-                                    <option value="au">Australia 🇦🇺</option>
-                                    <option value="ae">UAE 🇦🇪</option>
-                                    <option value="sg">Singapore 🇸🇬</option>
-                                    <option value="my">Malaysia 🇲🇾</option>
-                                    <option value="np">Nepal 🇳🇵</option>
-                                    <option value="lk">Sri Lanka 🇱🇰</option>
-                                </select>
-                            </div>
-                            <input
-                                type="text"
-                                placeholder="Search city name..."
-                                value={locationInput}
-                                onChange={(e) => {
-                                    const val = e.target.value;
-                                    setLocationInput(val);
-                                    
-                                    if (searchTimeout.current) {
-                                        clearTimeout(searchTimeout.current);
-                                    }
-                                    
-                                    if (val.length >= 3) {
-                                        searchTimeout.current = setTimeout(() => {
-                                            searchLocations(val);
-                                        }, 600);
-                                    } else {
-                                        setSuggestions([]);
-                                    }
+                        
+                        <div>
+                            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--secondary)', marginBottom: '6px' }}>SELECT COUNTRY</label>
+                            <select
+                                value={selectedCountry}
+                                onChange={(e) => setSelectedCountry(e.target.value)}
+                                style={{
+                                    width: '100%',
+                                    borderRadius: '8px',
+                                    border: '1.5px solid rgba(124, 92, 183, 0.15)',
+                                    background: '#f8fafc',
+                                    padding: '0.6rem',
+                                    outline: 'none',
+                                    fontSize: '0.9rem',
+                                    fontFamily: 'inherit'
                                 }}
-                                style={{ borderRadius: '0', border: '1.5px solid #cbd5e1' }}
-                            />
-                            <ul className="results-list" style={{ marginTop: '1rem' }}>
-                                {isSearching && <li style={{ padding: '1rem', color: '#64748b' }}>Searching...</li>}
-                                {suggestions.map((s, i) => (
-                                    <li key={i} className="result-item" onClick={() => handleSelectLocation(s)}>
-                                        <MapPin size={18} color="var(--primary)" />
-                                        <div>
-                                            <div style={{ fontWeight: 800, color: '#1e3a8a' }}>{s.display_name.split(',')[0]}</div>
-                                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{s.display_name.split(',').slice(1).join(',')}</div>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
+                            >
+                                <option value="in">India 🇮🇳</option>
+                                <option value="us">USA 🇺🇸</option>
+                                <option value="gb">UK 🇬🇧</option>
+                                <option value="ca">Canada 🇨🇦</option>
+                                <option value="au">Australia 🇦🇺</option>
+                                <option value="ae">UAE 🇦🇪</option>
+                                <option value="sg">Singapore 🇸🇬</option>
+                                <option value="my">Malaysia 🇲🇾</option>
+                                <option value="np">Nepal 🇳🇵</option>
+                                <option value="lk">Sri Lanka 🇱🇰</option>
+                            </select>
                         </div>
+
+                        <div>
+                            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--secondary)', marginBottom: '6px' }}>SEARCH CITY NAME</label>
+                            <div style={{ position: 'relative' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Search city name..."
+                                    value={locationInput}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setLocationInput(val);
+                                        
+                                        if (searchTimeout.current) {
+                                            clearTimeout(searchTimeout.current);
+                                        }
+                                        
+                                        if (val.length >= 3) {
+                                            searchTimeout.current = setTimeout(() => {
+                                                searchLocations(val);
+                                            }, 600);
+                                        } else {
+                                            setSuggestions([]);
+                                        }
+                                    }}
+                                    style={{
+                                        width: '100%',
+                                        borderRadius: '8px',
+                                        border: '1.5px solid rgba(124, 92, 183, 0.15)',
+                                        padding: '0.6rem 2rem 0.6rem 0.8rem',
+                                        outline: 'none',
+                                        fontSize: '0.9rem',
+                                        fontFamily: 'inherit'
+                                    }}
+                                />
+                                <Search size={16} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                            </div>
+                        </div>
+
+                        <ul style={{
+                            maxHeight: '200px',
+                            overflowY: 'auto',
+                            padding: 0,
+                            margin: 0,
+                            listStyle: 'none',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '4px'
+                        }}>
+                            {isSearching && <li style={{ padding: '0.75rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>Searching...</li>}
+                            {suggestions.map((s, i) => (
+                                <li
+                                    key={i}
+                                    onClick={() => handleSelectLocation(s)}
+                                    style={{
+                                        display: 'flex',
+                                        gap: '0.75rem',
+                                        alignItems: 'center',
+                                        padding: '0.75rem',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        background: '#f8fafc',
+                                        transition: 'background 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = '#f8fafc'}
+                                >
+                                    <MapPin size={18} style={{ color: 'var(--primary)' }} />
+                                    <div>
+                                        <div style={{ fontWeight: 800, color: 'var(--secondary)', fontSize: '0.85rem' }}>{s.display_name.split(',')[0]}</div>
+                                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{s.display_name.split(',').slice(1).join(',')}</div>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
             )}

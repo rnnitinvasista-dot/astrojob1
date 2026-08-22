@@ -85,40 +85,16 @@ const DashaTable: React.FC<DashaTableProps> = ({ dasha, isFinderMode = false }) 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%', maxWidth: '100%' }}>
             <div className="card" style={{
-                borderLeft: '4px solid var(--primary)',
-                borderTop: '5px solid var(--primary)',
-                width: '100%',
-                maxWidth: '100%',
-                padding: '1rem 0.5rem',
-                background: 'var(--secondary-light)'
-            }}>
-                <h2 style={{ marginBottom: '1rem', color: 'var(--text)', fontSize: '1.1rem', fontWeight: 700 }}>Dasha Summary</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
-                    <div>
-                        <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Balance</label>
-                        <div style={{ fontSize: '1rem', fontWeight: 700 }}>{dasha.balance_at_birth}</div>
-                    </div>
-                    <div>
-                        <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Active Path</label>
-                        <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--primary)' }}>
-                            {activeD}/{activeB}/{activeA}{activeP ? `/${activeP}` : ''}{activeS ? `/${activeS}` : ''}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="card" style={{
                 padding: 0,
                 overflow: 'hidden',
                 width: '100%',
                 maxWidth: '100%',
-                borderTop: '5px solid var(--primary)',
                 background: 'var(--secondary-light)',
-                border: '3px solid #000000',
+                border: '1px solid rgba(124, 92, 183, 0.08)',
                 boxShadow: isFinderMode ? 'none' : undefined
             }}>
-                <div style={{ padding: '1.25rem', borderBottom: '3px solid #000000', background: 'var(--primary)' }}>
-                    <h2 style={{ color: '#000000', fontSize: '1.1rem', fontWeight: 800 }}>Vimshottari Dasha Sequence</h2>
+                <div style={{ padding: '1.25rem', borderBottom: '1px solid rgba(124, 92, 183, 0.08)', background: 'var(--primary)' }}>
+                    <h2 style={{ color: '#ffffff', fontSize: '1.1rem', fontWeight: 800 }}>Vimshottari Dasha Sequence</h2>
                 </div>
                 <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>

@@ -7,7 +7,6 @@ import axios from 'axios';
 import PremiumSouthIndianChart from './components/charts/PremiumSouthIndianChart';
 import YearlyPrediction from './components/predictions/YearlyPrediction';
 import PlanetTable from './components/tables/PlanetTable';
-import FortunaAnalysis from './components/tables/FortunaAnalysis';
 import BirthTimeRectification from './components/tables/BirthTimeRectification';
 import DashaTable from './components/tables/DashaTable';
 import NakshatraNadiTable from './components/tables/NakshatraNadiTable';
@@ -19,7 +18,8 @@ import PowerPositionTable from './components/tables/PowerPositionTable';
 import { getApiUrl, fetchMixedPrashna } from './services/api';
 import { useAuth } from './contexts/AuthContext';
 import LoginPage from './components/auth/LoginPage';
-import { AlertCircle, Lock, X } from 'lucide-react';
+import LandingPage from './components/auth/LandingPage';
+import { AlertCircle, Lock, X, Compass, Clock, Crown, Eye, Layers, Home, Droplet, Settings, Globe, Calendar, Target, BookOpen, Moon, Sun, Star } from 'lucide-react';
 import PhaladeepikaTable from './components/tables/PhaladeepikaTable';
 import AIBotContent from './components/AIBotContent';
 import AdminPortal from './components/admin/AdminPortal';
@@ -32,7 +32,7 @@ import MatchMakingResult from './components/matchmaking/MatchMakingResult';
 import { App as CapApp } from '@capacitor/app';
 import { Geolocation } from '@capacitor/geolocation';
 import SimpleRulingPlanets from './components/tables/SimpleRulingPlanets';
-
+import NPTable from './components/tables/NPTable';
 // Types
 interface KundliResponse {
   ascendant: any;
@@ -101,10 +101,11 @@ const App = () => {
   const [mode, setMode] = useState<'Natal' | 'Prashna' | 'Parashara' | 'BNN' | 'Yearly' | 'Numerology' | 'MatchMaking'>('Natal');
   const [kundliData, setKundliData] = useState<KundliResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'planets' | 'dasha' | 'houses' | 'predictions' | 'combination' | 'adv_v1' | 'advance_predictions' | 'nadi' | 'phala' | 'power_position' | 'analysis' | 'yearly' | 'd1' | 'd2' | 'd4' | 'd5' | 'd6' | 'd7' | 'd8' | 'd10' | 'd11' | 'd12' | 'ruling_planets' | 'birth_time'>('planets');
-  const [showPlanetTable, setShowPlanetTable] = useState(false);
+  const [activeTab, setActiveTab] = useState<'planet_positions' | 'planets' | 'dasha' | 'houses' | 'predictions' | 'combination' | 'adv_v1' | 'advance_predictions' | 'nadi' | 'phala' | 'power_position' | 'analysis' | 'yearly' | 'd1' | 'd2' | 'd4' | 'd5' | 'd6' | 'd7' | 'd8' | 'd10' | 'd11' | 'd12' | 'ruling_planets' | 'birth_time' | 'np_technique'>('planets');
   const [error, setError] = useState<string | null>(null);
   const [birthDetails, setBirthDetails] = useState<any>(null);
+  const [showLogin, setShowLogin] = useState(false);
+  const [showExample, setShowExample] = useState(false);
   const [chartMode, setChartMode] = useState<'Rashi' | 'Bhava'>('Bhava');
   const [selectedArea, setSelectedArea] = useState('Dasha');
   const [selectedHouse, setSelectedHouse] = useState('None');
@@ -259,7 +260,6 @@ const App = () => {
         setKundliData(responseData);
         const isParashara = mode === 'Parashara' || mode.includes('Parashara');
         setActiveTab(mode === 'Yearly' ? 'yearly' : (isParashara ? 'd2' : 'planets'));
-        setShowPlanetTable(false);
         if (mode === 'Parashara') {
           setChartMode('Bhava');
         }
@@ -413,22 +413,6 @@ const App = () => {
       case 'planets':
         return (
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {/* Chart Mode Toggle */}
-            <div style={{
-              textAlign: 'center',
-              padding: '8px',
-              borderRadius: '12px',
-              width: 'fit-content',
-              margin: '0 auto',
-              border: '2px solid #000000',
-              background: 'var(--primary)',
-              fontWeight: 'bold',
-              fontSize: '0.8rem',
-              textTransform: 'uppercase'
-            }}>
-              KP Bhava Chart
-            </div>
-
             <PremiumSouthIndianChart
               planets={kundliData.planets}
               ascendant={kundliData.ascendant}
@@ -441,41 +425,6 @@ const App = () => {
               rashi={kundliData.planets.find(p => p.planet === 'Moon')?.sign}
             />
 
-            <FortunaAnalysis
-              planets={kundliData.planets}
-              ascendant={kundliData.ascendant}
-              houses={kundliData.houses}
-            />
-
-            <button
-              onClick={() => setShowPlanetTable(!showPlanetTable)}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: 'var(--primary)',
-                border: '3px solid #000000',
-                borderRadius: '0',
-                color: '#000000',
-                fontWeight: 700,
-                fontSize: '0.9rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-              }}
-            >
-              {showPlanetTable ? 'Hide KP Planets Table' : 'Show KP Planets Table'}
-            </button>
-
-            {showPlanetTable && (
-              <PlanetTable 
-                planets={sortPlanetsByNadi(kundliData.planets, p => p.planet)} 
-                ascendant={kundliData.ascendant} 
-                dasha={kundliData.dasha} 
-              />
-            )}
           </div>
         );
       case 'combination':
@@ -494,6 +443,22 @@ const App = () => {
         return (
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
             <NakshatraNadiTable data={kundliData.nakshatra_nadi} />
+          </div>
+        );
+      case 'np_technique':
+        return (
+          <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
+            <NPTable planets={kundliData.planets} houses={kundliData.houses} dasha={kundliData.dasha} />
+          </div>
+        );
+      case 'planet_positions':
+        return (
+          <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
+            <PlanetTable 
+              planets={sortPlanetsByNadi(kundliData.planets, p => p.planet)} 
+              ascendant={kundliData.ascendant} 
+              dasha={kundliData.dasha} 
+            />
           </div>
         );
       case 'ruling_planets':
@@ -522,12 +487,12 @@ const App = () => {
       case 'predictions':
         return (
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
-            <div style={{ padding: '8px', margin: '1rem 0', background: 'var(--primary-light)', borderRadius: '0', border: 'none' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '8px' }}>
+            <div style={{ padding: '12px', margin: '1rem 0', background: 'rgba(124, 92, 183, 0.04)', borderRadius: '12px', border: '1px solid rgba(124, 92, 183, 0.08)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '12px' }}>
                 <select
                   value={selectedArea}
                   onChange={(e) => setSelectedArea(e.target.value)}
-                  style={{ width: '100%', padding: '12px', borderRadius: '0', border: '2px solid #000000', background: 'white', fontWeight: 'bold', color: 'var(--text)' }}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(124, 92, 183, 0.2)', background: 'white', fontWeight: 'bold', color: 'var(--text)', outline: 'none' }}
                 >
                   <option>Dasha</option>
                   <option>Bhukti</option>
@@ -544,7 +509,7 @@ const App = () => {
                 <select
                   value={selectedPlanetFilter}
                   onChange={(e) => setSelectedPlanetFilter(e.target.value)}
-                  style={{ width: 'auto', padding: '12px 4px', borderRadius: '0', border: '2px solid #000000', background: 'white', fontWeight: 'bold', color: 'var(--text)', textAlign: 'center' }}
+                  style={{ width: 'auto', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(124, 92, 183, 0.2)', background: 'white', fontWeight: 'bold', color: 'var(--text)', textAlign: 'center', outline: 'none' }}
                 >
                   <option>None</option>
                   <option>Ketu</option>
@@ -812,7 +777,7 @@ const App = () => {
                 <select
                   value={selectedPlanetFilter}
                   onChange={(e) => setSelectedPlanetFilter(e.target.value)}
-                  style={{ width: 'auto', padding: '12px 4px', borderRadius: '0', border: '2px solid #000000', background: 'white', fontWeight: 'bold', color: 'var(--text)', textAlign: 'center' }}
+                  style={{ width: 'auto', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(124, 92, 183, 0.2)', background: 'white', fontWeight: 'bold', color: 'var(--text)', textAlign: 'center', outline: 'none' }}
                 >
                   <option>None</option>
                   <option>Ketu</option>
@@ -828,7 +793,7 @@ const App = () => {
                 <select
                   value={selectedHouse}
                   onChange={(e) => setSelectedHouse(e.target.value)}
-                  style={{ width: '100%', padding: '12px', borderRadius: '0', border: '2px solid #000000', background: 'white', fontWeight: 'bold', color: 'var(--text)' }}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(124, 92, 183, 0.2)', background: 'white', fontWeight: 'bold', color: 'var(--text)', outline: 'none' }}
                 >
                   <option>None</option>
                   {HOUSE_OPTIONS.map(opt => <option key={opt}>{opt}</option>)}
@@ -1034,9 +999,297 @@ const App = () => {
     }
   };
 
+  const renderResultsLayout = () => {
+    if (!kundliData) return null;
+
+    let displayTitle = 'Birth Chart';
+    let displaySubtitle = 'Explore the cosmic blueprint of your life.';
+    if (mode === 'Prashna') {
+      displayTitle = 'Prashana Kundali';
+      displaySubtitle = 'Horary chart analysis for question-based predictions.';
+    } else if (mode === 'Yearly') {
+      displayTitle = 'Yearly Prediction';
+      displaySubtitle = 'Detailed Varshaphala astrological forecast for the year.';
+    } else if (mode === 'BNN') {
+      displayTitle = 'Bhrighu Nandi Nadi';
+      displaySubtitle = 'Nadi astrology analysis and transit planetary guidelines.';
+    }
+
+    const subTabs = [
+      { id: 'planets', label: 'CHART', icon: Compass },
+      { id: 'dasha', label: 'DASHA', icon: Clock },
+      { id: 'np_technique', label: 'NP TECHNIQUE', icon: Layers },
+      { id: 'ruling_planets', label: 'RULING PLANETS', icon: Crown },
+      { id: 'predictions', label: 'PREDICTIONS', icon: Eye },
+      { id: 'combination', label: 'COMBINATION', icon: Layers },
+      { id: 'houses', label: 'HOUSE SIGNIFICATION', icon: Home },
+      { id: 'power_position', label: 'REMEDIES', icon: Droplet },
+      { id: 'nadi', label: 'KP COMBINATION', icon: Settings },
+      { id: 'planet_positions', label: 'KP PLANETS', icon: Globe },
+      { id: 'yearly', label: 'YEARLY', icon: Calendar },
+      ...(mode === 'Natal' || mode === 'Prashna' ? [{ id: 'birth_time', label: 'CUSP RECTIFICATION', icon: Target }] : [])
+    ];
+
+    return (
+      <div style={{ padding: '2rem 1.5rem', background: 'var(--bg)', minHeight: '100vh' }}>
+        <style>{`
+          .results-grid {
+            display: grid;
+            grid-template-columns: ${activeTab === 'planets' ? '1fr 300px' : '1fr'};
+            gap: 1.5rem;
+            align-items: start;
+          }
+          .subtabs-list {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            scrollbar-width: none;
+          }
+          .subtabs-list::-webkit-scrollbar {
+            display: none;
+          }
+          .subtab-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            border: 1px solid rgba(124, 92, 183, 0.08);
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            min-width: 100px;
+            text-align: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+          }
+          .subtab-card:hover {
+            background: rgba(124, 92, 183, 0.04);
+            border-color: rgba(124, 92, 183, 0.15);
+          }
+          .subtab-card.active {
+            background: #ffffff;
+            border-bottom: 3px solid var(--primary);
+            box-shadow: var(--shadow-sm);
+          }
+          .subtab-card.active .subtab-text {
+            color: var(--primary) !important;
+          }
+          .subtab-card.active .subtab-icon {
+            color: var(--primary) !important;
+          }
+          @media (max-width: 1024px) {
+            .results-grid {
+              grid-template-columns: 1fr !important;
+            }
+          }
+        `}</style>
+
+        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+          {/* Top Title & Action Button Row */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.25rem', marginBottom: '2.0rem' }}>
+            <div>
+              {/* Breadcrumbs */}
+              <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'flex', gap: '6px', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>
+                <span style={{ cursor: 'pointer' }} onClick={() => { setKundliData(null); setView('dashboard'); }}>Dashboard</span>
+                <span>&gt;</span>
+                <span style={{ color: 'var(--primary)' }}>{displayTitle}</span>
+              </div>
+              {/* Title */}
+              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.5rem, 3vw, 2.2rem)', fontWeight: 700, color: 'var(--secondary)', margin: '0 0 0.5rem' }}>
+                {displayTitle}
+              </h1>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0, fontWeight: 400 }}>
+                {displaySubtitle}
+              </p>
+            </div>
+
+            {/* + NEW BIRTH CHART button */}
+            <button
+              onClick={() => {
+                setKundliData(null);
+                setView('form');
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: 'var(--primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '0.75rem 1.5rem',
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                letterSpacing: '0.05em',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(124, 92, 183, 0.2)',
+                transition: 'all 0.2s',
+                textTransform: 'uppercase'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; }}
+            >
+              <span>+</span> NEW BIRTH CHART
+            </button>
+          </div>
+
+          {/* Sub-tabs List */}
+          <div className="subtabs-list">
+            {subTabs.map((tab) => {
+              const IconComp = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <div
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`subtab-card ${isActive ? 'active' : ''}`}
+                >
+                  <IconComp className="subtab-icon" size={18} style={{ color: isActive ? 'var(--primary)' : 'var(--text-muted)', transition: 'color 0.2s' }} />
+                  <span className="subtab-text" style={{ fontSize: '0.68rem', fontWeight: 800, letterSpacing: '0.03em', color: isActive ? 'var(--primary)' : 'var(--text-muted)', transition: 'color 0.2s' }}>
+                    {tab.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Grid Layout */}
+          <div className="results-grid">
+            
+            {/* Left/Main Column: Active Tab Pane */}
+            <div style={{
+              minHeight: '400px',
+              minWidth: 0,
+              width: '100%'
+            }}>
+              {renderTabContent()}
+            </div>
+
+            {/* Right Column: Chart Overview Card */}
+            {activeTab === 'planets' && (
+              <div style={{
+                background: 'white',
+                border: '1px solid rgba(124, 92, 183, 0.08)',
+                borderRadius: '16px',
+                padding: '1.5rem',
+                boxShadow: 'var(--shadow)',
+                alignSelf: 'start'
+              }}>
+                <h3 style={{ margin: '0 0 1.25rem', fontSize: '0.95rem', fontWeight: 800, color: 'var(--secondary)', borderBottom: '1px solid rgba(124, 92, 183, 0.08)', paddingBottom: '0.75rem' }}>
+                  Chart Overview
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {[
+                    { label: 'Ascendant', value: kundliData.ascendant.sign, icon: BookOpen },
+                    { label: 'Nakshatra', value: kundliData.metadata.janma_nakshatra || 'Anuradha', icon: Star },
+                    { label: 'Moon Sign', value: kundliData.planets.find(p => p.planet === 'Moon')?.sign || 'Scorpio', icon: Moon },
+                    { label: 'Sun Sign', value: kundliData.planets.find(p => p.planet === 'Sun')?.sign || 'Cancer', icon: Sun }
+                  ].map((item, idx) => {
+                    const OverviewIcon = item.icon;
+                    return (
+                      <div key={idx} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                        <div style={{
+                          width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(124, 92, 183, 0.04)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', flexShrink: 0
+                        }}>
+                          <OverviewIcon size={14} />
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>{item.label}</div>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--secondary)', fontWeight: 700, marginTop: '1px' }}>{item.value}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+          </div>
+
+        </div>
+      </div>
+    );
+  };
+
+
+
 
   if (!currentUser) {
-    return <LoginPage />;
+    if (showExample && kundliData) {
+      return (
+        <Layout
+          activeTab={activeTab}
+          onTabChange={(tab) => setActiveTab(tab as any)}
+          showTabs={false}
+          onBack={() => {
+            setShowExample(false);
+            setKundliData(null);
+          }}
+          isAdmin={false}
+          onLogout={() => {}}
+          currentView={view}
+          chartMode={chartMode}
+          chartStyle={chartStyle}
+          onChartStyleChange={setChartStyle}
+          title="Example Prediction"
+          mode={mode}
+        >
+          <div style={{
+            background: 'var(--primary-light)',
+            color: 'var(--primary)',
+            padding: '1rem',
+            textAlign: 'center',
+            fontWeight: 'bold',
+            fontSize: '0.9rem',
+            borderBottom: '1px solid rgba(124, 92, 183, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
+          }}>
+            ✨ This is a Sample KP/Jyotish Prediction.
+            <button
+              onClick={() => {
+                setShowExample(false);
+                setKundliData(null);
+                setShowLogin(true);
+              }}
+              style={{
+                background: 'var(--primary)',
+                color: 'white',
+                border: 'none',
+                padding: '4px 12px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '0.8rem',
+                marginLeft: '8px'
+              }}
+            >
+              Login to calculate yours
+            </button>
+          </div>
+          {renderResultsLayout()}
+        </Layout>
+      );
+    }
+
+    if (showLogin) {
+      return (
+        <LoginPage onBack={() => setShowLogin(false)} />
+      );
+    }
+
+    return (
+      <LandingPage
+        onExploreSign={() => setShowLogin(true)}
+      />
+    );
   }
 
   const pulseStyle = `
@@ -1073,7 +1326,7 @@ const App = () => {
     <Layout
       activeTab={activeTab}
       onTabChange={(tab) => setActiveTab(tab as any)}
-      showTabs={view === 'result' && mode !== 'Yearly'}
+      showTabs={false}
       onBack={() => {
         if (view === 'bnn') {
           if (bnnSubView === 'result') setBnnSubView('form');
@@ -1098,6 +1351,11 @@ const App = () => {
       title={getPageTitle()}
       onAdminToggle={() => setView(view === 'admin' ? 'dashboard' : 'admin')}
       mode={mode}
+      onNavigate={(targetView, targetMode) => {
+        setView(targetView as any);
+        if (targetMode) setMode(targetMode as any);
+        if (targetView === 'bnn') setBnnSubView('form');
+      }}
     >
       <style>{pulseStyle}</style>
       <div style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', overflowX: 'hidden', padding: 0 }}>
@@ -1132,6 +1390,7 @@ const App = () => {
               hasNumerologyAccess={userData?.hasNumerologyAccess}
               hasMatchmakingAccess={userData?.hasMatchmakingAccess}
               isAdmin={userData?.role === 'admin'}
+              username={currentUser?.email ? currentUser.email.split('@')[0] : 'Star Seeker'}
             />
           )}
 
@@ -1210,18 +1469,10 @@ const App = () => {
             />
           )}
 
-          {view === 'result' && kundliData && !loading && (
-            <div className="results-view">
-              {renderTabContent()}
-            </div>
-          )}
+          {view === 'result' && kundliData && !loading && renderResultsLayout()}
         </>
 
-        <div style={{ padding: '2rem 1rem', textAlign: 'center' }}>
-          <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '1.5rem', fontWeight: 500 }}>
-            KP Astrology Precision
-          </p>
-        </div>
+
       </div>
 
       {showAccessPopup && (
@@ -1239,15 +1490,15 @@ const App = () => {
           padding: '20px'
         }}>
           <div style={{
-            background: 'var(--secondary-light)',
+            background: 'white',
             padding: '2rem',
-            borderRadius: '20px',
+            borderRadius: '16px',
             maxWidth: '400px',
             width: '100%',
             textAlign: 'center',
             position: 'relative',
-            boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)',
-            border: '3px solid #ef4444'
+            boxShadow: 'var(--shadow-lg)',
+            border: '1px solid rgba(239, 68, 68, 0.2)'
           }}>
             <button
               onClick={() => setShowAccessPopup(false)}

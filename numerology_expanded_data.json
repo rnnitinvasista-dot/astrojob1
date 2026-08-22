@@ -1,0 +1,41 @@
+{
+  "mahurthams": {
+    "land_worship": {},
+    "vehicle_purchase": {},
+    "house_warming": {},
+    "marriage_dates": {}
+  },
+  "mobile_rules": {
+    "start_end_conflicts": {
+      "9": [
+        7,
+        2
+      ],
+      "8": [
+        4
+      ],
+      "7": [
+        3
+      ]
+    },
+    "conflict_groups": [
+      "78",
+      "87",
+      "97",
+      "79",
+      "84",
+      "48",
+      "29",
+      "92",
+      "63",
+      "36",
+      "784",
+      "487",
+      "874"
+    ],
+    "never_end_with": [
+      0
+    ],
+    "max_zeros": 2
+  }
+}

@@ -1,17 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700;800&family=Cinzel:wght@400;600;700;800&display=swap');
+
 :root {
-  --primary: #d4af37;
-  --primary-light: #f5f5dc;
-  --secondary: #2c2c2c;
-  --secondary-light: #f6efe2;
-  --accent: #ffd700;
-  --text: #2c2c2c;
-  --text-muted: #5e5e5e;
-  --bg: #fdfaf4;
+  --primary: #7C5CB7;
+  --primary-light: #F4F1FA;
+  --secondary: #20163A;
+  --secondary-light: #FAF8F5;
+  --accent: #9A7FD1;
+  --text: #20163A;
+  --text-muted: #685F85;
+  --bg: #FDFBF9;
   --card-bg: #ffffff;
   --input-bg: #ffffff;
-  --header-bg: #8b6e3d;
-  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --header-bg: #20163A;
+  --shadow: 0 4px 20px rgba(124, 92, 183, 0.05);
+  --shadow-lg: 0 10px 30px rgba(124, 92, 183, 0.1);
 }
 
 * {
@@ -312,48 +314,52 @@ tr:nth-child(even) {
 }
 
 .parchment-card {
-  background: var(--secondary-light);
-  border: 1px solid #000000;
-  border-radius: 0;
+  background: white;
+  border: 1px solid rgba(124, 92, 183, 0.08);
+  border-radius: 12px;
   margin-bottom: 0.75rem;
-  padding: 0.85rem;
+  padding: 1rem;
   width: 100%;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  box-shadow: var(--shadow);
 }
 
 .scroll-button {
-  background: #f1ebd3;
-  border-left: 15px solid #d4c4a8;
-  border-right: 15px solid #d4c4a8;
+  background: var(--primary);
+  color: white;
+  border: none;
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   text-align: center;
-  font-weight: 800;
-  color: #1e3a8a;
-  font-size: 1.2rem;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 14px rgba(124, 92, 183, 0.2);
   cursor: pointer;
   margin-top: 1.5rem;
   position: relative;
+  transition: all 0.2s;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scroll-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(124, 92, 183, 0.3);
+}
+
+.scroll-button:disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .scroll-button::before,
 .scroll-button::after {
-  content: "";
-  position: absolute;
-  top: -5px;
-  bottom: -5px;
-  width: 20px;
-  background: #d4c4a8;
-  border-radius: 50%;
-}
-
-.scroll-button::before {
-  left: -10px;
-}
-
-.scroll-button::after {
-  right: -10px;
+  display: none !important;
 }
 
 /* Mobile adjustments */
@@ -409,4 +415,59 @@ tr:nth-child(even) {
 @media (min-width: 768px) {
   .desktop-only { display: block !important; }
   .mobile-only { display: none !important; }
+}
+
+/* Split Login Screen Styles */
+.login-split-container {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+  font-family: 'Outfit', sans-serif;
+  width: 100%;
+}
+
+.login-left-panel {
+  flex: 1.1;
+  background: linear-gradient(135deg, #1b0f3a 0%, #0d061f 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 3rem;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Starry background dots */
+.login-left-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+    radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+    radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
+  background-size: 550px 550px, 350px 350px, 250px 250px;
+  background-position: 0 0, 40px 60px, 130px 270px;
+  opacity: 0.25;
+}
+
+.login-right-panel {
+  flex: 0.9;
+  background: #FAF8F5;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 3rem;
+  overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+  .login-left-panel {
+    display: none !important;
+  }
+  .login-right-panel {
+    flex: 1 !important;
+    padding: 2.5rem 1.5rem !important;
+  }
 }
