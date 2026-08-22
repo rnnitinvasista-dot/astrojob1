@@ -25,8 +25,8 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha }) => {
         return new Date(Number(y), Number(m)-1, Number(d), Number(h), Number(min), Number(s)).getTime();
     };
 
-    const getCurrentDashaAndBukthiLords = (targetDate: Date) => {
-        if (!dasha || !dasha.mahadasha_sequence) return { dasha: 'None', bukthi: 'None' };
+    const getCurrentActiveLords = (targetDate: Date) => {
+        if (!dasha || !dasha.mahadasha_sequence) return { dasha: 'None', bukthi: 'None', antara: 'None' };
         const targetTime = targetDate.getTime();
         
         for (const md of dasha.mahadasha_sequence) {
@@ -34,27 +34,54 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha }) => {
             const end = parseDashaDate(md.end_date);
             if (targetTime >= start && targetTime <= end) {
                 let bukthi = 'None';
+                let antara = 'None';
                 if (md.bukthis && Array.isArray(md.bukthis)) {
                     for (const bk of md.bukthis) {
                         const bStart = parseDashaDate(bk.start_date);
                         const bEnd = parseDashaDate(bk.end_date);
                         if (targetTime >= bStart && targetTime <= bEnd) {
                             bukthi = bk.planet;
+                            if (bk.antaras && Array.isArray(bk.antaras)) {
+                                for (const an of bk.antaras) {
+                                    const aStart = parseDashaDate(an.start_date);
+                                    const aEnd = parseDashaDate(an.end_date);
+                                    if (targetTime >= aStart && targetTime <= aEnd) {
+                                        antara = an.planet;
+                                        break;
+                                    }
+                                }
+                            }
                             break;
                         }
                     }
                 }
-                return { dasha: md.planet, bukthi };
+                return { dasha: md.planet, bukthi, antara };
             }
         }
-        return { dasha: 'None', bukthi: 'None' };
+        return { dasha: 'None', bukthi: 'None', antara: 'None' };
     };
-    // Helper function to normalize planet names for matching
+
     const isPlanetMatch = (p1: string, p2: string) => {
         if (!p1 || !p2) return false;
         return p1.toLowerCase() === p2.toLowerCase() || 
                p1.toLowerCase().startsWith(p2.toLowerCase()) || 
                p2.toLowerCase().startsWith(p1.toLowerCase());
+    };
+
+    const globalActiveLords = getCurrentActiveLords(new Date(transitDate));
+
+    const getPlanetHighlight = (planetName: string) => {
+        if (!planetName || planetName === 'None' || planetName === '-') return {};
+        if (isPlanetMatch(planetName, globalActiveLords.dasha)) {
+            return { background: 'rgba(59, 130, 246, 0.15)', color: '#1e40af', border: '1px solid rgba(59, 130, 246, 0.4)' };
+        }
+        if (isPlanetMatch(planetName, globalActiveLords.bukthi)) {
+            return { background: 'rgba(168, 85, 247, 0.15)', color: '#6b21a8', border: '1px solid rgba(168, 85, 247, 0.4)' };
+        }
+        if (isPlanetMatch(planetName, globalActiveLords.antara)) {
+            return { background: 'rgba(234, 179, 8, 0.15)', color: '#854d0e', border: '1px solid rgba(234, 179, 8, 0.4)' };
+        }
+        return {};
     };
 
     // Calculate house numbers for a given planet based on priority logic
@@ -213,9 +240,8 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha }) => {
                             let slName = planet.sub_lord || '';
 
                             if (isPlanetMatch(pName, 'Moon')) {
-                                const activeLords = getCurrentDashaAndBukthiLords(new Date(transitDate));
-                                nlName = activeLords.dasha;
-                                slName = activeLords.bukthi;
+                                nlName = globalActiveLords.dasha;
+                                slName = globalActiveLords.bukthi;
                             }
 
                             const pHouses = calculateHousesForPlanet(pName);
@@ -269,9 +295,8 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha }) => {
                             let slOfSL = slPlanet ? slPlanet.sub_lord || '' : '';
 
                             if (isPlanetMatch(cuspSL, 'Moon')) {
-                                const activeLords = getCurrentDashaAndBukthiLords(new Date(transitDate));
-                                nlOfSL = activeLords.dasha;
-                                slOfSL = activeLords.bukthi;
+                                nlOfSL = globalActiveLords.dasha;
+                                slOfSL = globalActiveLords.bukthi;
                             }
 
                             const cuspSLHouses = calculateHousesForPlanet(cuspSL);
