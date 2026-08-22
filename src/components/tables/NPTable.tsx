@@ -1,13 +1,55 @@
-import React, { useState } from 'react';
-import type { House, Planet } from '../../types/astrology';
+import React, { useState, useRef, useEffect } from 'react';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import PremiumSouthIndianChart from '../charts/PremiumSouthIndianChart';
+import type { House, Planet, Ascendant } from '../../types/astrology';
 
 interface NPTableProps {
     planets: Planet[];
     houses: House[];
     dasha?: any;
+    birthDetails?: any;
+    metadata?: any;
+    ascendant?: Ascendant;
 }
 
-const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha }) => {
+const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha, birthDetails, metadata, ascendant }) => {
+    const exportRef = useRef<HTMLDivElement>(null);
+    const [exportType, setExportType] = useState<'pdf' | 'image' | null>(null);
+
+    useEffect(() => {
+        if (exportType && exportRef.current) {
+            setTimeout(async () => {
+                try {
+                    const canvas = await html2canvas(exportRef.current!, {
+                        scale: 2,
+                        backgroundColor: '#ffffff',
+                        logging: false
+                    });
+                    
+                    if (exportType === 'image') {
+                        const link = document.createElement('a');
+                        link.download = `${birthDetails?.name || 'Kundali'}_NP_Technique.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    } else {
+                        const imgData = canvas.toDataURL('image/png');
+                        const pdf = new jsPDF({
+                            orientation: 'portrait',
+                            unit: 'px',
+                            format: [canvas.width, canvas.height]
+                        });
+                        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+                        pdf.save(`${birthDetails?.name || 'Kundali'}_NP_Technique.pdf`);
+                    }
+                } catch (error) {
+                    console.error('Export failed:', error);
+                } finally {
+                    setExportType(null);
+                }
+            }, 500);
+        }
+    }, [exportType, birthDetails]);
     const [tableType, setTableType] = useState<'planets' | 'cusps'>('planets');
     const [dataType, setDataType] = useState<'all' | 'no_result'>('all');
 
@@ -151,15 +193,32 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha }) => {
     });
 
     return (
-        <div className="card" style={{ 
+        <div className="card" ref={exportRef} style={{ 
             background: 'var(--secondary-light)', 
             border: '1px solid rgba(124, 92, 183, 0.08)', 
             borderRadius: '12px',
-            marginBottom: '1rem'
+            marginBottom: '1rem',
+            padding: exportType ? '2rem' : undefined // Add padding for export
         }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <h2 style={{ margin: 0, color: 'var(--text)', fontWeight: 800 }}>NP Technique</h2>
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <div style={{ display: exportType ? 'none' : 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button 
+                            onClick={() => setExportType('image')}
+                            disabled={exportType !== null}
+                            style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid var(--primary)', background: 'transparent', color: 'var(--primary)', fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem' }}
+                        >
+                            {exportType === 'image' ? 'Exporting...' : 'Export Photo'}
+                        </button>
+                        <button 
+                            onClick={() => setExportType('pdf')}
+                            disabled={exportType !== null}
+                            style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', background: 'var(--primary)', color: 'white', fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem' }}
+                        >
+                            {exportType === 'pdf' ? 'Exporting...' : 'Export PDF'}
+                        </button>
+                    </div>
                     
                     {/* Transit Date Picker */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'white', padding: '6px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
@@ -230,7 +289,25 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha }) => {
                 </div>
             </div>
 
-            {tableType === 'planets' && (
+            {exportType && (
+                <div style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
+                    <div style={{ textAlign: 'center', background: 'white', padding: '1rem 2rem', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}>
+                        <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--primary)', fontSize: '1.5rem' }}>{birthDetails?.name || 'Kundali'}</h3>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', color: '#475569' }}>
+                            <div><strong>Nakshatra:</strong> {metadata?.janma_nakshatra || '-'}</div>
+                            <div><strong>Rashi:</strong> {planets.find(p => p.planet === 'Moon')?.sign || '-'}</div>
+                        </div>
+                    </div>
+                    {ascendant && (
+                        <div style={{ width: '100%', maxWidth: '500px' }}>
+                            <PremiumSouthIndianChart planets={planets} ascendant={ascendant} />
+                        </div>
+                    )}
+                    <h3 style={{ margin: '1rem 0 0 0', alignSelf: 'flex-start' }}>Planets View</h3>
+                </div>
+            )}
+            
+            {(tableType === 'planets' || exportType) && (
                 <div className="table-container" style={{ border: '1px solid rgba(124, 92, 183, 0.08)' }}>
                 <table style={{ fontSize: '0.9rem', borderCollapse: 'collapse', width: '100%' }}>
                     <thead>
@@ -343,4 +420,5 @@ const NPTable: React.FC<NPTableProps> = ({ planets, houses, dasha }) => {
 };
 
 export default NPTable;
+
 

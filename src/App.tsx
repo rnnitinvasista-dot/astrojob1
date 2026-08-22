@@ -448,7 +448,7 @@ const App = () => {
       case 'np_technique':
         return (
           <div className="tab-pane active" style={{ animation: 'fadeIn 0.3s ease' }}>
-            <NPTable planets={kundliData.planets} houses={kundliData.houses} dasha={kundliData.dasha} />
+            <NPTable planets={kundliData.planets} houses={kundliData.houses} dasha={kundliData.dasha} birthDetails={birthDetails} metadata={kundliData.metadata} ascendant={kundliData.ascendant} />
           </div>
         );
       case 'planet_positions':
