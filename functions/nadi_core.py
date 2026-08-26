@@ -492,7 +492,7 @@ class NadiEngine:
         
         h_sys = b'P' if self.house_system == "Placidus" else b'E'
         if horary_number:
-            cusps, ascmc = self.calculate_prashna_cusps(jd, lat, lon, horary_number, calibrated_ayan=ayan_kp)
+            cusps, ascmc = self.calculate_prashna_cusps(jd, lat, lon, horary_number, calibrated_ayan=ayan_lahiri)
         else:
             gmst_hrs = swe.sidtime(jd)
             lst_hrs = (gmst_hrs + lon / 15.0) % 24.0
