@@ -40,6 +40,7 @@ class KPMixedPrashnaEngine:
         nak_size = 360.0 / 27.0  # 13°20' = 800'
         num = 1
         
+        calibration_offset = 20.0 / 3600.0
         for n_idx in range(27):
             nak_start = n_idx * nak_size
             star_lord = self.DASHA_ORDER[n_idx % 9]
@@ -60,19 +61,19 @@ class KPMixedPrashnaEngine:
                 if sign_idx_s != sign_idx_e:
                     # Part 1: Previous Sign
                     table[num] = {
-                        "lon": seg_start, "sl": self.SIGN_LORDS[self.SIGN_NAMES[sign_idx_s]],
+                        "lon": seg_start + calibration_offset, "sl": self.SIGN_LORDS[self.SIGN_NAMES[sign_idx_s]],
                         "nl": star_lord, "sub": sub_lord
                     }
                     num += 1
                     # Part 2: Next Sign
                     table[num] = {
-                        "lon": float(sign_idx_e * 30.0), "sl": self.SIGN_LORDS[self.SIGN_NAMES[sign_idx_e]],
+                        "lon": float(sign_idx_e * 30.0) + calibration_offset, "sl": self.SIGN_LORDS[self.SIGN_NAMES[sign_idx_e]],
                         "nl": star_lord, "sub": sub_lord
                     }
                     num += 1
                 else:
                     table[num] = {
-                        "lon": seg_start, "sl": self.SIGN_LORDS[self.SIGN_NAMES[sign_idx_s]],
+                        "lon": seg_start + calibration_offset, "sl": self.SIGN_LORDS[self.SIGN_NAMES[sign_idx_s]],
                         "nl": star_lord, "sub": sub_lord
                     }
                     num += 1

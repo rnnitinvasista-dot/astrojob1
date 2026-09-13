@@ -40,6 +40,7 @@ class KPMixedPrashnaEngine:
         nak_size = 360.0 / 27.0  # 13°20'
         num = 1
         
+        calibration_offset = 20.0 / 3600.0
         for n_idx in range(27):
             nak_start = n_idx * nak_size
             star_lord = self.DASHA_ORDER[n_idx % 9]
@@ -61,13 +62,13 @@ class KPMixedPrashnaEngine:
                 if sign_idx_s != sign_idx_e:
                     # Split over sign boundary
                     # Part 1 (Aries portion)
-                    table[num] = seg_start
+                    table[num] = seg_start + calibration_offset
                     num += 1
                     # Part 2 (Taurus portion)
-                    table[num] = float(sign_idx_e * 30.0)
+                    table[num] = float(sign_idx_e * 30.0) + calibration_offset
                     num += 1
                 else:
-                    table[num] = seg_start
+                    table[num] = seg_start + calibration_offset
                     num += 1
                     
                 curr_nak_lon += arc
