@@ -214,7 +214,7 @@ class NadiEngine:
         nak_size = 360.0 / 27.0
         num = 1
         sign_names = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
-        calibration_offset = 20.0 / 3600.0 
+        calibration_offset = 0.0
 
         for n_idx in range(27):
             nak_start = n_idx * nak_size
