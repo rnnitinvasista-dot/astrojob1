@@ -288,21 +288,28 @@ class MixedPrashnaRequest(BaseModel):
     latitude: float
     longitude: float
     timezone: str
+    ayanamsa: Optional[str] = "KP"
+    calculation_settings: Optional[dict] = None
 
 @app.post("/api/v1/kp/mixed-prashna")
 async def mixed_prashna(req: MixedPrashnaRequest):
     try:
-        from kp_prashna_engine import KPMixedPrashnaEngine
-        engine = KPMixedPrashnaEngine()
-        result_text = engine.calculate(
-            req.prashna_number,
-            req.date,
-            req.time,
+        requested_ayanamsa = "KP"
+        if req.calculation_settings and isinstance(req.calculation_settings, dict):
+            requested_ayanamsa = req.calculation_settings.get("ayanamsa", "KP")
+        elif req.ayanamsa:
+            requested_ayanamsa = req.ayanamsa
+
+        request_engine = get_engine(node_type="Mean", ayanamsa=requested_ayanamsa, house_system="Placidus")
+        dt_str = f"{req.date} {req.time}"
+        result = request_engine.calculate_kundli(
+            dt_str,
+            req.timezone,
             req.latitude,
             req.longitude,
-            req.timezone
+            horary_number=req.prashna_number
         )
-        return {"status": "success", "result": result_text}
+        return result
     except Exception as e:
         return {"status": "error", "message": str(e)}
 

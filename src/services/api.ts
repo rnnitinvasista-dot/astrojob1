@@ -69,7 +69,13 @@ export const fetchMixedPrashna = async (request: any): Promise<KundliResponse> =
             time: request.birth_details.time_of_birth,
             latitude: parseFloat(request.birth_details.latitude),
             longitude: parseFloat(request.birth_details.longitude),
-            timezone: request.birth_details.timezone
+            timezone: request.birth_details.timezone,
+            ayanamsa: request.calculation_settings?.ayanamsa || request.ayanamsa || "KP",
+            calculation_settings: request.calculation_settings || {
+                ayanamsa: request.ayanamsa || "KP",
+                house_system: "Placidus",
+                node_type: "Mean"
+            }
         }, {
             timeout: 120000 // 120 seconds
         });

@@ -674,28 +674,52 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
 
                                     {/* Prashna or Ayanamsa Option block */}
                                     {isPrashna ? (
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                            <label style={{ color: 'var(--secondary)', fontWeight: 700, fontSize: '0.75rem', letterSpacing: '0.05em' }}>HORARY NUMBER (1-249)</label>
-                                            <input
-                                                type="number"
-                                                min={1}
-                                                max={249}
-                                                placeholder="1 - 249"
-                                                value={formData.horary_number || ''}
-                                                onChange={(e) => setFormData({ ...formData, horary_number: parseInt(e.target.value) })}
-                                                required
-                                                style={{
-                                                    border: '1.5px solid rgba(124, 92, 183, 0.15)',
-                                                    borderRadius: '8px',
-                                                    padding: '0.7rem 0.9rem',
-                                                    width: '100%',
-                                                    background: 'white',
-                                                    fontSize: '0.9rem',
-                                                    outline: 'none',
-                                                    color: 'var(--text)',
-                                                    fontFamily: 'inherit'
-                                                }}
-                                            />
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                <label style={{ color: 'var(--secondary)', fontWeight: 700, fontSize: '0.75rem', letterSpacing: '0.05em' }}>HORARY NUMBER (1-249)</label>
+                                                <input
+                                                    type="number"
+                                                    min={1}
+                                                    max={249}
+                                                    placeholder="1 - 249"
+                                                    value={formData.horary_number || ''}
+                                                    onChange={(e) => setFormData({ ...formData, horary_number: parseInt(e.target.value) })}
+                                                    required
+                                                    style={{
+                                                        border: '1.5px solid rgba(124, 92, 183, 0.15)',
+                                                        borderRadius: '8px',
+                                                        padding: '0.7rem 0.9rem',
+                                                        width: '100%',
+                                                        background: 'white',
+                                                        fontSize: '0.9rem',
+                                                        outline: 'none',
+                                                        color: 'var(--text)',
+                                                        fontFamily: 'inherit'
+                                                    }}
+                                                />
+                                            </div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                <label style={{ color: 'var(--secondary)', fontWeight: 700, fontSize: '0.75rem', letterSpacing: '0.05em' }}>AYANAMSA</label>
+                                                <select
+                                                    value={formData.ayanamsa || 'KP'}
+                                                    onChange={(e) => setFormData({ ...formData, ayanamsa: e.target.value })}
+                                                    style={{
+                                                        padding: '0.7rem 0.9rem',
+                                                        border: '1.5px solid rgba(124, 92, 183, 0.15)',
+                                                        borderRadius: '8px',
+                                                        background: 'white',
+                                                        color: 'var(--text)',
+                                                        fontWeight: 600,
+                                                        fontSize: '0.9rem',
+                                                        outline: 'none',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    <option value="KP">KP New (Krishnamurti)</option>
+                                                    <option value="Newcomb">Newcomb Ayanamsa</option>
+                                                    <option value="Lahiri">Lahiri Ayanamsa</option>
+                                                </select>
+                                            </div>
                                         </div>
                                     ) : (
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>

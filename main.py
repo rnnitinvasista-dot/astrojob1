@@ -98,12 +98,18 @@ class PrashnaRequest(BaseModel):
     latitude: float
     longitude: float
     timezone: Optional[str] = "Asia/Kolkata"
+    ayanamsa: Optional[str] = "KP"
+    calculation_settings: Optional[CalculationSettings] = None
 
 @app.post("/api/v1/kp/mixed-prashna")
 @app.post("/mixed-prashna")
 def mixed_prashna(req: PrashnaRequest):
     try:
-        re = get_engine()
+        settings = req.calculation_settings
+        if not settings:
+            ayan = req.ayanamsa or "KP"
+            settings = CalculationSettings(ayanamsa=ayan)
+        re = get_engine(settings)
         res = re.calculate_kundli(
             f"{req.date} {req.time}",
             req.timezone,

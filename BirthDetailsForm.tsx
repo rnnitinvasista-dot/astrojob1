@@ -381,17 +381,50 @@ const BirthDetailsForm: React.FC<BirthDetailsFormProps> = ({ onSubmit, isLoading
 
                         {isPrashna ? (
                             <div className="parchment-card">
-                                <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Enter number from 1 to 249 *</label>
-                                <input
-                                    type="number"
-                                    min={1}
-                                    max={249}
-                                    placeholder="1 - 249"
-                                    value={formData.horary_number || ''}
-                                    onChange={(e) => setFormData({ ...formData, horary_number: parseInt(e.target.value) })}
-                                    style={{ border: '1.5px solid #cbd5e1', borderRadius: '0', padding: '0.6rem', width: '100%', background: 'white', fontSize: '0.9rem' }}
-                                    required
-                                />
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                    <div>
+                                        <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Horary Number (1-249): *</label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max="249"
+                                            placeholder="e.g. 108"
+                                            required
+                                            value={formData.horary_number || ''}
+                                            onChange={(e) => setFormData({ ...formData, horary_number: parseInt(e.target.value) })}
+                                            style={{
+                                                width: '100%',
+                                                padding: '10px 14px',
+                                                borderRadius: '8px',
+                                                border: '1.5px solid #cbd5e1',
+                                                fontSize: '0.95rem',
+                                                outline: 'none',
+                                                boxSizing: 'border-box'
+                                            }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ color: '#1e3a8a', fontWeight: 700, fontSize: '0.8rem', marginBottom: '6px', display: 'block' }}>Ayanamsa: *</label>
+                                        <select
+                                            value={formData.ayanamsa || 'KP'}
+                                            onChange={(e) => setFormData({ ...formData, ayanamsa: e.target.value })}
+                                            style={{
+                                                width: '100%',
+                                                padding: '10px 14px',
+                                                borderRadius: '8px',
+                                                border: '1.5px solid #cbd5e1',
+                                                fontSize: '0.95rem',
+                                                outline: 'none',
+                                                boxSizing: 'border-box',
+                                                background: 'white'
+                                            }}
+                                        >
+                                            <option value="KP">KP New (Krishnamurti)</option>
+                                            <option value="Newcomb">Newcomb Ayanamsa</option>
+                                            <option value="Lahiri">Lahiri Ayanamsa</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         ) : (
                             <div className="parchment-card">
