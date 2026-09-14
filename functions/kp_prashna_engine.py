@@ -40,7 +40,7 @@ class KPMixedPrashnaEngine:
         nak_size = 360.0 / 27.0  # 13°20'
         num = 1
         
-        calibration_offset = 0.0
+        calibration_offset = -1.0 / 3600.0
         for n_idx in range(27):
             nak_start = n_idx * nak_size
             star_lord = self.DASHA_ORDER[n_idx % 9]
