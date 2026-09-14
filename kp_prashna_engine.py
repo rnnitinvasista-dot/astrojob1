@@ -84,16 +84,17 @@ class KPMixedPrashnaEngine:
         return table
 
     def decimal_to_dms(self, degree):
-        deg = int(degree)
-        mnt = int((degree - deg) * 60)
-        sec = round((degree - deg - mnt/60) * 3600, 2)
+        val = degree % 30.0
+        deg = int(val)
+        mnt = int((val - deg) * 60)
+        sec = int(round((val - deg - mnt/60) * 3600))
         if sec >= 60:
             sec -= 60
             mnt += 1
         if mnt >= 60:
             mnt -= 60
-            deg += 1
-        return f"{deg:03}°{mnt:02}'{sec:05.2f}\""
+            deg = (deg + 1) % 30
+        return f"{deg}°{mnt:02d}'{sec:02d}\""
 
     def get_kp_lords(self, degree):
         # Precise Normalization

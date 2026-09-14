@@ -533,7 +533,7 @@ class NadiEngine:
             lon_val = cusps[i]
             sn, sl, nlk, sub, ssl, nak, nadi, sub_idx = self.get_kp_lords(lon_val)
             houses_res.append({
-                "house_number": i+1, "cusp_degree_dms": self.decimal_to_dms(lon_val, is_absolute=True),
+                "house_number": i+1, "cusp_degree_dms": self.decimal_to_sign_dms(lon_val),
                 "sign": sn, "sign_lord": self.SHORT_CODES.get(sl, sl), "star_lord": self.SHORT_CODES.get(nlk, nlk), 
                 "sub_lord": self.SHORT_CODES.get(sub, sub), "sub_sub_lord": self.SHORT_CODES.get(ssl, ssl),
                 "nakshatra": nak, "nadi": nadi, "nadi_index": sub_idx, "planet_lord": sl, "cusp_degree_decimal": lon_val
@@ -566,7 +566,7 @@ class NadiEngine:
                 
             planets_res.append({
                 "planet": p_name, 
-                "degree_dms": self.decimal_to_dms(kp_data["lon"], is_absolute=True),
+                "degree_dms": self.decimal_to_sign_dms(kp_data["lon"]),
                 "house_placed": int(hp), 
                 "sign": sn_kp, 
                 "sign_lord": self.SHORT_CODES.get(sl_kp, sl_kp),
