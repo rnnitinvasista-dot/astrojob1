@@ -288,15 +288,15 @@ class MixedPrashnaRequest(BaseModel):
     latitude: float
     longitude: float
     timezone: str
-    ayanamsa: Optional[str] = "KP"
+    ayanamsa: Optional[str] = "Lahiri"
     calculation_settings: Optional[dict] = None
 
 @app.post("/api/v1/kp/mixed-prashna")
 async def mixed_prashna(req: MixedPrashnaRequest):
     try:
-        requested_ayanamsa = "KP"
+        requested_ayanamsa = "Lahiri"
         if req.calculation_settings and isinstance(req.calculation_settings, dict):
-            requested_ayanamsa = req.calculation_settings.get("ayanamsa", "KP")
+            requested_ayanamsa = req.calculation_settings.get("ayanamsa", "Lahiri")
         elif req.ayanamsa:
             requested_ayanamsa = req.ayanamsa
 

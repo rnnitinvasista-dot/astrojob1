@@ -59,7 +59,7 @@ class BirthDetails(BaseModel):
     place: Optional[str] = "Unknown"
 
 class CalculationSettings(BaseModel):
-    ayanamsa: Optional[str] = "KP"
+    ayanamsa: Optional[str] = "Lahiri"
     house_system: Optional[str] = "Placidus"
     node_type: Optional[str] = "Mean"
 
@@ -70,7 +70,7 @@ class KundliRequest(BaseModel):
 
 def get_engine(settings: CalculationSettings = None):
     node_type = settings.node_type if settings else "Mean"
-    ayanamsa = settings.ayanamsa if settings else "KP"
+    ayanamsa = settings.ayanamsa if settings else "Lahiri"
     house_system = settings.house_system if settings else "Placidus"
     return NadiEngine(node_type=node_type, ayanamsa=ayanamsa, house_system=house_system)
 
@@ -98,7 +98,7 @@ class PrashnaRequest(BaseModel):
     latitude: float
     longitude: float
     timezone: Optional[str] = "Asia/Kolkata"
-    ayanamsa: Optional[str] = "KP"
+    ayanamsa: Optional[str] = "Lahiri"
     calculation_settings: Optional[CalculationSettings] = None
 
 @app.post("/api/v1/kp/mixed-prashna")

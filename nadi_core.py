@@ -41,7 +41,7 @@ import math
 from dateutil.relativedelta import relativedelta
 
 class NadiEngine:
-    def __init__(self, node_type="Mean", ayanamsa="KP", house_system="Placidus"):
+    def __init__(self, node_type="Mean", ayanamsa="Lahiri", house_system="Placidus"):
         self.node_type = node_type
         self.ayanamsa = ayanamsa
         self.house_system = house_system
@@ -263,7 +263,12 @@ class NadiEngine:
             raise ValueError(f"Invalid Horary Number: {horary_number}")
             
         target_sid_asc = table[horary_number]['lon']
-        swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
+        if self.ayanamsa == "Lahiri":
+            swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+        elif self.ayanamsa == "Newcomb":
+            swe.set_sid_mode(39, 0, 0)
+        else:
+            swe.set_sid_mode(swe.SIDM_KRISHNAMURTI, 0, 0)
         ayan = calibrated_ayan if calibrated_ayan is not None else swe.get_ayanamsa_ut(jd)
         target_trop_asc = (target_sid_asc + ayan) % 360
         
